@@ -56,6 +56,13 @@ export const Tooltip: React.FC<TooltipProps> = ({
     ...step.buttonLabels
   };
 
+  // Butonların görünürlük durumlarını belirle
+  const showButtons = {
+    next: step.showButtons?.next !== false && !isLast,
+    previous: step.showButtons?.previous !== false && !isFirst,
+    close: step.showButtons?.close !== false
+  };
+
   return (
     <div
       ref={tooltipRef}
@@ -98,7 +105,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
       {/* Navigation buttons */}
       <div className="flex justify-between mt-4 pt-3 border-t border-gray-100">
         <div>
-          {!isFirst && (
+          {showButtons.previous && (
             <button
               onClick={onPrev}
               className="text-gray-600 hover:text-gray-900"
@@ -109,14 +116,16 @@ export const Tooltip: React.FC<TooltipProps> = ({
           )}
         </div>
         <div className="flex gap-2">
-          <button
-            onClick={onClose}
-            className="text-gray-600 hover:text-gray-900"
-            style={themeStyles.buttons.secondary}
-          >
-            {isLast ? buttonLabels.finish : buttonLabels.skip}
-          </button>
-          {!isLast && (
+          {showButtons.close && (
+            <button
+              onClick={onClose}
+              className="text-gray-600 hover:text-gray-900"
+              style={themeStyles.buttons.secondary}
+            >
+              {isLast ? buttonLabels.finish : buttonLabels.skip}
+            </button>
+          )}
+          {showButtons.next && (
             <button
               onClick={onNext}
               className="bg-blue-600 text-white"

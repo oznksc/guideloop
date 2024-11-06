@@ -1,6 +1,6 @@
 {
   "name": "guideloop",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Smart and flexible guided tour library for React applications",
   "author": "Ozan Kesici",
   "license": "MIT",

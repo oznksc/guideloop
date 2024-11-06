@@ -23,20 +23,22 @@ export interface ButtonLabels {
   finish?: string;
 }
 
+export interface ShowButtons {
+  next?: boolean;
+  previous?: boolean;
+  close?: boolean;
+}
+
 export interface StepActions {
   nextButtonClickElementId?: string;
   prevButtonClickElementId?: string;
   skipButtonClickElementId?: string;
-  clickBeforeNext?: boolean;
-  clickBeforePrev?: boolean;
+  nextButtonOnClick?: () => void;
+  prevButtonOnClick?: () => void;
+  skipButtonOnClick?: () => void;
   nextDelay?: number;
   prevDelay?: number;
-}
-
-export interface StepHooks {
-  beforeStep?: () => Promise<void> | void;
-  afterStep?: () => Promise<void> | void;
-  condition?: () => boolean;
+  skipDelay?: number;
 }
 
 export interface StepUI {
@@ -47,10 +49,18 @@ export interface StepUI {
     close?: ReactNode;
   };
   image?: ImageContent;
+  icon?: ReactNode;
+  showButtons?: ShowButtons;
   spotlightPadding?: number;
 }
 
-export interface Step extends StepActions, StepHooks, StepUI {
+export interface StepHooks {
+  beforeStep?: () => Promise<void> | void;
+  afterStep?: () => Promise<void> | void;
+  condition?: () => boolean;
+}
+
+export interface Step extends StepActions, StepUI, StepHooks {
   target: string;
   title: string;
   content: string | ReactNode;

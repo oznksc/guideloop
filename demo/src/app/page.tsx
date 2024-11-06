@@ -29,7 +29,6 @@ export default function Home() {
   const [showWalkthrough, setShowWalkthrough] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  const modalTriggerButtonId = 'show-search-features-modal';
 
 
   const steps: Step[] = [
@@ -37,16 +36,24 @@ export default function Home() {
       target: '#help-button',
       title: 'Yardım ve Destek',
       content: 'Herhangi bir sorunuz olduğunda yardım merkezine buradan ulaşabilirsiniz.',
-      placement: 'bottom'
+      placement: 'bottom',
+      showButtons: {
+        next: false,
+        previous: false
+      }
     },
     {
       target: '#search-bar',
       title: 'Hızlı Arama',
       content: 'Tüm içeriklerde arama yapabilirsiniz.',
       placement: 'bottom',
-      nextButtonClickElementId: modalTriggerButtonId,
-      clickBeforeNext: true,
-      nextDelay: 500
+      nextButtonClickElementId: "#show-search-features-modal",
+      nextDelay: 500,
+      nextButtonOnClick: () => {
+        // Custom action before moving to next step
+        console.log('Custom action executed');
+      }
+  
     },
     {
       target: '#alertBox',
@@ -54,7 +61,7 @@ export default function Home() {
       content: 'Önemli güncellemeleri ve bildirimleri buradan takip edebilirsiniz.',
       placement: 'left',
       showButtons: {
-        next: true,
+        next: false,
         previous: false
       }
     },
@@ -195,7 +202,7 @@ export default function Home() {
           spotlightPadding={8}
         />
       <button
-        id={modalTriggerButtonId}
+        id="show-search-features-modal"
         className="hidden"
         onClick={() => setShowModal(true)}
       />
