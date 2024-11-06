@@ -58,13 +58,6 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
     onArrowLeft: prevStep,
   });
 
-  const tooltipPosition = {
-    ...spotlightPosition,
-    x: spotlightPosition.left,
-    y: spotlightPosition.top,
-    bottom: spotlightPosition.top + spotlightPosition.height,
-    right: spotlightPosition.left + spotlightPosition.width
-  };
 
   useEffect(() => {
     if (isOpen && scrollSmooth) {
@@ -128,7 +121,6 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
 
         <Tooltip
           step={currentStepData}
-          position={tooltipPosition}
           theme={theme}
           customTheme={customTheme}
           onNext={nextStep}
