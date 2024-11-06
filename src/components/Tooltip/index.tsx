@@ -59,7 +59,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   return (
     <div
       ref={tooltipRef}
-      className="fixed"
+      className="fixed rounded-xl max-w-xs md:max-w-md"
       style={{
         ...themeStyles.tooltip,
         ...getAnimationStyle(animation, 'enter'),

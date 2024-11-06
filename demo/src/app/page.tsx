@@ -1,9 +1,9 @@
 "use client"
-import { Step } from "@/components/Walkthrough";
 import React, { useState } from "react";
 import { Modal, Card, Alert, Typography, Divider, Space, ConfigProvider } from 'antd';
 import { SearchOutlined, InfoCircleOutlined, FilterOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { GuideLoop } from '../../../src/components/GuideLoop';
+import { Step } from "../../../src/components/GuideLoop/types";
 
 const { Paragraph, Text } = Typography;
 
@@ -44,7 +44,9 @@ export default function Home() {
       title: 'Hızlı Arama',
       content: 'Tüm içeriklerde arama yapabilirsiniz.',
       placement: 'bottom',
-      nextButtonClickElementId: modalTriggerButtonId
+      nextButtonClickElementId: modalTriggerButtonId,
+      clickBeforeNext: true,
+      nextDelay: 500
     },
     {
       target: '#alertBox',

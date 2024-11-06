@@ -23,22 +23,38 @@ export interface ButtonLabels {
   finish?: string;
 }
 
-export interface Step {
-  target: string;
-  title: string;
-  content: string | ReactNode;
-  placement?: Placement;
-  image?: ImageContent;
-  spotlightPadding?: number;
+export interface StepActions {
+  nextButtonClickElementId?: string;
+  prevButtonClickElementId?: string;
+  skipButtonClickElementId?: string;
+  clickBeforeNext?: boolean;
+  clickBeforePrev?: boolean;
+  nextDelay?: number;
+  prevDelay?: number;
+}
+
+export interface StepHooks {
   beforeStep?: () => Promise<void> | void;
   afterStep?: () => Promise<void> | void;
   condition?: () => boolean;
+}
+
+export interface StepUI {
   buttonLabels?: ButtonLabels;
   buttons?: {
     next?: ReactNode;
     prev?: ReactNode;
     close?: ReactNode;
   };
+  image?: ImageContent;
+  spotlightPadding?: number;
+}
+
+export interface Step extends StepActions, StepHooks, StepUI {
+  target: string;
+  title: string;
+  content: string | ReactNode;
+  placement?: Placement;
 }
 
 

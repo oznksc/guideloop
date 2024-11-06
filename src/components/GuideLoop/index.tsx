@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+// src/components/GuideLoop/index.tsx
+import React, { useCallback, useEffect } from 'react';
 import { Tooltip } from '../Tooltip';
 import { Spotlight } from '../Spotlight';
 import { Progress } from '../Progress';
@@ -9,7 +10,6 @@ import type { GuideLoopProps } from './types';
 import { Portal } from './Portal';
 import { MaskedOverlay } from '../MaskedOverlay';
 import { useSpotlight } from '../../hooks/useSpotlight';
-
 
 export const GuideLoop: React.FC<GuideLoopProps> = ({
   steps,
@@ -27,6 +27,7 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
   onComplete,
   onSkip,
   zIndex = 1000,
+  defaultButtonLabels, // Eksik prop eklendi
 }) => {
   const {
     currentStep,
@@ -42,22 +43,109 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
     onComplete,
   });
 
-  const handleSkip = () => {
-    onSkip?.();
-    onClose();
-  };
+  const handleElementClick = useCallback(async (elementId: string | undefined, delay: number = 0) => {
+    if (!elementId) return;
+
+    const element = document.querySelector(elementId);
+    if (!element) {
+      console.warn(`Element with id '${elementId}' not found`);
+      return;
+    }
+
+    // Element'e scroll et ve görünür olmasını bekle
+    await scrollIntoView(element, { behavior: 'smooth' });
+
+    // Küçük bir bekleme ekleyelim ki scroll tamamlansın
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    try {
+      // Click event'i oluştur
+      const clickEvent = new MouseEvent('click', {
+        view: window,
+        bubbles: true,
+        cancelable: true
+      });
+      element.dispatchEvent(clickEvent);
+      
+      // Delay varsa bekle
+      if (delay > 0) {
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    } catch (error) {
+      console.error(`Error clicking element with id '${elementId}':`, error);
+    }
+  }, []);
+
+  const handleNext = useCallback(async () => {
+    const currentStepData = steps[currentStep];
+    
+    try {
+      // 1. beforeStep hook'unu çalıştır
+      if (currentStepData?.beforeStep) {
+        await currentStepData.beforeStep();
+      }
+
+      // 2. Eğer clickBeforeNext true ise ve nextButtonClickElementId varsa
+      if (currentStepData?.nextButtonClickElementId) {
+        await handleElementClick(
+          currentStepData.nextButtonClickElementId, 
+          currentStepData.nextDelay || 0
+        );
+      }
+
+      // 3. afterStep hook'unu çalıştır
+      if (currentStepData?.afterStep) {
+        await currentStepData.afterStep();
+      }
+
+      // 4. Bir sonraki adıma geç
+      nextStep();
+    } catch (error) {
+      console.error('Error during step transition:', error);
+    }
+  }, [currentStep, steps, nextStep, handleElementClick]);
+
+  const handlePrev = useCallback(async () => {
+    const currentStepData = steps[currentStep];
+    
+    try {
+      if (currentStepData?.prevButtonClickElementId) {
+        await handleElementClick(
+          currentStepData.prevButtonClickElementId, 
+          currentStepData.prevDelay || 0
+        );
+      }
+
+      prevStep();
+    } catch (error) {
+      console.error('Error during step transition:', error);
+    }
+  }, [currentStep, steps, prevStep, handleElementClick]);
+
+  const handleSkip = useCallback(async () => {
+    const currentStepData = steps[currentStep];
+    
+    try {
+      if (currentStepData?.skipButtonClickElementId) {
+        await handleElementClick(currentStepData.skipButtonClickElementId);
+      }
+
+      onSkip?.();
+      onClose();
+    } catch (error) {
+      console.error('Error during skip:', error);
+    }
+  }, [currentStep, steps, onSkip, onClose, handleElementClick]);
 
   const currentStepData = steps[currentStep];
   const spotlightPosition = useSpotlight(currentStepData?.target, spotlightPadding);
-  
 
   useKeyboard({
     enabled: keyboard && isOpen,
-    onEscape: onClose,
-    onArrowRight: nextStep,
-    onArrowLeft: prevStep,
+    onEscape: handleSkip,
+    onArrowRight: handleNext,
+    onArrowLeft: handlePrev,
   });
-
 
   useEffect(() => {
     if (isOpen && scrollSmooth) {
@@ -68,7 +156,6 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
     }
   }, [isOpen, currentStep, currentStepData?.target, scrollSmooth]);
 
-  // Handle body scroll lock
   useEffect(() => {
     if (isOpen) {
       const originalStyle = window.getComputedStyle(document.body).overflow;
@@ -123,14 +210,15 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
           step={currentStepData}
           theme={theme}
           customTheme={customTheme}
-          onNext={nextStep}
-          onPrev={prevStep}
+          onNext={handleNext}
+          onPrev={handlePrev}
           onClose={handleSkip}
           isFirst={isFirstStep}
           isLast={isLastStep}
           currentStep={currentStep}
           totalSteps={totalSteps}
           animation={animations?.tooltip}
+          defaultButtonLabels={defaultButtonLabels}
           style={{
             position: 'absolute',
             zIndex: zIndex + 3,
