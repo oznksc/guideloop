@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { Tooltip } from '../Tooltip';
-import { Overlay } from '../Overlay';
 import { Spotlight } from '../Spotlight';
 import { Progress } from '../Progress';
 import { useSteps } from '../../hooks/useSteps';
