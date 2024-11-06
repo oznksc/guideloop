@@ -48,12 +48,6 @@ export default function Home() {
       content: 'Tüm içeriklerde arama yapabilirsiniz.',
       placement: 'bottom',
       nextButtonClickElementId: "#show-search-features-modal",
-      nextDelay: 500,
-      nextButtonOnClick: () => {
-        // Custom action before moving to next step
-        console.log('Custom action executed');
-      }
-  
     },
     {
       target: '#alertBox',

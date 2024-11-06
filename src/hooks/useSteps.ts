@@ -8,12 +8,22 @@ interface UseStepsProps {
   onComplete?: () => void;
 }
 
+interface UseStepsReturn {
+  currentStepData: Step;
+  nextStep: () => Promise<void>;
+  prevStep: () => Promise<void>;
+  isFirstStep: boolean;
+  isLastStep: boolean;
+  totalSteps: number;
+  setCurrentStep: (step: number) => void;
+}
+
 export const useSteps = ({
   steps,
   initialStep,
   onStepChange,
   onComplete,
-}: UseStepsProps) => {
+}: UseStepsProps): UseStepsReturn => {
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [validSteps, setValidSteps] = useState<Step[]>([]);
 
@@ -55,12 +65,12 @@ export const useSteps = ({
   }, [currentStep, validSteps, onStepChange]);
 
   return {
-    currentStep,
+    currentStepData: validSteps[currentStep],
     nextStep,
     prevStep,
     isFirstStep: currentStep === 0,
     isLastStep: currentStep === validSteps.length - 1,
     totalSteps: validSteps.length,
-    currentStepData: validSteps[currentStep],
+    setCurrentStep,
   };
 };
