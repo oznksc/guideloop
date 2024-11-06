@@ -27,7 +27,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   totalSteps,
   animation,
   defaultButtonLabels = defaultLabels,
-
+  style = {},
 }) => {
   const themeStyles = useTheme(theme, customTheme);
   const tooltipPosition = calculateTooltipPosition(position, step.placement);
@@ -52,6 +52,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
         overflowY: 'auto',
         borderRadius: '8px',
         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        ...style
       }}
       role="tooltip"
     >

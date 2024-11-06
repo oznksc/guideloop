@@ -2,6 +2,7 @@ import { ButtonLabels, Step } from '../GuideLoop/types';
 import { Theme, ThemeConfig } from '../../themes';
 import { AnimationConfig } from '../../utils/animation';
 import { ElementPosition } from '../../utils/position';
+import { CSSProperties } from 'react';
 
 export interface TooltipProps {
   step: Step;
@@ -17,4 +18,5 @@ export interface TooltipProps {
   totalSteps: number;
   animation?: AnimationConfig['tooltip'];
   defaultButtonLabels?: ButtonLabels;
+  style?: CSSProperties;
 }

@@ -8,6 +8,8 @@ import { useSpotlight } from '../../hooks/useSpotlight';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import { scrollIntoView } from '../../utils/scroll';
 import type { GuideLoopProps } from './types';
+import { Portal } from './Portal';
+
 export const GuideLoop: React.FC<GuideLoopProps> = ({
   steps,
   isOpen,
@@ -45,7 +47,7 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
   };
 
   const currentStepData = steps[currentStep];
-  const spotlightPosition = useSpotlight(currentStepData.target, spotlightPadding);
+  const spotlightPosition = useSpotlight(currentStepData?.target, spotlightPadding);
 
   useKeyboard({
     enabled: keyboard && isOpen,
@@ -64,46 +66,61 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
 
   useEffect(() => {
     if (isOpen && scrollSmooth) {
-      const element = document.querySelector(currentStepData.target);
+      const element = document.querySelector(currentStepData?.target);
       if (element) {
         scrollIntoView(element, { behavior: 'smooth' });
       }
     }
-  }, [isOpen, currentStep, currentStepData.target, scrollSmooth]);
+  }, [isOpen, currentStep, currentStepData?.target, scrollSmooth]);
+
+  // Handle body scroll lock
+  useEffect(() => {
+    if (isOpen) {
+      const originalStyle = window.getComputedStyle(document.body).overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalStyle;
+      };
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   return (
-    <div
-      className="fixed inset-0"
-      style={{ 
-        zIndex,
-        pointerEvents: 'none',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-      }}
-      role="dialog"
-      aria-modal="true"
-      aria-label="Guided tour"
-    >
-      {overlay && (
-        <div style={{ position: 'relative', zIndex: zIndex + 1 }}>
-          <Overlay onClick={handleSkip} />
-        </div>
-      )}
-      
-      <div style={{ position: 'relative', zIndex: zIndex + 2 }}>
+    <Portal>
+      <div 
+        className="guideloop-container" 
+        style={{ 
+          position: 'fixed',
+          inset: 0,
+          zIndex,
+          isolation: 'isolate',
+        }}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Guided tour"
+      >
+        {overlay && (
+          <Overlay 
+            onClick={handleSkip} 
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: zIndex + 1,
+            }}
+          />
+        )}
+
         <Spotlight 
           position={spotlightPosition}
           padding={spotlightPadding}
           animation={animations?.spotlight}
+          style={{
+            position: 'absolute',
+            zIndex: zIndex + 2,
+          }}
         />
-      </div>
-      
-      <div style={{ position: 'relative', zIndex: zIndex + 3, pointerEvents: 'auto' }}>
+
         <Tooltip
           step={currentStepData}
           position={tooltipPosition}
@@ -117,16 +134,25 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
           currentStep={currentStep}
           totalSteps={totalSteps}
           animation={animations?.tooltip}
+          style={{
+            position: 'absolute',
+            zIndex: zIndex + 3,
+          }}
         />
-      </div>
-      
-      <div style={{ position: 'relative', zIndex: zIndex + 3 }}>
+
         <Progress 
           current={currentStep + 1}
           total={totalSteps}
           theme={theme}
+          style={{
+            position: 'fixed',
+            bottom: '1rem',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: zIndex + 3,
+          }}
         />
       </div>
-    </div>
+    </Portal>
   );
 };

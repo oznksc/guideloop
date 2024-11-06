@@ -6,6 +6,7 @@ export const Spotlight: React.FC<SpotlightProps> = ({
   position,
   padding,
   animation,
+  style = {},
 }) => (
   <div
     className="absolute border-2 border-blue-500 rounded-md pointer-events-none"
@@ -14,7 +15,8 @@ export const Spotlight: React.FC<SpotlightProps> = ({
       left: position.left - padding,
       width: position.width + (padding * 2),
       height: position.height + (padding * 2),
-      ...getAnimationStyle(animation, 'enter')
+      ...getAnimationStyle(animation, 'enter'),
+      ...style
     }}
   />
 );

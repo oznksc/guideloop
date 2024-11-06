@@ -5,12 +5,23 @@ import { getAnimationStyle } from '../../utils/animation';
 export const Overlay: React.FC<OverlayProps> = ({
   onClick,
   className = '',
-  animation
+  animation,
+  style = {},
 }) => (
   <div
-    className={`fixed inset-0 bg-black/50 pointer-events-auto ${className}`}
-    style={getAnimationStyle(animation, 'enter')}
-    onClick={onClick}
+    className={`guideloop-overlay ${className}`}
+    style={{
+      position: 'fixed',
+      inset: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      pointerEvents: 'auto',
+      ...getAnimationStyle(animation, 'enter'),
+      ...style,
+    }}
+    onClick={(e) => {
+      e.stopPropagation();
+      onClick?.();
+    }}
     role="presentation"
   />
 );

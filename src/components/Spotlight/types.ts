@@ -1,3 +1,4 @@
+import { CSSProperties } from 'react';
 import { AnimationConfig } from '../../utils/animation';
 
 export interface SpotlightProps {
@@ -9,4 +10,5 @@ export interface SpotlightProps {
   };
   padding: number;
   animation?: AnimationConfig['spotlight'];
+  style?: CSSProperties;
 }
