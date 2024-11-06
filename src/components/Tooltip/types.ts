@@ -1,12 +1,10 @@
-import { ButtonLabels, Step } from '../GuideLoop/types';
+import { CSSProperties } from 'react';
 import { Theme, ThemeConfig } from '../../themes';
 import { AnimationConfig } from '../../utils/animation';
-import { ElementPosition } from '../../utils/position';
-import { CSSProperties } from 'react';
+import { Step, ButtonLabels } from '../GuideLoop/types';
 
 export interface TooltipProps {
   step: Step;
-  position: ElementPosition;
   theme: Theme;
   customTheme?: Partial<ThemeConfig>;
   onNext: () => void;

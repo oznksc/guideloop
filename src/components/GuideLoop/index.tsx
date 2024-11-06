@@ -4,11 +4,13 @@ import { Overlay } from '../Overlay';
 import { Spotlight } from '../Spotlight';
 import { Progress } from '../Progress';
 import { useSteps } from '../../hooks/useSteps';
-import { useSpotlight } from '../../hooks/useSpotlight';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import { scrollIntoView } from '../../utils/scroll';
 import type { GuideLoopProps } from './types';
 import { Portal } from './Portal';
+import { MaskedOverlay } from '../MaskedOverlay';
+import { useSpotlight } from '../../hooks/useSpotlight';
+
 
 export const GuideLoop: React.FC<GuideLoopProps> = ({
   steps,
@@ -48,6 +50,7 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
 
   const currentStepData = steps[currentStep];
   const spotlightPosition = useSpotlight(currentStepData?.target, spotlightPadding);
+  
 
   useKeyboard({
     enabled: keyboard && isOpen,
@@ -101,8 +104,11 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
         aria-label="Guided tour"
       >
         {overlay && (
-          <Overlay 
-            onClick={handleSkip} 
+          <MaskedOverlay 
+            targetRect={spotlightPosition}
+            padding={spotlightPadding}
+            onClick={handleSkip}
+            animation={animations?.overlay}
             style={{
               position: 'fixed',
               inset: 0,

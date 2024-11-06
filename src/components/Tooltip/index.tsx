@@ -1,9 +1,9 @@
-import React from 'react';
-import { useTheme } from '../../hooks/useTheme';
-import type { TooltipProps } from './types';
-import { calculateTooltipPosition } from '../../utils/position';
+import React, { useRef, useEffect } from 'react';
+import { usePopper } from '../../hooks/usePopper';
 import { getAnimationStyle } from '../../utils/animation';
 import { ImageContentRenderer } from './ImageContent';
+import type { TooltipProps } from './types';
+import { useTheme } from '../../hooks/useTheme';
 
 const defaultLabels = {
   next: 'Next',
@@ -12,10 +12,8 @@ const defaultLabels = {
   finish: 'Finish'
 };
 
-
 export const Tooltip: React.FC<TooltipProps> = ({
   step,
-  position,
   theme,
   customTheme,
   onNext,
@@ -29,8 +27,28 @@ export const Tooltip: React.FC<TooltipProps> = ({
   defaultButtonLabels = defaultLabels,
   style = {},
 }) => {
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  const targetRef = useRef<HTMLElement | null>(null);
   const themeStyles = useTheme(theme, customTheme);
-  const tooltipPosition = calculateTooltipPosition(position, step.placement);
+
+  // Find and set target element
+  useEffect(() => {
+    targetRef.current = document.querySelector(step.target);
+  }, [step.target]);
+
+  // Initialize Popper
+  const { update } = usePopper({
+    referenceElement: targetRef.current,
+    tooltipElement: tooltipRef.current,
+    placement: step.placement,
+  });
+
+  // Update popper position on window resize
+  useEffect(() => {
+    const handleResize = () => update();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [update]);
 
   const buttonLabels = {
     ...defaultLabels,
@@ -38,12 +56,11 @@ export const Tooltip: React.FC<TooltipProps> = ({
     ...step.buttonLabels
   };
 
-
   return (
     <div
+      ref={tooltipRef}
       className="fixed"
       style={{
-        ...tooltipPosition,
         ...themeStyles.tooltip,
         ...getAnimationStyle(animation, 'enter'),
         pointerEvents: 'auto',
@@ -78,8 +95,8 @@ export const Tooltip: React.FC<TooltipProps> = ({
         </div>
       </div>
 
-       {/* Navigation buttons */}
-       <div className="flex justify-between mt-4 pt-3 border-t border-gray-100">
+      {/* Navigation buttons */}
+      <div className="flex justify-between mt-4 pt-3 border-t border-gray-100">
         <div>
           {!isFirst && (
             <button

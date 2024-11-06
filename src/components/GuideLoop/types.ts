@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { Theme, ThemeConfig } from '../../themes/types';
 import { AnimationConfig } from '../../utils/animation';
+import { Placement } from '@popperjs/core';
 
 export type ImageContent = {
   type: 'image';
@@ -26,7 +27,7 @@ export interface Step {
   target: string;
   title: string;
   content: string | ReactNode;
-  placement?: 'top' | 'bottom' | 'left' | 'right';
+  placement?: Placement;
   image?: ImageContent;
   spotlightPadding?: number;
   beforeStep?: () => Promise<void> | void;

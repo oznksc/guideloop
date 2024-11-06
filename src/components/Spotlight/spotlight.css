@@ -1,0 +1,15 @@
+.spotlight-glow {
+    animation: spotlight-pulse 2s infinite;
+  }
+  
+  @keyframes spotlight-pulse {
+    0% {
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75), 0 0 8px rgba(59, 130, 246, 0.5);
+    }
+    50% {
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75), 0 0 16px rgba(59, 130, 246, 0.8);
+    }
+    100% {
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75), 0 0 8px rgba(59, 130, 246, 0.5);
+    }
+  }
