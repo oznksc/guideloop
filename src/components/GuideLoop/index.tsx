@@ -57,13 +57,19 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
     onComplete,
   });
 
-  const spotlightPosition = useSpotlight(targetElement, spotlightPadding);
+  // Güvenli bir şekilde target elementini güncelle
+  const updateTargetElement = useCallback((stepData?: typeof currentStepData) => {
+    if (stepData?.target) {
+      setTargetElement(stepData.target);
+    }
+  }, []);
+
+  // spotlightPosition'ı sadece geçerli bir targetElement varsa hesapla
+  const spotlightPosition = useSpotlight(targetElement || 'body', spotlightPadding);
 
   useEffect(() => {
-    if (currentStepData?.target) {
-      setTargetElement(currentStepData.target);
-    }
-  }, [currentStepData]);
+    updateTargetElement(currentStepData);
+  }, [currentStepData, updateTargetElement]);
 
   const triggerElementClick = async (element: Element): Promise<void> => {
     return new Promise((resolve) => {
@@ -117,7 +123,6 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
         if (typeof nextStepIndex === 'number') {
           document.dispatchEvent(createRestartEvent(nextStepIndex));
         }
-
       } else if (typeof nextStepIndex === 'number') {
         setCurrentStepIndex(nextStepIndex);
         setCurrentStep(nextStepIndex);
@@ -134,19 +139,21 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
   }, [steps, setCurrentStep, scrollSmooth]);
 
   const handleNext = useCallback(async () => {
-    const stepData = currentStepData;
+    if (!currentStepData || processingRef.current) return;
+    
     const nextStepIndex = currentStepIndex + 1;
+    if (nextStepIndex >= steps.length) return;
     
     try {
-      if (stepData?.beforeStep) {
-        await stepData.beforeStep();
+      if (currentStepData?.beforeStep) {
+        await currentStepData.beforeStep();
       }
 
-      if (stepData?.nextButtonClickElementId || stepData?.nextButtonOnClick) {
+      if (currentStepData?.nextButtonClickElementId || currentStepData?.nextButtonOnClick) {
         await handleElementClick(
-          stepData.nextButtonClickElementId,
-          stepData.nextDelay,
-          stepData.nextButtonOnClick,
+          currentStepData.nextButtonClickElementId,
+          currentStepData.nextDelay,
+          currentStepData.nextButtonOnClick,
           nextStepIndex
         );
       } else {
@@ -154,48 +161,53 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
         goToNextStep();
       }
 
-      if (stepData?.afterStep) {
-        await stepData.afterStep();
+      if (currentStepData?.afterStep) {
+        await currentStepData.afterStep();
       }
     } catch (error) {
       console.error('Error during next step:', error);
       setCurrentStepIndex(nextStepIndex);
       goToNextStep();
     }
-  }, [currentStepIndex, currentStepData, goToNextStep, handleElementClick]);
+  }, [currentStepIndex, currentStepData, steps.length, goToNextStep, handleElementClick]);
 
   const handlePrev = useCallback(async () => {
-    const stepData = currentStepData;
+    if (!currentStepData || processingRef.current) return;
+    
     const prevStepIndex = currentStepIndex - 1;
+    if (prevStepIndex < 0) return;
     
     try {
-      if (stepData?.prevButtonClickElementId || stepData?.prevButtonOnClick) {
+      if (currentStepData?.prevButtonClickElementId || currentStepData?.prevButtonOnClick) {
         await handleElementClick(
-          stepData.prevButtonClickElementId,
-          stepData.prevDelay,
-          stepData.prevButtonOnClick,
+          currentStepData.prevButtonClickElementId,
+          currentStepData.prevDelay,
+          currentStepData.prevButtonOnClick,
           prevStepIndex
         );
       } else {
         setCurrentStepIndex(prevStepIndex);
         goToPrevStep();
+        // Önceki adımın hedef elementini güvenli bir şekilde güncelle
+        updateTargetElement(steps[prevStepIndex]);
       }
     } catch (error) {
       console.error('Error during previous step:', error);
       setCurrentStepIndex(prevStepIndex);
       goToPrevStep();
+      updateTargetElement(steps[prevStepIndex]);
     }
-  }, [currentStepIndex, currentStepData, goToPrevStep, handleElementClick]);
+  }, [currentStepIndex, currentStepData, steps, goToPrevStep, handleElementClick, updateTargetElement]);
 
   const handleSkip = useCallback(async () => {
-    const stepData = currentStepData;
+    if (!currentStepData || processingRef.current) return;
     
     try {
-      if (stepData?.skipButtonClickElementId || stepData?.skipButtonOnClick) {
+      if (currentStepData?.skipButtonClickElementId || currentStepData?.skipButtonOnClick) {
         await handleElementClick(
-          stepData.skipButtonClickElementId,
-          stepData.skipDelay,
-          stepData.skipButtonOnClick
+          currentStepData.skipButtonClickElementId,
+          currentStepData.skipDelay,
+          currentStepData.skipButtonOnClick
         );
       }
       onSkip?.();
@@ -215,6 +227,7 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
         setTourVisible(true);
         setCurrentStepIndex(nextStep);
         setCurrentStep(nextStep);
+        updateTargetElement(steps[nextStep]);
       }, RESTART_DELAY);
     };
 
@@ -222,18 +235,15 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
     return () => {
       document.removeEventListener(GUIDE_RESTART_EVENT, handleRestart);
     };
-  }, [setCurrentStep]);
+  }, [setCurrentStep, steps, updateTargetElement]);
 
   useEffect(() => {
     if (isOpen) {
       setTourVisible(true);
       setCurrentStepIndex(initialStep);
-      const initialStepData = steps[initialStep];
-      if (initialStepData?.target) {
-        setTargetElement(initialStepData.target);
-      }
+      updateTargetElement(steps[initialStep]);
     }
-  }, [isOpen, initialStep, steps]);
+  }, [isOpen, initialStep, steps, updateTargetElement]);
 
   useEffect(() => {
     if (isOpen) {
@@ -252,7 +262,7 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
     onArrowLeft: handlePrev,
   });
 
-  if (!isOpen || !tourVisible) {
+  if (!isOpen || !tourVisible || !currentStepData) {
     return null;
   }
 
