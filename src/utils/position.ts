@@ -1,33 +1,62 @@
+// src/utils/position.ts
 import { Step } from '../components/GuideLoop/types';
 
-interface Position {
+export interface ElementPosition {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+  bottom: number;
+  right: number;
+  x: number;
+  y: number;
+}
+
+export interface TooltipPosition {
   top: number;
   left: number;
 }
 
+// ElementPosition'u DOMRect'e dönüştüren yardımcı fonksiyon
+export const createDOMRect = (position: ElementPosition): DOMRect => {
+  return {
+    top: position.top,
+    left: position.left,
+    bottom: position.top + position.height,
+    right: position.left + position.width,
+    width: position.width,
+    height: position.height,
+    x: position.left,
+    y: position.top,
+    toJSON: () => JSON.stringify(position)
+  };
+};
+
 const SPACING = 12; // px
 
 export const calculateTooltipPosition = (
-  targetRect: DOMRect,
-  tooltipRect: DOMRect,
-  placement: Step['placement'] = 'bottom'
-): Position => {
-  const positions: Record<NonNullable<Step['placement']>, Position> = {
+  targetPosition: ElementPosition,
+  placement: Step['placement'] = 'bottom',
+  tooltipSize = { width: 300, height: 200 } // Varsayılan tooltip boyutu
+): TooltipPosition => {
+  const target = createDOMRect(targetPosition);
+
+  const positions: Record<NonNullable<Step['placement']>, TooltipPosition> = {
     top: {
-      top: targetRect.top - tooltipRect.height - SPACING,
-      left: targetRect.left + (targetRect.width - tooltipRect.width) / 2,
+      top: target.top - tooltipSize.height - SPACING,
+      left: target.left + (target.width - tooltipSize.width) / 2,
     },
     bottom: {
-      top: targetRect.bottom + SPACING,
-      left: targetRect.left + (targetRect.width - tooltipRect.width) / 2,
+      top: target.bottom + SPACING,
+      left: target.left + (target.width - tooltipSize.width) / 2,
     },
     left: {
-      top: targetRect.top + (targetRect.height - tooltipRect.height) / 2,
-      left: targetRect.left - tooltipRect.width - SPACING,
+      top: target.top + (target.height - tooltipSize.height) / 2,
+      left: target.left - tooltipSize.width - SPACING,
     },
     right: {
-      top: targetRect.top + (targetRect.height - tooltipRect.height) / 2,
-      left: targetRect.right + SPACING,
+      top: target.top + (target.height - tooltipSize.height) / 2,
+      left: target.right + SPACING,
     },
   };
 
@@ -46,14 +75,14 @@ export const calculateTooltipPosition = (
   // Adjust for viewport boundaries
   if (position.left < SPACING) {
     position.left = SPACING;
-  } else if (position.left + tooltipRect.width > viewport.width - SPACING) {
-    position.left = viewport.width - tooltipRect.width - SPACING;
+  } else if (position.left + tooltipSize.width > viewport.width - SPACING) {
+    position.left = viewport.width - tooltipSize.width - SPACING;
   }
 
   if (position.top < SPACING) {
     position.top = SPACING;
-  } else if (position.top + tooltipRect.height > viewport.height - SPACING) {
-    position.top = viewport.height - tooltipRect.height - SPACING;
+  } else if (position.top + tooltipSize.height > viewport.height - SPACING) {
+    position.top = viewport.height - tooltipSize.height - SPACING;
   }
 
   // Add scroll position

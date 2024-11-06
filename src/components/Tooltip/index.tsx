@@ -2,6 +2,7 @@ import React from 'react';
 import { useTheme } from '../../hooks/useTheme';
 import type { TooltipProps } from './types';
 import { calculateTooltipPosition } from '../../utils/position';
+import { getAnimationStyle } from '../../utils/animation';
 
 export const Tooltip: React.FC<TooltipProps> = ({
   step,
@@ -26,7 +27,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
       style={{
         ...tooltipPosition,
         ...themeStyles.tooltip,
-        animation: animation?.enter,
+        ...getAnimationStyle(animation, 'enter')
       }}
       role="tooltip"
     >

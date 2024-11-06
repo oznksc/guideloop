@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Tooltip } from '../Tooltip';
 import { Overlay } from '../Overlay';
 import { Spotlight } from '../Spotlight';
@@ -7,8 +7,7 @@ import { useSteps } from '../../hooks/useSteps';
 import { useSpotlight } from '../../hooks/useSpotlight';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import { scrollIntoView } from '../../utils/scroll';
-import type { GuideLoopProps, Step } from './types';
-
+import type { GuideLoopProps } from './types';
 const GuideLoop: React.FC<GuideLoopProps> = ({
   steps,
   isOpen,
@@ -40,6 +39,11 @@ const GuideLoop: React.FC<GuideLoopProps> = ({
     onComplete,
   });
 
+  const handleSkip = () => {
+    onSkip?.();
+    onClose();
+  };
+
   const currentStepData = steps[currentStep];
   const spotlightPosition = useSpotlight(currentStepData.target, spotlightPadding);
 
@@ -49,6 +53,15 @@ const GuideLoop: React.FC<GuideLoopProps> = ({
     onArrowRight: nextStep,
     onArrowLeft: prevStep,
   });
+
+  const tooltipPosition = {
+    ...spotlightPosition,
+    x: spotlightPosition.left,
+    y: spotlightPosition.top,
+    bottom: spotlightPosition.top + spotlightPosition.height,
+    right: spotlightPosition.left + spotlightPosition.width
+  };
+
 
   useEffect(() => {
     if (isOpen && scrollSmooth) {
@@ -69,7 +82,7 @@ const GuideLoop: React.FC<GuideLoopProps> = ({
       aria-modal="true"
       aria-label="Guided tour"
     >
-      {overlay && <Overlay onClick={onClose} />}
+      {overlay && <Overlay onClick={handleSkip} />}
       
       <Spotlight 
         position={spotlightPosition}
@@ -79,12 +92,12 @@ const GuideLoop: React.FC<GuideLoopProps> = ({
       
       <Tooltip
         step={currentStepData}
-        position={spotlightPosition}
+        position={tooltipPosition}
         theme={theme}
         customTheme={customTheme}
         onNext={nextStep}
         onPrev={prevStep}
-        onClose={onClose}
+        onClose={handleSkip}
         isFirst={isFirstStep}
         isLast={isLastStep}
         currentStep={currentStep}

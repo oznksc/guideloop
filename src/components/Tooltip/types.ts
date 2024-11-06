@@ -1,17 +1,13 @@
 import { Step } from '../GuideLoop/types';
-import { Theme } from '../../themes';
+import { Theme, ThemeConfig } from '../../themes';
 import { AnimationConfig } from '../../utils/animation';
+import { ElementPosition } from '../../utils/position';
 
 export interface TooltipProps {
   step: Step;
-  position: {
-    top: number;
-    left: number;
-    width: number;
-    height: number;
-  };
+  position: ElementPosition;
   theme: Theme;
-  customTheme?: Record<string, any>;
+  customTheme?: Partial<ThemeConfig>;
   onNext: () => void;
   onPrev: () => void;
   onClose: () => void;
@@ -19,5 +15,5 @@ export interface TooltipProps {
   isLast: boolean;
   currentStep: number;
   totalSteps: number;
-  animation?: AnimationConfig;
+  animation?: AnimationConfig['tooltip'];
 }

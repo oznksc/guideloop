@@ -8,5 +8,5 @@ export interface SpotlightProps {
     height: number;
   };
   padding: number;
-  animation?: AnimationConfig;
+  animation?: AnimationConfig['spotlight'];
 }

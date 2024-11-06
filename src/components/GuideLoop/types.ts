@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Theme } from '../../themes/types';
+import { Theme, ThemeConfig } from '../../themes/types';
 import { AnimationConfig } from '../../utils/animation';
 
 export interface Step {
@@ -23,7 +23,7 @@ export interface GuideLoopProps {
   isOpen: boolean;
   onClose: () => void;
   theme?: Theme;
-  customTheme?: Record<string, any>;
+  customTheme?: Partial<ThemeConfig>;
   initialStep?: number;
   overlay?: boolean;
   keyboard?: boolean;

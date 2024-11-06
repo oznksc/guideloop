@@ -1,5 +1,6 @@
 import React from 'react';
 import type { SpotlightProps } from './types';
+import { getAnimationStyle } from '../../utils/animation';
 
 export const Spotlight: React.FC<SpotlightProps> = ({
   position,
@@ -13,7 +14,7 @@ export const Spotlight: React.FC<SpotlightProps> = ({
       left: position.left - padding,
       width: position.width + (padding * 2),
       height: position.height + (padding * 2),
-      animation: animation?.enter,
+      ...getAnimationStyle(animation, 'enter')
     }}
   />
 );
