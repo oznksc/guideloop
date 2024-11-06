@@ -3,6 +3,15 @@ import { useTheme } from '../../hooks/useTheme';
 import type { TooltipProps } from './types';
 import { calculateTooltipPosition } from '../../utils/position';
 import { getAnimationStyle } from '../../utils/animation';
+import { ImageContentRenderer } from './ImageContent';
+
+const defaultLabels = {
+  next: 'Next',
+  prev: 'Previous',
+  skip: 'Skip',
+  finish: 'Finish'
+};
+
 
 export const Tooltip: React.FC<TooltipProps> = ({
   step,
@@ -17,17 +26,32 @@ export const Tooltip: React.FC<TooltipProps> = ({
   currentStep,
   totalSteps,
   animation,
+  defaultButtonLabels = defaultLabels,
+
 }) => {
   const themeStyles = useTheme(theme, customTheme);
   const tooltipPosition = calculateTooltipPosition(position, step.placement);
 
+  const buttonLabels = {
+    ...defaultLabels,
+    ...defaultButtonLabels,
+    ...step.buttonLabels
+  };
+
+
   return (
     <div
-      className="fixed pointer-events-auto"
+      className="fixed"
       style={{
         ...tooltipPosition,
         ...themeStyles.tooltip,
-        ...getAnimationStyle(animation, 'enter')
+        ...getAnimationStyle(animation, 'enter'),
+        pointerEvents: 'auto',
+        maxWidth: '90vw',
+        maxHeight: '90vh',
+        overflowY: 'auto',
+        borderRadius: '8px',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
       }}
       role="tooltip"
     >
@@ -35,6 +59,13 @@ export const Tooltip: React.FC<TooltipProps> = ({
       <div className="text-sm text-gray-500 mb-2">
         Step {currentStep + 1} of {totalSteps}
       </div>
+
+      {/* Image content if exists */}
+      {step.image && (
+        <div className="flex justify-center">
+          <ImageContentRenderer image={step.image} />
+        </div>
+      )}
 
       {/* Content */}
       <div className="space-y-3">
@@ -46,8 +77,8 @@ export const Tooltip: React.FC<TooltipProps> = ({
         </div>
       </div>
 
-      {/* Navigation buttons */}
-      <div className="flex justify-between mt-4 pt-3 border-t border-gray-100">
+       {/* Navigation buttons */}
+       <div className="flex justify-between mt-4 pt-3 border-t border-gray-100">
         <div>
           {!isFirst && (
             <button
@@ -55,7 +86,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
               className="text-gray-600 hover:text-gray-900"
               style={themeStyles.buttons.secondary}
             >
-              Previous
+              {buttonLabels.prev}
             </button>
           )}
         </div>
@@ -65,7 +96,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
             className="text-gray-600 hover:text-gray-900"
             style={themeStyles.buttons.secondary}
           >
-            {isLast ? 'Finish' : 'Skip'}
+            {isLast ? buttonLabels.finish : buttonLabels.skip}
           </button>
           {!isLast && (
             <button
@@ -73,7 +104,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
               className="bg-blue-600 text-white"
               style={themeStyles.buttons.primary}
             >
-              Next
+              {buttonLabels.next}
             </button>
           )}
         </div>

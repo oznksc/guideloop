@@ -1,4 +1,4 @@
-import { Step } from '../GuideLoop/types';
+import { ButtonLabels, Step } from '../GuideLoop/types';
 import { Theme, ThemeConfig } from '../../themes';
 import { AnimationConfig } from '../../utils/animation';
 import { ElementPosition } from '../../utils/position';
@@ -16,4 +16,5 @@ export interface TooltipProps {
   currentStep: number;
   totalSteps: number;
   animation?: AnimationConfig['tooltip'];
+  defaultButtonLabels?: ButtonLabels;
 }

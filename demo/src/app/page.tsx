@@ -1,8 +1,9 @@
 "use client"
-import Walkthrough, { Step } from "@/components/Walkthrough";
+import { Step } from "@/components/Walkthrough";
 import React, { useState } from "react";
 import { Modal, Card, Alert, Typography, Divider, Space, ConfigProvider } from 'antd';
 import { SearchOutlined, InfoCircleOutlined, FilterOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { GuideLoop } from '../../../src/components/GuideLoop';
 
 const { Paragraph, Text } = Typography;
 
@@ -43,14 +44,14 @@ export default function Home() {
       title: 'Hızlı Arama',
       content: 'Tüm içeriklerde arama yapabilirsiniz.',
       placement: 'bottom',
-      nextButtonClickElementId: modalTriggerButtonId // id ile tetikleme
+      nextButtonClickElementId: modalTriggerButtonId
     },
     {
       target: '#alertBox',
       title: 'Bildirimler',
       content: 'Önemli güncellemeleri ve bildirimleri buradan takip edebilirsiniz.',
       placement: 'left',
-      showButtons:{
+      showButtons: {
         next: true,
         previous: false
       }
@@ -59,7 +60,7 @@ export default function Home() {
       target: '#sidebar',
       title: 'Ana Menü',
       content: 'Tüm bölümlere buradan hızlıca erişebilirsiniz.',
-      placement: 'right'
+      placement: 'right',
     }
   ];
 
@@ -182,12 +183,15 @@ export default function Home() {
       </div>
 
       {/* Walkthrough Component */}
-      <Walkthrough 
-        steps={steps}
-        isOpen={showWalkthrough}
-        onClose={() => setShowWalkthrough(false)}
-        tooltipVariant="tailwind"
-      />
+      <GuideLoop 
+          steps={steps}
+          isOpen={showWalkthrough}
+          onClose={() => setShowWalkthrough(false)}
+          theme="tailwind"
+          keyboard={true}
+          scrollSmooth={true}
+          spotlightPadding={8}
+        />
       <button
         id={modalTriggerButtonId}
         className="hidden"

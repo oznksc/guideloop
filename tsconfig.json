@@ -3,16 +3,18 @@
     "target": "es5",
     "module": "esnext",
     "lib": ["dom", "esnext"],
-    "jsx": "react",
     "declaration": true,
+    "declarationDir": "types",
+    "sourceMap": true,
+    "outDir": "dist",
     "strict": true,
+    "jsx": "react",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "outDir": "dist",
-    "rootDir": "src"
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"]
 }

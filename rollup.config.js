@@ -1,34 +1,50 @@
+// rollup.config.js
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import typescript from "@rollup/plugin-typescript";
 import { terser } from "rollup-plugin-terser";
 import external from "rollup-plugin-peer-deps-external";
+import postcss from "rollup-plugin-postcss";
+import dts from "rollup-plugin-dts";
+import { readFileSync } from 'fs';
 
-export default {
-  input: "src/index.ts",
-  output: [
-    {
-      file: "dist/index.js",
-      format: "cjs",
-      sourcemap: true,
-    },
-    {
-      file: "dist/index.esm.js",
-      format: "esm",
-      sourcemap: true,
-    },
-  ],
-  plugins: [
-    external(),
-    resolve(),
-    commonjs(),
-    typescript({ 
-      tsconfig: "./tsconfig.json",
-      declaration: true,
-      declarationDir: "dist/types",
-      exclude: ["**/*.test.tsx", "**/*.test.ts", "**/*.stories.tsx"]
-    }),
-    terser(),
-  ],
-  external: ["react", "react-dom"]
-};
+// package.json'ı oku
+const pkg = JSON.parse(
+  readFileSync(new URL('./package.json', import.meta.url), 'utf8')
+);
+
+export default [
+  {
+    input: "src/index.ts",
+    output: [
+      {
+        file: pkg.main,
+        format: "cjs",
+        sourcemap: true,
+      },
+      {
+        file: pkg.module,
+        format: "esm",
+        sourcemap: true,
+      },
+    ],
+    plugins: [
+      external(),
+      resolve(),
+      commonjs(),
+      typescript({ tsconfig: "./tsconfig.json" }),
+      postcss({
+        modules: true,
+        minimize: true,
+      }),
+      terser(),
+    ],
+    external: ["react", "react-dom"]
+  },
+  {
+    input: "dist/esm/types/index.d.ts",
+    output: [{ file: "dist/index.d.ts", format: "esm" }],
+    plugins: [dts()],
+    external: [/\.css$/],
+  },
+];

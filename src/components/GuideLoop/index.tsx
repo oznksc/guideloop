@@ -8,7 +8,7 @@ import { useSpotlight } from '../../hooks/useSpotlight';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import { scrollIntoView } from '../../utils/scroll';
 import type { GuideLoopProps } from './types';
-const GuideLoop: React.FC<GuideLoopProps> = ({
+export const GuideLoop: React.FC<GuideLoopProps> = ({
   steps,
   isOpen,
   onClose,
@@ -62,7 +62,6 @@ const GuideLoop: React.FC<GuideLoopProps> = ({
     right: spotlightPosition.left + spotlightPosition.width
   };
 
-
   useEffect(() => {
     if (isOpen && scrollSmooth) {
       const element = document.querySelector(currentStepData.target);
@@ -76,42 +75,58 @@ const GuideLoop: React.FC<GuideLoopProps> = ({
 
   return (
     <div
-      className="fixed inset-0 pointer-events-none"
-      style={{ zIndex }}
+      className="fixed inset-0"
+      style={{ 
+        zIndex,
+        pointerEvents: 'none',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+      }}
       role="dialog"
       aria-modal="true"
       aria-label="Guided tour"
     >
-      {overlay && <Overlay onClick={handleSkip} />}
+      {overlay && (
+        <div style={{ position: 'relative', zIndex: zIndex + 1 }}>
+          <Overlay onClick={handleSkip} />
+        </div>
+      )}
       
-      <Spotlight 
-        position={spotlightPosition}
-        padding={spotlightPadding}
-        animation={animations?.spotlight}
-      />
+      <div style={{ position: 'relative', zIndex: zIndex + 2 }}>
+        <Spotlight 
+          position={spotlightPosition}
+          padding={spotlightPadding}
+          animation={animations?.spotlight}
+        />
+      </div>
       
-      <Tooltip
-        step={currentStepData}
-        position={tooltipPosition}
-        theme={theme}
-        customTheme={customTheme}
-        onNext={nextStep}
-        onPrev={prevStep}
-        onClose={handleSkip}
-        isFirst={isFirstStep}
-        isLast={isLastStep}
-        currentStep={currentStep}
-        totalSteps={totalSteps}
-        animation={animations?.tooltip}
-      />
+      <div style={{ position: 'relative', zIndex: zIndex + 3, pointerEvents: 'auto' }}>
+        <Tooltip
+          step={currentStepData}
+          position={tooltipPosition}
+          theme={theme}
+          customTheme={customTheme}
+          onNext={nextStep}
+          onPrev={prevStep}
+          onClose={handleSkip}
+          isFirst={isFirstStep}
+          isLast={isLastStep}
+          currentStep={currentStep}
+          totalSteps={totalSteps}
+          animation={animations?.tooltip}
+        />
+      </div>
       
-      <Progress 
-        current={currentStep + 1}
-        total={totalSteps}
-        theme={theme}
-      />
+      <div style={{ position: 'relative', zIndex: zIndex + 3 }}>
+        <Progress 
+          current={currentStep + 1}
+          total={totalSteps}
+          theme={theme}
+        />
+      </div>
     </div>
   );
 };
-
-export default GuideLoop;
