@@ -17,7 +17,7 @@ describe('GuideLoop', () => {
       <GuideLoop
         steps={mockSteps}
         isOpen={false}
-        onClose={() => {}}
+        onClose={jest.fn()}
       />
     );
     
@@ -29,7 +29,7 @@ describe('GuideLoop', () => {
       <GuideLoop
         steps={mockSteps}
         isOpen={true}
-        onClose={() => {}}
+        onClose={jest.fn()}
       />
     );
     

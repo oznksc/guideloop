@@ -16,7 +16,7 @@ const defaultPosition: SpotlightPosition = {
   height: 0,
 };
 
-export const useSpotlight = (selector?: string | null, padding: number = 8) => {
+export const useSpotlight = (selector?: string | null, padding = 8) => {
   const [position, setPosition] = useState<SpotlightPosition>(defaultPosition);
   const scrollPosition = useScroll();
 

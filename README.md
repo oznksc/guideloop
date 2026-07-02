@@ -1,27 +1,28 @@
 # GuideLoop
 
-![GuideLoop Banner](https://via.placeholder.com/1200x300)
-
 A modern, flexible, and powerful guided tour library for React applications. GuideLoop helps you create engaging product tours, feature introductions, and onboarding experiences with minimal effort.
 
-[![npm version](https://badge.fury.io/js/guideloop.svg)](https://badge.fury.io/js/guideloop)
+[![npm version](https://img.shields.io/npm/v/guideloop.svg)](https://www.npmjs.com/package/guideloop)
+[![npm downloads](https://img.shields.io/npm/dm/guideloop.svg)](https://www.npmjs.com/package/guideloop)
+[![CI](https://github.com/oznksc/guideloop/actions/workflows/ci.yml/badge.svg)](https://github.com/oznksc/guideloop/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/oznksc/guideloop/blob/main/CONTRIBUTING.md)
 
-## ✨ Features
+## Features
 
-- 🎨 Multiple pre-built themes (Tailwind, Material-UI, Ant Design)
-- 🎯 Smart positioning with automatic repositioning
-- 🔄 Smooth transitions between steps
-- ⌨️ Full keyboard navigation support
-- 📱 Responsive and mobile-friendly
-- 🎛️ Highly customizable
-- 🌗 Dark mode support
-- 🎭 Custom rendering options
-- 🔍 Scroll handling & element visibility detection
-- 🎬 Custom animations
-- ♿ ARIA-compliant accessibility
+- Multiple pre-built themes (Tailwind, Material-UI, Ant Design)
+- Smart positioning with [Popper.js](https://popper.js.org/) — automatic repositioning
+- Smooth transitions between steps
+- Full keyboard navigation support
+- Responsive and mobile-friendly
+- Highly customizable
+- Dark mode support
+- Custom rendering options
+- Scroll handling & element visibility detection
+- Custom animations
+- ARIA-compliant accessibility
 
-## 📦 Installation
+## Installation
 
 ```bash
 npm install guideloop
@@ -31,7 +32,7 @@ yarn add guideloop
 pnpm add guideloop
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ```tsx
 import { GuideLoop } from 'guideloop';
@@ -45,23 +46,20 @@ function App() {
       target: '#welcome-button',
       title: 'Welcome to Our App!',
       content: 'Start your journey here.',
-      placement: 'bottom'
+      placement: 'bottom',
     },
     {
       target: '#feature-section',
       title: 'Key Features',
       content: 'Discover what you can do.',
-      placement: 'right'
-    }
+      placement: 'right',
+    },
   ];
 
   return (
     <>
-      <button onClick={() => setIsGuideOpen(true)}>
-        Start Tour
-      </button>
-
-      <GuideLoop 
+      <button onClick={() => setIsGuideOpen(true)}>Start Tour</button>
+      <GuideLoop
         steps={steps}
         isOpen={isGuideOpen}
         onClose={() => setIsGuideOpen(false)}
@@ -72,7 +70,7 @@ function App() {
 }
 ```
 
-## 🎨 Themes
+## Themes
 
 GuideLoop comes with several built-in themes:
 
@@ -96,13 +94,13 @@ GuideLoop comes with several built-in themes:
       borderRadius: '12px',
     },
     overlay: {
-      color: 'rgba(0, 0, 0, 0.75)'
-    }
+      color: 'rgba(0, 0, 0, 0.75)',
+    },
   }}
 />
 ```
 
-## 🛠️ API Reference
+## API Reference
 
 ### GuideLoop Props
 
@@ -112,47 +110,56 @@ GuideLoop comes with several built-in themes:
 | `isOpen` | `boolean` | Required | Controls guide visibility |
 | `onClose` | `() => void` | Required | Handler for closing the guide |
 | `theme` | `'tailwind' \| 'material' \| 'antd' \| 'custom'` | `'tailwind'` | Visual theme |
-| `customTheme` | `CustomTheme` | `undefined` | Custom theme configuration |
+| `customTheme` | `Partial<ThemeConfig>` | `undefined` | Custom theme configuration |
 | `initialStep` | `number` | `0` | Starting step index |
 | `overlay` | `boolean` | `true` | Show/hide overlay |
 | `keyboard` | `boolean` | `true` | Enable keyboard navigation |
 | `scrollSmooth` | `boolean` | `true` | Enable smooth scrolling |
 | `spotlightPadding` | `number` | `8` | Padding around highlighted elements |
+| `animations` | `AnimationConfig` | `undefined` | Custom animation config |
+| `onStepChange` | `(step: number) => void` | `undefined` | Step change callback |
+| `onComplete` | `() => void` | `undefined` | Tour completion callback |
+| `onSkip` | `() => void` | `undefined` | Tour skip callback |
+| `zIndex` | `number` | `2000` | Base z-index for the tour |
+| `defaultButtonLabels` | `ButtonLabels` | `undefined` | Default button labels |
 
 ### Step Configuration
 
 ```typescript
 interface Step {
-  target: string;                // CSS selector for target element
-  title: string;                 // Step title
-  content: string | ReactNode;   // Step content
-  placement?: Placement;         // Tooltip placement
-  spotlightPadding?: number;    // Custom padding for this step
-  beforeStep?: () => Promise<void> | void;  // Hook before showing step
-  afterStep?: () => Promise<void> | void;   // Hook after showing step
-  buttons?: {                   // Custom button configuration
+  target: string;                           // CSS selector for target element
+  title: string;                            // Step title
+  content: string | ReactNode;              // Step content
+  placement?: Placement;                    // Tooltip placement (Popper.js)
+  spotlightPadding?: number;               // Custom padding for this step
+  beforeStep?: () => Promise<void> | void; // Hook before showing step
+  afterStep?: () => Promise<void> | void;  // Hook after showing step
+  condition?: () => boolean;               // Conditional step
+  nextButtonOnClick?: () => void;          // Custom next handler
+  prevButtonOnClick?: () => void;          // Custom prev handler
+  skipButtonOnClick?: () => void;          // Custom skip handler
+  nextButtonClickElementId?: string;       // Element to click on next
+  prevButtonClickElementId?: string;       // Element to click on prev
+  skipButtonClickElementId?: string;       // Element to click on skip
+  buttons?: {
     next?: ReactNode;
     prev?: ReactNode;
     close?: ReactNode;
   };
+  icon?: ReactNode;
+  image?: ImageContent;
 }
 ```
 
-## 🎮 Advanced Usage
+## Advanced Usage
 
 ### Custom Animations
 
 ```tsx
 <GuideLoop
   animations={{
-    tooltip: {
-      enter: 'fadeIn',
-      exit: 'fadeOut'
-    },
-    spotlight: {
-      enter: 'zoomIn',
-      exit: 'zoomOut'
-    }
+    tooltip: { enter: 'fadeIn', exit: 'fadeOut' },
+    spotlight: { enter: 'zoomIn', exit: 'zoomOut' },
   }}
 />
 ```
@@ -180,24 +187,40 @@ const steps = [
   {
     target: '#step1',
     title: 'Step 1',
-    condition: () => userRole === 'admin'
+    condition: () => userRole === 'admin',
   },
   {
     target: '#step2',
     title: 'Step 2',
-    condition: () => featureFlags.newFeature
-  }
+    condition: () => featureFlags.newFeature,
+  },
 ];
 ```
 
-## 📚 Examples
+## Examples
 
-Check out our [Storybook](https://guideloop.dev) for live examples and code snippets.
+Check out the [demo app](./demo) for live examples and code snippets.
 
-## 🤝 Contributing
+## Browser Support
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+GuideLoop supports all modern browsers. IE11 is not supported.
 
-## 📄 License
+| Chrome | Firefox | Safari | Edge |
+|--------|---------|--------|------|
+| 90+    | 90+     | 15+    | 90+  |
 
-MIT © [Ozan Kesici]
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md).
+
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Bug Reports](.github/ISSUE_TEMPLATE/bug_report.md)
+- [Feature Requests](.github/ISSUE_TEMPLATE/feature_request.md)
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for release history.
+
+## License
+
+MIT © [Ozan Kesici](https://github.com/oznksc)

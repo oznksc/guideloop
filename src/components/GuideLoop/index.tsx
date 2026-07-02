@@ -90,7 +90,7 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
 
   const handleElementClick = useCallback(async (
     elementId: string | undefined,
-    delay: number = 0,
+    delay = 0,
     onClick?: () => void,
     nextStepIndex?: number
   ) => {
