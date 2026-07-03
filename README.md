@@ -1,4 +1,7 @@
-# GuideLoop
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./guideloop-logo.svg">
+  <img alt="GuideLoop" src="./guideloop-logo.svg" width="600">
+</picture>
 
 A modern, flexible, and powerful guided tour library for React applications. GuideLoop helps you create engaging product tours, feature introductions, and onboarding experiences with minimal effort.
 
