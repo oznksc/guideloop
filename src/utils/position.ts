@@ -34,14 +34,25 @@ export const createDOMRect = (position: ElementPosition): DOMRect => {
 
 const SPACING = 12; // px
 
+type BasePlacement = 'top' | 'bottom' | 'left' | 'right';
+
 export const calculateTooltipPosition = (
   targetPosition: ElementPosition,
   placement: Step['placement'] = 'bottom',
-  tooltipSize = { width: 300, height: 200 } // Varsayılan tooltip boyutu
+  tooltipSize = { width: 300, height: 200 }
 ): TooltipPosition => {
   const target = createDOMRect(targetPosition);
 
-  const positions: Record<NonNullable<Step['placement']>, TooltipPosition> = {
+  const getBasePlacement = (p: string): BasePlacement => {
+    if (p.startsWith('top')) return 'top';
+    if (p.startsWith('bottom')) return 'bottom';
+    if (p.startsWith('left')) return 'left';
+    return 'right';
+  };
+
+  const base = getBasePlacement(placement ?? 'bottom');
+
+  const positions: Record<BasePlacement, TooltipPosition> = {
     top: {
       top: target.top - tooltipSize.height - SPACING,
       left: target.left + (target.width - tooltipSize.width) / 2,
@@ -60,7 +71,7 @@ export const calculateTooltipPosition = (
     },
   };
 
-  const position = positions[placement];
+  const position = positions[base];
 
   // Viewport boundaries check and adjustment
   const viewport = {

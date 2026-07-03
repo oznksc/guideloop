@@ -5,9 +5,15 @@ import { themes } from '../themes';
 export const useTheme = (theme: Theme, customTheme?: Partial<ThemeConfig>) => {
   return useMemo(() => {
     const baseTheme = themes[theme] || themes.tailwind;
-    return {
-      ...baseTheme,
-      ...customTheme,
-    };
+    if (!customTheme) return baseTheme;
+
+    const merged: ThemeConfig = JSON.parse(JSON.stringify(baseTheme));
+    for (const key of Object.keys(customTheme) as (keyof ThemeConfig)[]) {
+      const override = customTheme[key];
+      if (override && typeof override === 'object') {
+        Object.assign(merged[key] as Record<string, unknown>, override);
+      }
+    }
+    return merged;
   }, [theme, customTheme]);
 };

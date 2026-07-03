@@ -1,4 +1,5 @@
 import React from 'react';
+import { useScroll } from '../../hooks/useScroll';
 import type { MaskedOverlayProps } from './types';
 
 export const MaskedOverlay: React.FC<MaskedOverlayProps> = ({
@@ -10,38 +11,36 @@ export const MaskedOverlay: React.FC<MaskedOverlayProps> = ({
     style = {},
   }) => {
     const maskId = React.useId();
+    const scrollPosition = useScroll();
   
-    // Viewport boyutlarını al
     const [viewportSize, setViewportSize] = React.useState({
       width: window.innerWidth,
       height: window.innerHeight
     });
   
-    // Viewport boyutlarını güncelle
     React.useEffect(() => {
-      const updateSize = () => {
-        setViewportSize({
-          width: window.innerWidth,
-          height: window.innerHeight
+      let rafId = 0;
+      const handleResize = () => {
+        cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(() => {
+          setViewportSize({
+            width: window.innerWidth,
+            height: window.innerHeight
+          });
         });
       };
   
-      window.addEventListener('resize', updateSize);
-      return () => window.removeEventListener('resize', updateSize);
+      window.addEventListener('resize', handleResize, { passive: true });
+      return () => {
+        window.removeEventListener('resize', handleResize);
+        cancelAnimationFrame(rafId);
+      };
     }, []);
   
-    // Mask koordinatlarını hesapla
     const maskRect = React.useMemo(() => {
       if (!targetRect) {
-        return {
-          x: 0,
-          y: 0,
-          width: 0,
-          height: 0,
-          rx: 8,
-        };
+        return { x: 0, y: 0, width: 0, height: 0, rx: 8 };
       }
-  
       return {
         x: targetRect.left - padding,
         y: targetRect.top - padding,
@@ -50,25 +49,6 @@ export const MaskedOverlay: React.FC<MaskedOverlayProps> = ({
         rx: 8,
       };
     }, [targetRect, padding]);
-  
-    // Scroll pozisyonunu al
-    const [scrollPosition, setScrollPosition] = React.useState({
-      x: window.scrollX,
-      y: window.scrollY
-    });
-  
-    // Scroll pozisyonunu güncelle
-    React.useEffect(() => {
-      const updateScroll = () => {
-        setScrollPosition({
-          x: window.scrollX,
-          y: window.scrollY
-        });
-      };
-  
-      window.addEventListener('scroll', updateScroll);
-      return () => window.removeEventListener('scroll', updateScroll);
-    }, []);
   
     // Hedef element yoksa sadece overlay göster
     if (!targetRect) {

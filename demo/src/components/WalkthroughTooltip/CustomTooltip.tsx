@@ -49,7 +49,7 @@ export const CustomTooltip: React.FC<CustomTooltipProps> = ({
   styles = {},
   classNames = {},
   renderHeader,
-  renderTitle,
+  renderTitle: _renderTitle,
   renderContent,
   renderFooter,
   renderCloseButton,
