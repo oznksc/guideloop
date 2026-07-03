@@ -1,8 +1,4 @@
 import type { Step } from '../Walkthrough';
-import { AntDesignTooltip } from './AntDesignTooltip';
-import { CustomTooltip } from './CustomTooltip';
-import { MaterialTooltip } from './MaterialTooltip';
-import { TailwindTooltip } from './TailwindTooltip';
 
 export interface BaseTooltipProps {
   currentStep: number;
@@ -22,11 +18,4 @@ export interface BaseTooltipProps {
   onClose: () => void;
 }
 
-export interface TooltipVariants {
-  antDesign: typeof AntDesignTooltip;
-  mui: typeof MaterialTooltip;
-  tailwind: typeof TailwindTooltip;
-  custom: typeof CustomTooltip;
-}
-
-export type TooltipVariant = keyof TooltipVariants;
+export type TooltipVariant = 'antDesign' | 'tailwind' | 'custom';

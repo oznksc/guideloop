@@ -1,29 +1,11 @@
 "use client"
 import React, { useState } from "react";
-import { Modal, Card, Alert, Typography, Divider, Space, ConfigProvider } from 'antd';
+import { Modal, Card, Alert, Typography, Divider, Space } from 'antd';
 import { SearchOutlined, InfoCircleOutlined, FilterOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { GuideLoop } from '../../../src/components/GuideLoop';
 import { Step } from "../../../src/components/GuideLoop/types";
 
 const { Paragraph, Text } = Typography;
-
-const config = {
-  theme: {
-    components: {
-      Button: {
-        className: 'no-wave',
-      },
-      Modal: {
-        className: 'no-motion',
-      },
-      Wave: {
-        disabled: true,
-      },
-    },
-  },
-  motion: false,
-  wave: false,
-};
 
 export default function Home() {
   const [showWalkthrough, setShowWalkthrough] = useState(false);
@@ -74,7 +56,6 @@ export default function Home() {
   ];
 
   return (
-    <ConfigProvider theme={config}>
     <div className="min-h-screen bg-gray-50">
       {/* Sidebar */}
       <div id="sidebar" className="fixed left-0 top-0 h-full w-64 bg-gray-800 text-white p-4">
@@ -308,7 +289,6 @@ export default function Home() {
         />
       </Modal>)}
     </div>
-    </ConfigProvider>
 
   );
 }

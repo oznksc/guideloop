@@ -2,12 +2,22 @@
 
 Thank you for considering contributing to GuideLoop! We welcome contributions of all kinds — bug reports, feature requests, documentation, and code improvements.
 
+## Branching Model
+
+This project uses a two-branch model:
+
+- **`main`** — production-ready releases. Protected, only merged from `dev`.
+- **`dev`** — integration branch for features and fixes. All PRs go here.
+
 ## Getting Started
 
 1. Fork the repository
 2. Clone your fork: `git clone https://github.com/oznksc/guideloop.git`
 3. Install dependencies: `npm install`
-4. Create a branch: `git checkout -b my-feature-branch`
+4. Create a branch from `dev`:
+   - `git checkout dev && git pull origin dev`
+   - `git checkout -b feature/my-feature` for new features
+   - `git checkout -b issue/123-short-description` for bug fixes
 
 ## Development
 
@@ -46,8 +56,10 @@ npm run dev
 1. Ensure your code passes linting and tests (`npm run lint && npm test`)
 2. Update documentation if you're adding or changing features
 3. Update the demo app if applicable
-4. Write a clear, descriptive commit message
-5. Open a PR against the `main` branch
+4. Write clear, descriptive commit messages (see [Conventional Commits](https://www.conventionalcommits.org/))
+5. Open a PR against the **`dev`** branch — not `main`
+6. After review and CI approval, a maintainer will merge your PR into `dev`
+7. Periodically, `dev` is merged into `main` for release
 
 ## Code Style
 

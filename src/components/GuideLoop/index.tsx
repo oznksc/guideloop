@@ -5,6 +5,7 @@ import { Progress } from '../Progress';
 import { useSteps } from '../../hooks/useSteps';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import { scrollIntoView } from '../../utils/scroll';
+import { injectKeyframes } from '../../utils/animation';
 import type { GuideLoopProps } from './types';
 import { Portal } from './Portal';
 import { MaskedOverlay } from '../MaskedOverlay';
@@ -239,6 +240,7 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
 
   useEffect(() => {
     if (isOpen) {
+      injectKeyframes();
       setTourVisible(true);
       setCurrentStepIndex(initialStep);
       updateTargetElement(steps[initialStep]);

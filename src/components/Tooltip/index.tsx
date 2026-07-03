@@ -112,15 +112,13 @@ export const Tooltip: React.FC<TooltipProps> = ({
   return (
     <div
       ref={tooltipRef}
-      className="fixed rounded-xl max-w-xs md:max-w-xs md:min-w-md"
+      className="fixed"
       style={{
         ...themeStyles.tooltip,
         ...getAnimationStyle(animation, 'enter'),
         pointerEvents: 'auto',
         maxWidth: '480px',
         overflowY: 'auto',
-        borderRadius: '8px',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
         ...fallbackStyle,
         ...style
       }}

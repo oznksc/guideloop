@@ -10,9 +10,7 @@ interface WalkthroughTooltipProps extends BaseTooltipProps {
   customProps?: Omit<React.ComponentProps<typeof CustomTooltip>, keyof BaseTooltipProps>;
 }
 
-// Lazy load Ant Design ve MUI tooltips
 const AntDesignTooltip = dynamic(() => import('./AntDesignTooltip').then(mod => mod.AntDesignTooltip));
-const MaterialTooltip = dynamic(() => import('./MaterialTooltip').then(mod => mod.MaterialTooltip));
 
 export const WalkthroughTooltip: React.FC<WalkthroughTooltipProps> = ({
   variant = 'tailwind',
@@ -22,8 +20,6 @@ export const WalkthroughTooltip: React.FC<WalkthroughTooltipProps> = ({
   switch (variant) {
     case 'antDesign':
       return <AntDesignTooltip {...props} />;
-    case 'mui':
-      return <MaterialTooltip {...props} />;
     case 'custom':
       return <CustomTooltip {...props} {...customProps} />;
     default:

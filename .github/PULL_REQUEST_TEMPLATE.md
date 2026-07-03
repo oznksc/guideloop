@@ -1,3 +1,5 @@
+> **Base branch:** `dev` — PRs to `main` will not be accepted.
+
 ## Description
 
 Please include a summary of the change and which issue is fixed.
