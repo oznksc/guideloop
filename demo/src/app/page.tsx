@@ -60,7 +60,7 @@ export default function Home() {
       {/* Sidebar */}
       <div id="sidebar" className="fixed left-0 top-0 h-full w-64 bg-gray-800 text-white p-4">
         <div className="mb-8">
-          <h1 className="text-xl font-bold">Dashboard</h1>
+          <img src="/guideloop-logo.svg" alt="GuideLoop" className="h-8" />
         </div>
         
         <nav className="space-y-2">
