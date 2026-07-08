@@ -7,4 +7,5 @@ module.exports = {
       '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     },
     setupFilesAfterEnv: ['@testing-library/jest-dom/extend-expect', '<rootDir>/src/test-setup.ts'],
+    testPathIgnorePatterns: ['/node_modules/', '/e2e/'],
   };
