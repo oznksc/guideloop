@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-07-08
+
+### Added
+- Comprehensive unit test suite: 139 tests across all hooks, components, and utilities.
+- Hook tests for `useSteps`, `useSpotlight`, `useKeyboard`, `usePopper`, `useScroll`, and `useTheme` covering all public APIs, edge cases, and async behaviors.
+- Component tests for `Tooltip`, `MaskedOverlay`, `Spotlight`, `Progress`, `Overlay`, and `GuideLoop` covering rendering, interactions, themes, custom labels, images, SVGs, conditional steps, keyboard events, and accessibility.
+- Utility tests for `animation`, `dom`, `position`, and `scroll` modules.
+- Playwright E2E test suite covering basic tour flow, keyboard navigation, and step transitions.
+- CI/CD improvements: multi-node matrix (18, 20, 22), coverage thresholds (branches 70%, functions 70%, lines 75%, statements 75%), and separate E2E job.
+- New `test:e2e` and `test:e2e:ui` npm scripts for running Playwright tests.
+
 ## [1.2.0] - 2026-07-08
 
 ### Added
