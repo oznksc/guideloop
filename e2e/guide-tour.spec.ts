@@ -29,22 +29,22 @@ test.describe('GuideLoop Basic Tour', () => {
 
   test('should navigate to next step', async ({ page }) => {
     await page.locator('#help-button').click();
-    await page.getByRole('button', { name: 'Next' }).click();
+    await page.getByRole('button', { name: 'İleri' }).click();
     await expect(page.getByText(/Step 2 of/)).toBeVisible();
   });
 
   test('should navigate back with Previous button', async ({ page }) => {
     await page.locator('#help-button').click();
-    await page.getByRole('button', { name: 'Next' }).click();
+    await page.getByRole('button', { name: 'İleri' }).click();
     await expect(page.getByText(/Step 2 of/)).toBeVisible();
 
-    await page.getByRole('button', { name: 'Previous' }).click();
+    await page.getByRole('button', { name: 'Geri' }).click();
     await expect(page.getByText(/Step 1 of/)).toBeVisible();
   });
 
   test('should close tour when Skip is clicked', async ({ page }) => {
     await page.locator('#help-button').click();
-    await page.getByRole('button', { name: 'Skip' }).click();
+    await page.getByRole('button', { name: 'Atla' }).click();
     await expect(page.locator('.guideloop-container')).not.toBeVisible();
   });
 
@@ -66,11 +66,11 @@ test.describe('GuideLoop Basic Tour', () => {
     const basicTourSteps = 5;
     for (let i = 1; i < basicTourSteps; i++) {
       await expect(page.getByText(new RegExp(`Step ${i} of ${basicTourSteps}`))).toBeVisible();
-      await page.getByRole('button', { name: 'Next' }).click();
+      await page.getByRole('button', { name: 'İleri' }).click();
     }
 
     await expect(page.getByText(`Step ${basicTourSteps} of ${basicTourSteps}`)).toBeVisible();
-    await page.getByRole('button', { name: 'Finish' }).click();
+    await page.getByRole('button', { name: 'Bitir' }).click();
     await expect(page.locator('.guideloop-container')).not.toBeVisible();
   });
 });
@@ -78,7 +78,9 @@ test.describe('GuideLoop Basic Tour', () => {
 test.describe('GuideLoop Keyboard Navigation', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
     await page.locator('#help-button').click();
+    await page.waitForSelector('[role="tooltip"]');
   });
 
   test('should navigate forward with ArrowRight', async ({ page }) => {
