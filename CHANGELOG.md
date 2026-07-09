@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.2] - 2026-07-09
+
+### Fixed
+- Fixed Playwright E2E tests failing to find navigation buttons due to Turkish locale mismatch in demo's defaultButtonLabels.
+- Fixed flaky keyboard navigation E2E tests by adding page load and tooltip visibility guards before interaction.
+
 ## [1.3.1] - 2026-07-08
 
 ### Fixed
