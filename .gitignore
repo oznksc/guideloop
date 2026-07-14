@@ -26,3 +26,11 @@ Desktop.ini
 # Build
 coverage/
 *.tsbuildinfo
+
+# Test results
+test-results/
+demo/test-results/
+playwright-report/
+
+# Docs
+docs/
