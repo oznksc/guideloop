@@ -4,12 +4,15 @@ import { GuideLoop } from "../../../src/components/GuideLoop";
 import { Placement } from "@popperjs/core";
 import { SettingsPanel, Settings } from "../components/SettingsPanel";
 import { Dashboard } from "../components/Dashboard";
-import { tourSets, customThemes } from "../components/tourSets";
+import { tourSets, themeVariants } from "../components/tourSets";
 
 const defaultSettings: Settings = {
   selectedTour: "basic",
   theme: "tailwind",
-  customThemeName: null,
+  themeVariant: "default",
+  animationPreset: "dynamic",
+  buttonLabelPreset: "turkish",
+  featurePreset: "full",
   placement: "bottom",
   spotlightPadding: 8,
   overlay: true,
@@ -21,7 +24,7 @@ const defaultSettings: Settings = {
     overlay: { enter: "fade-in 0.3s ease-out", exit: "fade-out 0.2s ease-in", duration: 300, timing: "ease" },
   },
   initialStep: 0,
-  buttonLabels: { next: "İleri", prev: "Geri", skip: "Atla", finish: "Bitir" },
+  buttonLabels: { next: "Ileri", prev: "Geri", skip: "Atla", finish: "Bitir" },
   zIndex: 9999,
   eventLog: [],
 };
@@ -38,6 +41,15 @@ export default function Home() {
     }));
   }, []);
 
+  const steps = useMemo(() => {
+    const tourData = tourSets.find((t) => t.id === settings.selectedTour);
+    if (!tourData) return [];
+    return tourData.steps.map((step) => ({
+      ...step,
+      placement: (step.placement || settings.placement) as Placement,
+    }));
+  }, [settings.selectedTour, settings.placement]);
+
   const handleStartTour = useCallback(() => {
     addLog("Tour başlatıldı");
     setShowWalkthrough(true);
@@ -50,7 +62,11 @@ export default function Home() {
 
   const handleStepChange = useCallback((step: number) => {
     addLog(`Step değişti: ${step + 1}`);
-  }, [addLog]);
+    const target = steps[step]?.target;
+    if (target && target !== "#alertBox") {
+      document.dispatchEvent(new CustomEvent("guideloop-modal-close"));
+    }
+  }, [addLog, steps]);
 
   const handleComplete = useCallback(() => {
     addLog("Tour tamamlandı!");
@@ -62,21 +78,11 @@ export default function Home() {
     setShowWalkthrough(false);
   }, [addLog]);
 
-  const steps = useMemo(() => {
-    const tourData = tourSets.find((t) => t.id === settings.selectedTour);
-    if (!tourData) return [];
-    return tourData.steps.map((step) => ({
-      ...step,
-      placement: (step.placement || settings.placement) as Placement,
-    }));
-  }, [settings.selectedTour, settings.placement]);
-
   const themeConfig = useMemo(() => {
-    if (settings.theme === "custom" && settings.customThemeName) {
-      return customThemes[settings.customThemeName];
-    }
-    return undefined;
-  }, [settings.theme, settings.customThemeName]);
+    const variants = themeVariants[settings.theme];
+    const variant = variants?.find((v) => v.name === settings.themeVariant);
+    return variant?.config;
+  }, [settings.theme, settings.themeVariant]);
 
   return (
     <div className="min-h-screen bg-gray-50">

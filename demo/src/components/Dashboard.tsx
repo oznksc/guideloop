@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Alert, Card, Typography, Space, Divider } from "antd";
 import {
   SearchOutlined,
@@ -24,6 +24,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onStartTour }) => {
   const [showModal, setShowModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [formData, setFormData] = useState({ name: "", email: "", role: "user", agree: false });
+
+  // GuideLoop senaryoları modal dışına geçtiğinde modalı otomatik kapat
+  useEffect(() => {
+    const closeModal = () => setShowModal(false);
+    document.addEventListener("guideloop-modal-close", closeModal);
+    return () => document.removeEventListener("guideloop-modal-close", closeModal);
+  }, []);
 
   const notifications = [
     { id: 1, title: "Yeni mesaj alındı", time: "5 dk önce", type: "info" },

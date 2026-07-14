@@ -106,7 +106,11 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
       if (elementId) {
         const element = document.querySelector(elementId);
         if (!element) {
-          console.warn(`Element with id '${elementId}' not found`);
+          console.warn(`Element with id '${elementId}' not found, advancing to next step`);
+          if (typeof nextStepIndex === 'number') {
+            setCurrentStepIndex(nextStepIndex);
+            setCurrentStep(nextStepIndex);
+          }
           return;
         }
 
@@ -150,7 +154,8 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
         await currentStepData.beforeStep();
       }
 
-      if (currentStepData?.nextButtonClickElementId || currentStepData?.nextButtonOnClick) {
+      const hasElementAction = currentStepData?.nextButtonClickElementId || currentStepData?.nextButtonOnClick;
+      if (hasElementAction) {
         await handleElementClick(
           currentStepData.nextButtonClickElementId,
           currentStepData.nextDelay,
@@ -158,6 +163,9 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
           nextStepIndex
         );
       } else {
+        if (currentStepData?.nextDelay) {
+          await new Promise((resolve) => setTimeout(resolve, currentStepData.nextDelay));
+        }
         setCurrentStepIndex(nextStepIndex);
         goToNextStep();
       }
@@ -211,14 +219,22 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
           currentStepData.skipButtonOnClick
         );
       }
-      onSkip?.();
+      if (isLastStep) {
+        onComplete?.();
+      } else {
+        onSkip?.();
+      }
       onClose();
     } catch (error) {
       console.error('Error during skip:', error);
-      onSkip?.();
+      if (isLastStep) {
+        onComplete?.();
+      } else {
+        onSkip?.();
+      }
       onClose();
     }
-  }, [currentStepData, onSkip, onClose, handleElementClick]);
+  }, [currentStepData, isLastStep, onSkip, onComplete, onClose, handleElementClick]);
 
   useEffect(() => {
     const handleRestart = (event: Event) => {

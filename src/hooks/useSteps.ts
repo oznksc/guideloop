@@ -34,17 +34,13 @@ export const useSteps = ({
   }, [steps]);
 
   const nextStep = useCallback(async () => {
-    const currentStepData = validSteps[currentStep];
-    
+    const next = currentStep + 1;
+
     try {
-      // Execute beforeStep hook if exists
-      await currentStepData?.afterStep?.();
-      
-      const next = currentStep + 1;
       if (next < validSteps.length) {
         // Execute next step's beforeStep hook
         await validSteps[next]?.beforeStep?.();
-        
+
         setCurrentStep(next);
         onStepChange?.(next);
       } else {
