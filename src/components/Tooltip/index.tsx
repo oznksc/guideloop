@@ -102,6 +102,47 @@ export const Tooltip: React.FC<TooltipProps> = ({
     close: step.showButtons?.close !== false
   };
 
+  type ActionKind = 'prev' | 'next' | 'close';
+
+  const renderActionButton = (
+    kind: ActionKind,
+    visible: boolean,
+    label: string,
+    handler: () => void,
+    variant: 'secondary' | 'primary',
+    defaultContent: React.ReactNode
+  ) => {
+    if (!visible) return null;
+
+    const custom = step.buttons?.[kind];
+    if (custom) {
+      return (
+        <button
+          key={kind}
+          type="button"
+          onClick={handler}
+          aria-label={label}
+          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+        >
+          {custom}
+        </button>
+      );
+    }
+
+    return (
+      <button
+        key={kind}
+        type="button"
+        onClick={handler}
+        className={variant === 'primary' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-gray-900'}
+        style={variant === 'primary' ? themeStyles.buttons.primary : themeStyles.buttons.secondary}
+        aria-label={label}
+      >
+        {defaultContent}
+      </button>
+    );
+  };
+
   // Fallback position for tooltip when target is not found
   const fallbackStyle = !targetRef.current ? {
     top: '50%',
@@ -139,9 +180,16 @@ export const Tooltip: React.FC<TooltipProps> = ({
 
       {/* Content */}
       <div className="space-y-3">
-        <h3 className="text-lg font-semibold">
-          {step.title}
-        </h3>
+        <div className="flex items-center gap-2">
+          {step.icon && (
+            <span className="shrink-0 text-blue-600" aria-hidden="true">
+              {step.icon}
+            </span>
+          )}
+          <h3 className="text-lg font-semibold">
+            {step.title}
+          </h3>
+        </div>
         <div className="text-gray-600">
           {step.content}
         </div>
@@ -150,38 +198,11 @@ export const Tooltip: React.FC<TooltipProps> = ({
       {/* Navigation buttons */}
       <div className="flex justify-between mt-4 pt-3 border-t border-gray-100">
         <div>
-          {showButtons.previous && (
-            <button
-              onClick={onPrev}
-              className="text-gray-600 hover:text-gray-900"
-              style={themeStyles.buttons.secondary}
-              aria-label={buttonLabels.prev}
-            >
-              {buttonLabels.prev}
-            </button>
-          )}
+          {renderActionButton('prev', showButtons.previous, buttonLabels.prev, onPrev, 'secondary', buttonLabels.prev)}
         </div>
         <div className="flex gap-2">
-          {showButtons.close && (
-            <button
-              onClick={onClose}
-              className="text-gray-600 hover:text-gray-900"
-              style={themeStyles.buttons.secondary}
-              aria-label={isLast ? buttonLabels.finish : buttonLabels.skip}
-            >
-              {isLast ? buttonLabels.finish : buttonLabels.skip}
-            </button>
-          )}
-          {showButtons.next && (
-            <button
-              onClick={onNext}
-              className="bg-blue-600 text-white"
-              style={themeStyles.buttons.primary}
-              aria-label={buttonLabels.next}
-            >
-              {buttonLabels.next}
-            </button>
-          )}
+          {renderActionButton('close', showButtons.close, isLast ? buttonLabels.finish : buttonLabels.skip, onClose, 'secondary', isLast ? buttonLabels.finish : buttonLabels.skip)}
+          {renderActionButton('next', showButtons.next, buttonLabels.next, onNext, 'primary', buttonLabels.next)}
         </div>
       </div>
     </div>

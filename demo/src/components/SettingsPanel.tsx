@@ -1,14 +1,17 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import { AnimationConfig } from "../../../src/utils/animation";
-import { tourSets, CustomThemeName } from "./tourSets";
+import { tourSets, themeVariants, animationPresets, buttonLabelPresets, featurePresets } from "./tourSets";
 
 type Theme = "tailwind" | "material" | "antd" | "custom";
 
 export interface Settings {
   selectedTour: string;
   theme: Theme;
-  customThemeName: CustomThemeName | null;
+  themeVariant: string;
+  animationPreset: string;
+  buttonLabelPreset: string;
+  featurePreset: string;
   placement: string;
   spotlightPadding: number;
   overlay: boolean;
@@ -283,7 +286,11 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onSettin
               <Select
                 label="Tema"
                 value={settings.theme}
-                onChange={(v) => update({ theme: v as Theme, customThemeName: v === "custom" ? (settings.customThemeName || "red") : null })}
+                onChange={(v) => {
+                  const newTheme = v as Theme;
+                  const firstVariant = themeVariants[newTheme]?.[0]?.name || "default";
+                  update({ theme: newTheme, themeVariant: firstVariant });
+                }}
                 options={[
                   { value: "tailwind", label: "Tailwind" },
                   { value: "material", label: "Material" },
@@ -291,17 +298,15 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onSettin
                   { value: "custom", label: "Custom" },
                 ]}
               />
-              {settings.theme === "custom" && (
+              {themeVariants[settings.theme]?.length > 1 && (
                 <Select
-                  label="Custom Theme Variant"
-                  value={settings.customThemeName || "red"}
-                  onChange={(v) => update({ customThemeName: v as CustomThemeName })}
-                  options={[
-                    { value: "red", label: "Kırmızı" },
-                    { value: "dark", label: "Karanlık" },
-                    { value: "green", label: "Yeşil" },
-                    { value: "orange", label: "Turuncu" },
-                  ]}
+                  label="Tema Varyanti"
+                  value={settings.themeVariant}
+                  onChange={(v) => update({ themeVariant: v })}
+                  options={themeVariants[settings.theme].map((v) => ({
+                    value: v.name,
+                    label: v.label,
+                  }))}
                 />
               )}
             </CollapsibleSection>
@@ -331,61 +336,122 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onSettin
             </CollapsibleSection>
 
             <CollapsibleSection title="Features">
-              <Toggle label="Overlay" checked={settings.overlay} onChange={(v) => update({ overlay: v })} />
-              <Toggle label="Keyboard Navigation" checked={settings.keyboard} onChange={(v) => update({ keyboard: v })} />
-              <Toggle label="Scroll Smooth" checked={settings.scrollSmooth} onChange={(v) => update({ scrollSmooth: v })} />
+              <Select
+                label="Feature Preset"
+                value={settings.featurePreset}
+                onChange={(v) => {
+                  const preset = featurePresets.find((p) => p.name === v);
+                  if (preset) {
+                    update({
+                      featurePreset: v,
+                      overlay: preset.config.overlay,
+                      keyboard: preset.config.keyboard,
+                      scrollSmooth: preset.config.scrollSmooth,
+                    });
+                  }
+                }}
+                options={featurePresets.map((p) => ({ value: p.name, label: p.label }))}
+              />
+              <div className="pt-2 space-y-2">
+                <Toggle label="Overlay" checked={settings.overlay} onChange={(v) => update({ overlay: v, featurePreset: "custom" })} />
+                <Toggle label="Keyboard Navigation" checked={settings.keyboard} onChange={(v) => update({ keyboard: v, featurePreset: "custom" })} />
+                <Toggle label="Scroll Smooth" checked={settings.scrollSmooth} onChange={(v) => update({ scrollSmooth: v, featurePreset: "custom" })} />
+              </div>
             </CollapsibleSection>
 
             <CollapsibleSection title="Animations">
               <Select
-                label="Tooltip Enter"
-                value={settings.animations.tooltip?.enter || ""}
-                onChange={(v) =>
-                  update({
-                    animations: { ...settings.animations, tooltip: { ...settings.animations.tooltip, enter: v } },
-                  })
-                }
-                options={[
-                  { value: "fade-in 0.3s ease-out", label: "Fade In" },
-                  { value: "scale-in 0.3s ease-out", label: "Scale In" },
-                  { value: "fade-in 0.5s ease-out", label: "Fade In (Slow)" },
-                  { value: "scale-in 0.5s ease-out", label: "Scale In (Slow)" },
-                ]}
+                label="Animation Preset"
+                value={settings.animationPreset}
+                onChange={(v) => {
+                  const preset = animationPresets.find((p) => p.name === v);
+                  if (preset) {
+                    update({
+                      animationPreset: v,
+                      animations: {
+                        ...settings.animations,
+                        tooltip: {
+                          ...settings.animations.tooltip,
+                          enter: preset.config.tooltip.enter,
+                          exit: preset.config.tooltip.exit,
+                          duration: preset.config.tooltip.duration,
+                        },
+                      },
+                    });
+                  }
+                }}
+                options={animationPresets.map((p) => ({ value: p.name, label: p.label }))}
               />
-              <Select
-                label="Tooltip Exit"
-                value={settings.animations.tooltip?.exit || ""}
-                onChange={(v) =>
-                  update({
-                    animations: { ...settings.animations, tooltip: { ...settings.animations.tooltip, exit: v } },
-                  })
-                }
-                options={[
-                  { value: "fade-out 0.2s ease-in", label: "Fade Out" },
-                  { value: "scale-out 0.2s ease-in", label: "Scale Out" },
-                  { value: "fade-out 0.5s ease-in", label: "Fade Out (Slow)" },
-                  { value: "scale-out 0.5s ease-in", label: "Scale Out (Slow)" },
-                ]}
-              />
-              <Slider
-                label="Duration (ms)"
-                value={settings.animations.tooltip?.duration || 300}
-                onChange={(v) =>
-                  update({
-                    animations: { ...settings.animations, tooltip: { ...settings.animations.tooltip, duration: v } },
-                  })
-                }
-                min={100}
-                max={1000}
-                step={50}
-              />
+              <div className="pt-2">
+                <Select
+                  label="Tooltip Enter"
+                  value={settings.animations.tooltip?.enter || ""}
+                  onChange={(v) =>
+                    update({
+                      animationPreset: "custom",
+                      animations: { ...settings.animations, tooltip: { ...settings.animations.tooltip, enter: v } },
+                    })
+                  }
+                  options={[
+                    { value: "fade-in 0.3s ease-out", label: "Fade In" },
+                    { value: "scale-in 0.3s ease-out", label: "Scale In" },
+                    { value: "fade-in 0.5s ease-out", label: "Fade In (Slow)" },
+                    { value: "scale-in 0.5s ease-out", label: "Scale In (Slow)" },
+                  ]}
+                />
+                <Select
+                  label="Tooltip Exit"
+                  value={settings.animations.tooltip?.exit || ""}
+                  onChange={(v) =>
+                    update({
+                      animationPreset: "custom",
+                      animations: { ...settings.animations, tooltip: { ...settings.animations.tooltip, exit: v } },
+                    })
+                  }
+                  options={[
+                    { value: "fade-out 0.2s ease-in", label: "Fade Out" },
+                    { value: "scale-out 0.2s ease-in", label: "Scale Out" },
+                    { value: "fade-out 0.5s ease-in", label: "Fade Out (Slow)" },
+                    { value: "scale-out 0.5s ease-in", label: "Scale Out (Slow)" },
+                  ]}
+                />
+                <Slider
+                  label="Duration (ms)"
+                  value={settings.animations.tooltip?.duration || 300}
+                  onChange={(v) =>
+                    update({
+                      animationPreset: "custom",
+                      animations: { ...settings.animations, tooltip: { ...settings.animations.tooltip, duration: v } },
+                    })
+                  }
+                  min={100}
+                  max={1000}
+                  step={50}
+                />
+              </div>
             </CollapsibleSection>
 
             <CollapsibleSection title="Button Labels">
-              <TextInput label="Next" value={settings.buttonLabels.next} onChange={(v) => update({ buttonLabels: { ...settings.buttonLabels, next: v } })} />
-              <TextInput label="Previous" value={settings.buttonLabels.prev} onChange={(v) => update({ buttonLabels: { ...settings.buttonLabels, prev: v } })} />
-              <TextInput label="Skip" value={settings.buttonLabels.skip} onChange={(v) => update({ buttonLabels: { ...settings.buttonLabels, skip: v } })} />
-              <TextInput label="Finish" value={settings.buttonLabels.finish} onChange={(v) => update({ buttonLabels: { ...settings.buttonLabels, finish: v } })} />
+              <Select
+                label="Language"
+                value={settings.buttonLabelPreset}
+                onChange={(v) => {
+                  const preset = buttonLabelPresets.find((p) => p.name === v);
+                  if (preset) {
+                    update({
+                      buttonLabelPreset: v,
+                      buttonLabels: { ...preset.config },
+                    });
+                  }
+                }}
+                options={buttonLabelPresets.map((p) => ({ value: p.name, label: p.label }))}
+              />
+              <div className="pt-2 space-y-2">
+                <TextInput label="Next" value={settings.buttonLabels.next} onChange={(v) => update({ buttonLabelPreset: "custom", buttonLabels: { ...settings.buttonLabels, next: v } })} />
+                <TextInput label="Previous" value={settings.buttonLabels.prev} onChange={(v) => update({ buttonLabelPreset: "custom", buttonLabels: { ...settings.buttonLabels, prev: v } })} />
+                <TextInput label="Skip" value={settings.buttonLabels.skip} onChange={(v) => update({ buttonLabelPreset: "custom", buttonLabels: { ...settings.buttonLabels, skip: v } })} />
+                <TextInput label="Finish" value={settings.buttonLabels.finish} onChange={(v) => update({ buttonLabelPreset: "custom", buttonLabels: { ...settings.buttonLabels, finish: v } })} />
+              </div>
             </CollapsibleSection>
 
             <CollapsibleSection title="Advanced">

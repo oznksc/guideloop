@@ -1,5 +1,6 @@
 "use client";
 import { Step } from "../../../src/components/GuideLoop/types";
+import { ThemeConfig } from "../../../src/themes/types";
 import React from "react";
 
 // ==================== TOUR SETS ====================
@@ -18,7 +19,7 @@ export const basicTour: Step[] = [
     placement: "bottom",
   },
   {
-    target: "#sidebar",
+    target: "#tab-section",
     title: "Ana Menü",
     content: "Tüm bölümlere buradan hızlıca erişebilirsiniz.",
     placement: "right",
@@ -53,7 +54,7 @@ export const buttonCustomTour: Step[] = [
     showButtons: { next: true, previous: false, close: true },
   },
   {
-    target: "#sidebar",
+    target: "#tab-section",
     title: "Sadece Kapat",
     content: "Bu step'te sadece Close butonu görünüyor.",
     placement: "right",
@@ -62,9 +63,26 @@ export const buttonCustomTour: Step[] = [
   {
     target: "#notifications",
     title: "Özel Buton ReactNode",
-    content: "Butonlar tamamen ReactNode olarak özelleştirilebilir.",
+    content: "Butonlar tamamen ReactNode olarak özelleştirilebilir. Aşağıdaki butonlar özel stilli ReactNode'lardır.",
     placement: "bottom",
     showButtons: { next: true, previous: true, close: true },
+    buttons: {
+      prev: (
+        <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200">
+          ← Geri
+        </span>
+      ),
+      next: (
+        <span className="inline-flex items-center gap-1 px-4 py-1.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow">
+          Devam Et →
+        </span>
+      ),
+      close: (
+        <span className="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold bg-red-50 text-red-600 hover:bg-red-100">
+          ✕
+        </span>
+      ),
+    },
   },
 ];
 
@@ -83,11 +101,10 @@ export const actionsTour: Step[] = [
     placement: "left",
     nextButtonOnClick: () => {
       console.log("Custom next button clicked!");
-      alert("nextButtonOnClick callback çalıştı!");
     },
   },
   {
-    target: "#sidebar",
+    target: "#tab-section",
     title: "Delay",
     content: "nextDelay ile butona basıldıktan sonra belirli bir süre bekleyip sonraki adıma geçebilirsiniz.",
     placement: "right",
@@ -124,7 +141,7 @@ export const hooksTour: Step[] = [
     },
   },
   {
-    target: "#sidebar",
+    target: "#tab-section",
     title: "Condition",
     content: "condition fonksiyonu false döndüğünde bu step atlanır.",
     placement: "right",
@@ -187,7 +204,7 @@ export const imageTour: Step[] = [
     },
   },
   {
-    target: "#sidebar",
+    target: "#tab-section",
     title: "Icon Content",
     content: "icon prop ile tooltip'e ikon eklenebilir.",
     placement: "right",
@@ -211,12 +228,12 @@ export const dynamicTour: Step[] = [
   {
     target: "#alertBox",
     title: "Dynamic Content",
-    content: "Modal içindeki elementlere yönlendirme yapılabilir.",
+    content: "Modal içindeki elementlere yönlendirme yapılabilir. İleri dediğinizde modal kapanır.",
     placement: "left",
-    showButtons: { next: false, previous: true, close: true },
+    showButtons: { next: true, previous: true, close: true },
   },
   {
-    target: "#sidebar",
+    target: "#tab-section",
     title: "Tab Menü",
     content: "Tab menüsündeki elementlere adım adım rehberlik.",
     placement: "right",
@@ -255,7 +272,7 @@ export const allPlacementsTour: Step[] = [
     placement: "top",
   },
   {
-    target: "#sidebar",
+    target: "#tab-section",
     title: "placement: right",
     content: "Tooltip hedefin sağında gösterilir.",
     placement: "right",
@@ -288,7 +305,7 @@ export const customThemeTour: Step[] = [
     placement: "bottom",
   },
   {
-    target: "#sidebar",
+    target: "#tab-section",
     title: "Tema Geçişi",
     content: "Settings panelinden tema değiştirerek farkı görebilirsiniz.",
     placement: "right",
@@ -364,129 +381,422 @@ export const tourSets: TourSet[] = [
   },
 ];
 
-// ==================== CUSTOM THEMES ====================
+// ==================== THEME VARIANTS ====================
 
-export const customThemes = {
-  red: {
-    tooltip: {
-      background: "#dc2626",
-      textColor: "#ffffff",
-      borderRadius: "12px",
-      padding: "16px",
-      boxShadow: "0 10px 40px rgba(220, 38, 38, 0.4)",
+export interface ThemeVariant {
+  name: string;
+  label: string;
+  config: Partial<ThemeConfig>;
+}
+
+export const themeVariants: Record<string, ThemeVariant[]> = {
+  tailwind: [
+    {
+      name: "default",
+      label: "Varsayilan",
+      config: {},
     },
-    overlay: { background: "#000000", opacity: 0.6 },
-    spotlight: {
-      borderColor: "#dc2626",
-      borderWidth: "3px",
-      borderRadius: "8px",
-      animation: "pulse 2s infinite",
-    },
-    buttons: {
-      primary: {
-        background: "#ffffff",
-        textColor: "#dc2626",
-        hoverBackground: "#fef2f2",
-        padding: "8px 20px",
-      },
-      secondary: {
-        background: "transparent",
-        textColor: "#ffffff",
-        hoverBackground: "rgba(255,255,255,0.1)",
-        padding: "8px 20px",
-      },
-    },
-  },
-  dark: {
-    tooltip: {
-      background: "#111827",
-      textColor: "#f9fafb",
-      borderRadius: "8px",
-      padding: "16px",
-      boxShadow: "0 10px 40px rgba(0, 0, 0, 0.5)",
-    },
-    overlay: { background: "#000000", opacity: 0.7 },
-    spotlight: {
-      borderColor: "#8b5cf6",
-      borderWidth: "2px",
-      borderRadius: "8px",
-      animation: "pulse 2s infinite",
-    },
-    buttons: {
-      primary: {
-        background: "#8b5cf6",
-        textColor: "#ffffff",
-        hoverBackground: "#7c3aed",
-        padding: "8px 20px",
-      },
-      secondary: {
-        background: "transparent",
-        textColor: "#d1d5db",
-        hoverBackground: "rgba(255,255,255,0.05)",
-        padding: "8px 20px",
+    {
+      name: "minimal",
+      label: "Minimal",
+      config: {
+        tooltip: {
+          background: "#f9fafb",
+          textColor: "#111827",
+          borderRadius: "4px",
+          padding: "12px",
+          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+        },
+        buttons: {
+          primary: {
+            background: "#2563EB",
+            textColor: "white",
+            hoverBackground: "#1D4ED8",
+            padding: "6px 14px",
+          },
+          secondary: {
+            background: "transparent",
+            textColor: "#6B7280",
+            hoverBackground: "#F9FAFB",
+            padding: "6px 14px",
+          },
+        },
       },
     },
-  },
-  green: {
-    tooltip: {
-      background: "#059669",
-      textColor: "#ffffff",
-      borderRadius: "16px",
-      padding: "16px",
-      boxShadow: "0 10px 40px rgba(5, 150, 105, 0.4)",
-    },
-    overlay: { background: "#000000", opacity: 0.5 },
-    spotlight: {
-      borderColor: "#10b981",
-      borderWidth: "3px",
-      borderRadius: "12px",
-      animation: "pulse 2s infinite",
-    },
-    buttons: {
-      primary: {
-        background: "#ffffff",
-        textColor: "#059669",
-        hoverBackground: "#ecfdf5",
-        padding: "8px 20px",
-      },
-      secondary: {
-        background: "transparent",
-        textColor: "#ffffff",
-        hoverBackground: "rgba(255,255,255,0.1)",
-        padding: "8px 20px",
-      },
-    },
-  },
-  orange: {
-    tooltip: {
-      background: "#ea580c",
-      textColor: "#ffffff",
-      borderRadius: "4px",
-      padding: "16px",
-      boxShadow: "0 10px 40px rgba(234, 88, 12, 0.4)",
-    },
-    overlay: { background: "#000000", opacity: 0.6 },
-    spotlight: {
-      borderColor: "#f97316",
-      borderWidth: "2px",
-      borderRadius: "4px",
-      animation: "pulse 2s infinite",
-    },
-    buttons: {
-      primary: {
-        background: "#ffffff",
-        textColor: "#ea580c",
-        hoverBackground: "#fff7ed",
-        padding: "8px 20px",
-      },
-      secondary: {
-        background: "transparent",
-        textColor: "#ffffff",
-        hoverBackground: "rgba(255,255,255,0.1)",
-        padding: "8px 20px",
+    {
+      name: "bold",
+      label: "Kalin",
+      config: {
+        tooltip: {
+          background: "#1e40af",
+          textColor: "#ffffff",
+          borderRadius: "12px",
+          padding: "20px",
+          boxShadow: "0 20px 60px rgba(37, 99, 235, 0.3)",
+        },
+        spotlight: {
+          borderColor: "#1e40af",
+          borderWidth: "3px",
+          borderRadius: "8px",
+          animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        },
+        buttons: {
+          primary: {
+            background: "#ffffff",
+            textColor: "#1e40af",
+            hoverBackground: "#eff6ff",
+            padding: "8px 20px",
+          },
+          secondary: {
+            background: "transparent",
+            textColor: "#bfdbfe",
+            hoverBackground: "rgba(255,255,255,0.1)",
+            padding: "8px 20px",
+          },
+        },
       },
     },
-  },
+  ],
+  material: [
+    {
+      name: "default",
+      label: "Varsayilan",
+      config: {},
+    },
+    {
+      name: "elevated",
+      label: "Yukseltilmis",
+      config: {
+        tooltip: {
+          background: "white",
+          textColor: "rgba(0, 0, 0, 0.87)",
+          borderRadius: "8px",
+          padding: "20px",
+          boxShadow: "0px 8px 10px -5px rgba(0,0,0,0.3), 0px 20px 40px rgba(0,0,0,0.15)",
+        },
+        spotlight: {
+          borderColor: "#1565C0",
+          borderWidth: "3px",
+          borderRadius: "8px",
+          animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        },
+      },
+    },
+    {
+      name: "dense",
+      label: "Yogun",
+      config: {
+        tooltip: {
+          background: "white",
+          textColor: "rgba(0, 0, 0, 0.87)",
+          borderRadius: "2px",
+          padding: "8px",
+          boxShadow: "0px 2px 4px -1px rgba(0,0,0,0.2)",
+        },
+        buttons: {
+          primary: {
+            background: "#1976D2",
+            textColor: "white",
+            hoverBackground: "#1565C0",
+            padding: "4px 10px",
+          },
+          secondary: {
+            background: "transparent",
+            textColor: "rgba(0, 0, 0, 0.87)",
+            hoverBackground: "rgba(0, 0, 0, 0.04)",
+            padding: "4px 10px",
+          },
+        },
+      },
+    },
+  ],
+  antd: [
+    {
+      name: "default",
+      label: "Varsayilan",
+      config: {},
+    },
+    {
+      name: "compact",
+      label: "Kompakt",
+      config: {
+        tooltip: {
+          background: "#ffffff",
+          textColor: "rgba(0, 0, 0, 0.85)",
+          borderRadius: "2px",
+          padding: "12px",
+          boxShadow: "0 3px 6px -4px rgba(0,0,0,0.12)",
+        },
+        spotlight: {
+          borderColor: "#1890ff",
+          borderWidth: "2px",
+          borderRadius: "2px",
+          animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        },
+      },
+    },
+    {
+      name: "comfortable",
+      label: "Rahat",
+      config: {
+        tooltip: {
+          background: "#ffffff",
+          textColor: "rgba(0, 0, 0, 0.85)",
+          borderRadius: "8px",
+          padding: "28px",
+          boxShadow: "0 6px 16px -8px rgba(0,0,0,0.15), 0 9px 28px rgba(0,0,0,0.1)",
+        },
+        overlay: {
+          background: "#000000",
+          opacity: 0.5,
+        },
+      },
+    },
+  ],
+  custom: [
+    {
+      name: "red",
+      label: "Kirmizi",
+      config: {
+        tooltip: {
+          background: "#dc2626",
+          textColor: "#ffffff",
+          borderRadius: "12px",
+          padding: "16px",
+          boxShadow: "0 10px 40px rgba(220, 38, 38, 0.4)",
+        },
+        overlay: { background: "#000000", opacity: 0.6 },
+        spotlight: {
+          borderColor: "#dc2626",
+          borderWidth: "3px",
+          borderRadius: "8px",
+          animation: "pulse 2s infinite",
+        },
+        buttons: {
+          primary: {
+            background: "#ffffff",
+            textColor: "#dc2626",
+            hoverBackground: "#fef2f2",
+            padding: "8px 20px",
+          },
+          secondary: {
+            background: "transparent",
+            textColor: "#ffffff",
+            hoverBackground: "rgba(255,255,255,0.1)",
+            padding: "8px 20px",
+          },
+        },
+      },
+    },
+    {
+      name: "dark",
+      label: "Karanlik",
+      config: {
+        tooltip: {
+          background: "#111827",
+          textColor: "#f9fafb",
+          borderRadius: "8px",
+          padding: "16px",
+          boxShadow: "0 10px 40px rgba(0, 0, 0, 0.5)",
+        },
+        overlay: { background: "#000000", opacity: 0.7 },
+        spotlight: {
+          borderColor: "#8b5cf6",
+          borderWidth: "2px",
+          borderRadius: "8px",
+          animation: "pulse 2s infinite",
+        },
+        buttons: {
+          primary: {
+            background: "#8b5cf6",
+            textColor: "#ffffff",
+            hoverBackground: "#7c3aed",
+            padding: "8px 20px",
+          },
+          secondary: {
+            background: "transparent",
+            textColor: "#d1d5db",
+            hoverBackground: "rgba(255,255,255,0.05)",
+            padding: "8px 20px",
+          },
+        },
+      },
+    },
+    {
+      name: "green",
+      label: "Yesil",
+      config: {
+        tooltip: {
+          background: "#059669",
+          textColor: "#ffffff",
+          borderRadius: "16px",
+          padding: "16px",
+          boxShadow: "0 10px 40px rgba(5, 150, 105, 0.4)",
+        },
+        overlay: { background: "#000000", opacity: 0.5 },
+        spotlight: {
+          borderColor: "#10b981",
+          borderWidth: "3px",
+          borderRadius: "12px",
+          animation: "pulse 2s infinite",
+        },
+        buttons: {
+          primary: {
+            background: "#ffffff",
+            textColor: "#059669",
+            hoverBackground: "#ecfdf5",
+            padding: "8px 20px",
+          },
+          secondary: {
+            background: "transparent",
+            textColor: "#ffffff",
+            hoverBackground: "rgba(255,255,255,0.1)",
+            padding: "8px 20px",
+          },
+        },
+      },
+    },
+    {
+      name: "orange",
+      label: "Turuncu",
+      config: {
+        tooltip: {
+          background: "#ea580c",
+          textColor: "#ffffff",
+          borderRadius: "4px",
+          padding: "16px",
+          boxShadow: "0 10px 40px rgba(234, 88, 12, 0.4)",
+        },
+        overlay: { background: "#000000", opacity: 0.6 },
+        spotlight: {
+          borderColor: "#f97316",
+          borderWidth: "2px",
+          borderRadius: "4px",
+          animation: "pulse 2s infinite",
+        },
+        buttons: {
+          primary: {
+            background: "#ffffff",
+            textColor: "#ea580c",
+            hoverBackground: "#fff7ed",
+            padding: "8px 20px",
+          },
+          secondary: {
+            background: "transparent",
+            textColor: "#ffffff",
+            hoverBackground: "rgba(255,255,255,0.1)",
+            padding: "8px 20px",
+          },
+        },
+      },
+    },
+  ],
 };
 
-export type CustomThemeName = keyof typeof customThemes;
+// ==================== ANIMATION PRESETS ====================
+
+export interface AnimationPreset {
+  name: string;
+  label: string;
+  config: {
+    tooltip: { enter: string; exit: string; duration: number };
+  };
+}
+
+export const animationPresets: AnimationPreset[] = [
+  {
+    name: "subtle",
+    label: "Subtle",
+    config: {
+      tooltip: { enter: "fade-in 0.5s ease-out", exit: "fade-out 0.5s ease-in", duration: 500 },
+    },
+  },
+  {
+    name: "dynamic",
+    label: "Dynamic",
+    config: {
+      tooltip: { enter: "scale-in 0.3s ease-out", exit: "scale-out 0.2s ease-in", duration: 300 },
+    },
+  },
+  {
+    name: "none",
+    label: "None",
+    config: {
+      tooltip: { enter: "fade-in 0.01s ease-out", exit: "fade-out 0.01s ease-in", duration: 10 },
+    },
+  },
+  {
+    name: "custom",
+    label: "Custom",
+    config: {
+      tooltip: { enter: "fade-in 0.3s ease-out", exit: "fade-out 0.2s ease-in", duration: 300 },
+    },
+  },
+];
+
+// ==================== BUTTON LABEL PRESETS ====================
+
+export interface ButtonLabelPreset {
+  name: string;
+  label: string;
+  config: { next: string; prev: string; skip: string; finish: string };
+}
+
+export const buttonLabelPresets: ButtonLabelPreset[] = [
+  {
+    name: "turkish",
+    label: "Turkce",
+    config: { next: "Ileri", prev: "Geri", skip: "Atla", finish: "Bitir" },
+  },
+  {
+    name: "english",
+    label: "English",
+    config: { next: "Next", prev: "Previous", skip: "Skip", finish: "Finish" },
+  },
+  {
+    name: "german",
+    label: "Deutsch",
+    config: { next: "Weiter", prev: "Zuruck", skip: "Uberspringen", finish: "Beenden" },
+  },
+  {
+    name: "french",
+    label: "Francais",
+    config: { next: "Suivant", prev: "Precedent", skip: "Passer", finish: "Terminer" },
+  },
+  {
+    name: "custom",
+    label: "Custom",
+    config: { next: "Next", prev: "Previous", skip: "Skip", finish: "Finish" },
+  },
+];
+
+// ==================== FEATURE PRESETS ====================
+
+export interface FeaturePreset {
+  name: string;
+  label: string;
+  config: { overlay: boolean; keyboard: boolean; scrollSmooth: boolean };
+}
+
+export const featurePresets: FeaturePreset[] = [
+  {
+    name: "full",
+    label: "Full",
+    config: { overlay: true, keyboard: true, scrollSmooth: true },
+  },
+  {
+    name: "minimal",
+    label: "Minimal",
+    config: { overlay: false, keyboard: true, scrollSmooth: false },
+  },
+  {
+    name: "accessibility",
+    label: "Accessibility",
+    config: { overlay: true, keyboard: true, scrollSmooth: true },
+  },
+  {
+    name: "custom",
+    label: "Custom",
+    config: { overlay: true, keyboard: true, scrollSmooth: true },
+  },
+];
