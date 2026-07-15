@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { Theme, ThemeConfig } from '../../themes/types';
 import { AnimationConfig } from '../../utils/animation';
+import { PersistConfig } from '../../utils/tourState';
 import { Placement } from '@popperjs/core';
 
 export type ImageContent = {
@@ -58,9 +59,24 @@ export interface StepHooks {
   beforeStep?: () => Promise<void> | void;
   afterStep?: () => Promise<void> | void;
   condition?: () => boolean;
+  branch?: () => number | Promise<number>;
 }
 
-export interface Step extends StepActions, StepUI, StepHooks {
+export type StepStatus = 'idle' | 'pending' | 'success' | 'error';
+
+export type StepTrigger = 'click' | 'change' | 'blur' | 'hover' | 'drag';
+
+export interface WaitForTargetConfig {
+  timeout?: number;
+  root?: HTMLElement;
+}
+
+export interface StepTriggers {
+  trigger?: StepTrigger;
+  waitForTarget?: boolean | WaitForTargetConfig;
+}
+
+export interface Step extends StepActions, StepUI, StepHooks, StepTriggers {
   target: string;
   title: string;
   content: string | ReactNode;
@@ -85,4 +101,5 @@ export interface GuideLoopProps {
   onSkip?: () => void;
   zIndex?: number;
   defaultButtonLabels?: ButtonLabels;
+  persist?: PersistConfig;
 }

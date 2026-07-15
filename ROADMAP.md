@@ -35,20 +35,22 @@ graph TD
 
 ---
 
-## 📌 Phase 2: Advanced Tour Features (Q4 2026)
+## 📌 Phase 2: Advanced Tour Features ✅ Completed
 *Goal: Allow users to build more complex, dynamic, and flexible tours.*
 
-### 2.1 Multi-Page (Multi-Route) Support
+### 2.1 Multi-Page (Multi-Route) Support ✅
 - **Scenario:** A user starts a tour on the `/dashboard` page, gets redirected to `/settings` to continue, and the tour resumes seamlessly from where they left off.
-- **Solution:** An internal state manager that syncs tour progress (current step, active status) across route transitions via URL parameters or localStorage/sessionStorage.
+- **Solution:** An internal state manager that syncs tour progress (current step, active status) across route transitions via localStorage or sessionStorage.
+- **Implementation:** `src/utils/tourState.ts` with `saveTourState`, `loadTourState`, `clearTourState` + `persist` prop on `<GuideLoop>`.
 
-### 2.2 Branching Tours & Conditional Steps
-- Improve the `condition` logic and dynamic step resolution (e.g., jump to specific steps depending on user actions or conditions like "Is Admin?").
-- Introduce status tracking for `beforeStep` and `afterStep` functions, enabling them to wait for async API calls or state updates before proceeding.
+### 2.2 Branching Tours & Conditional Steps ✅
+- **`branch` function** on steps: return a step index to jump to dynamically (e.g., `branch: () => isAdmin ? 5 : 2`).
+- **Step status tracking** (`'idle' | 'pending' | 'success' | 'error'`) for lifecycle hooks.
+- **`afterStep`** now called in `useSteps` on step exit (both `nextStep` and `prevStep`).
 
-### 2.3 Advanced Event Triggers
-- Allow advancing steps using event listeners on target elements (e.g., `onChange`, `onBlur`, `onHover`, `onDrag`) in addition to clicking the default "Next" button.
-- Build a `MutationObserver`-based smart wait system that monitors the DOM and waits for target elements to load asynchronously.
+### 2.3 Advanced Event Triggers ✅
+- **`trigger` prop** on steps: `'click' | 'change' | 'blur' | 'hover' | 'drag'` — auto-advances when event fires on target element.
+- **`waitForTarget` prop** on steps: `MutationObserver`-based DOM wait system for async-loaded elements.
 
 ---
 
@@ -101,10 +103,12 @@ graph TD
 
 | Feature / Goal | Priority | Complexity | Est. Effort | Status |
 | :--- | :---: | :---: | :---: | :---: |
-| **Unit Test Coverage (90%+)** | 🔴 Critical | Medium | 2 Weeks | Planned |
-| **Playwright E2E Setup** | 🔴 Critical | Medium | 1 Week | Planned |
-| **Multi-Route Support** | 🟡 High | High | 3 Weeks | Planned |
-| **DOM Smart Wait (MutationObserver)** | 🟡 High | Medium | 2 Weeks | Planned |
+| **Unit Test Coverage (90%+)** | 🔴 Critical | Medium | 2 Weeks | ✅ Done |
+| **Playwright E2E Setup** | 🔴 Critical | Medium | 1 Week | ✅ Done |
+| **Multi-Route Support** | 🟡 High | High | 3 Weeks | ✅ Done |
+| **Branching Tours** | 🟡 High | Medium | 2 Weeks | ✅ Done |
+| **Advanced Event Triggers** | 🟡 High | Medium | 1 Week | ✅ Done |
+| **DOM Smart Wait (MutationObserver)** | 🟡 High | Medium | 2 Weeks | ✅ Done |
 | **CSS Variables Styling System** | 🟢 Medium | Low | 1 Week | Planned |
 | **Visual Tour Builder** | 🟢 Low | Very High | 6 Weeks | Planned |
 | **React 19 Compatibility** | 🟡 High | Medium | 2 Weeks | Planned |

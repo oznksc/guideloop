@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Step } from '../components/GuideLoop/types';
+import { Step, StepStatus } from '../components/GuideLoop/types';
 
 interface UseStepsProps {
   steps: Step[];
@@ -16,6 +16,7 @@ interface UseStepsReturn {
   isLastStep: boolean;
   totalSteps: number;
   setCurrentStep: (step: number) => void;
+  stepStatus: StepStatus;
 }
 
 export const useSteps = ({
@@ -26,39 +27,60 @@ export const useSteps = ({
 }: UseStepsProps): UseStepsReturn => {
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [validSteps, setValidSteps] = useState<Step[]>([]);
+  const [stepStatus, setStepStatus] = useState<StepStatus>('idle');
 
   useEffect(() => {
-    // Filter steps based on conditions
     const filtered = steps.filter(step => !step.condition || step.condition());
     setValidSteps(filtered);
   }, [steps]);
 
-  const nextStep = useCallback(async () => {
-    const next = currentStep + 1;
-
+  const advanceTo = useCallback(async (target: number) => {
+    setStepStatus('pending');
     try {
-      if (next < validSteps.length) {
-        // Execute next step's beforeStep hook
-        await validSteps[next]?.beforeStep?.();
+      const targetStep = validSteps[target];
+      if (targetStep?.beforeStep) {
+        await targetStep.beforeStep();
+      }
+      setCurrentStep(target);
+      setStepStatus('success');
+      onStepChange?.(target);
+    } catch (error) {
+      console.error('Error during step transition:', error);
+      setStepStatus('error');
+      setCurrentStep(target);
+    }
+  }, [validSteps, onStepChange]);
 
-        setCurrentStep(next);
-        onStepChange?.(next);
+  const nextStep = useCallback(async () => {
+    const currentData = validSteps[currentStep];
+
+    const branchTarget = await currentData?.branch?.();
+    if (typeof branchTarget === 'number') {
+      if (branchTarget < validSteps.length) {
+        await currentData?.afterStep?.();
+        await advanceTo(branchTarget);
       } else {
         onComplete?.();
       }
-    } catch (error) {
-      console.error('Error during step transition:', error);
+      return;
     }
-  }, [currentStep, validSteps, onStepChange, onComplete]);
+
+    const next = currentStep + 1;
+    if (next < validSteps.length) {
+      await currentData?.afterStep?.();
+      await advanceTo(next);
+    } else {
+      onComplete?.();
+    }
+  }, [currentStep, validSteps, advanceTo, onComplete]);
 
   const prevStep = useCallback(async () => {
     const prev = currentStep - 1;
     if (prev >= 0) {
-      await validSteps[prev]?.beforeStep?.();
-      setCurrentStep(prev);
-      onStepChange?.(prev);
+      await validSteps[currentStep]?.afterStep?.();
+      await advanceTo(prev);
     }
-  }, [currentStep, validSteps, onStepChange]);
+  }, [currentStep, validSteps, advanceTo]);
 
   return {
     currentStepData: validSteps[currentStep],
@@ -68,5 +90,6 @@ export const useSteps = ({
     isLastStep: currentStep === validSteps.length - 1,
     totalSteps: validSteps.length,
     setCurrentStep,
+    stepStatus,
   };
 };

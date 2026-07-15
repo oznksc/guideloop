@@ -127,4 +127,77 @@ describe('useSteps', () => {
     expect(afterStep).toHaveBeenCalledTimes(1);
     expect(result.current.currentStepData).toEqual(mockSteps[1]);
   });
+
+  describe('branch', () => {
+    it('jumps to target step when branch returns a number', async () => {
+      const stepsWithBranch = [
+        { target: '#s0', title: 'S0', content: 'C0', branch: () => 2 },
+        { target: '#s1', title: 'S1', content: 'C1' },
+        { target: '#s2', title: 'S2', content: 'C2' },
+      ];
+      const { result } = renderHook(() => useSteps({ steps: stepsWithBranch, initialStep: 0 }));
+
+      await act(async () => { await result.current.nextStep(); });
+      expect(result.current.currentStepData).toEqual(stepsWithBranch[2]);
+    });
+
+    it('calls onComplete when branch target exceeds valid steps', async () => {
+      const onComplete = jest.fn();
+      const stepsWithBranch = [
+        { target: '#s0', title: 'S0', content: 'C0', branch: () => 5 },
+      ];
+      const { result } = renderHook(() => useSteps({ steps: stepsWithBranch, initialStep: 0, onComplete }));
+
+      await act(async () => { await result.current.nextStep(); });
+      expect(onComplete).toHaveBeenCalledTimes(1);
+    });
+
+    it('uses normal next step when branch returns undefined', async () => {
+      const stepsWithBranch = [
+        { target: '#s0', title: 'S0', content: 'C0' },
+        { target: '#s1', title: 'S1', content: 'C1' },
+      ];
+      const { result } = renderHook(() => useSteps({ steps: stepsWithBranch, initialStep: 0 }));
+
+      await act(async () => { await result.current.nextStep(); });
+      expect(result.current.currentStepData).toEqual(stepsWithBranch[1]);
+    });
+
+    it('calls afterStep of current step before branch jump', async () => {
+      const afterStep = jest.fn();
+      const stepsWithBranch = [
+        { target: '#s0', title: 'S0', content: 'C0', afterStep, branch: () => 2 },
+        { target: '#s1', title: 'S1', content: 'C1' },
+        { target: '#s2', title: 'S2', content: 'C2' },
+      ];
+      const { result } = renderHook(() => useSteps({ steps: stepsWithBranch, initialStep: 0 }));
+
+      await act(async () => { await result.current.nextStep(); });
+      expect(afterStep).toHaveBeenCalledTimes(1);
+      expect(result.current.currentStepData).toEqual(stepsWithBranch[2]);
+    });
+  });
+
+  describe('stepStatus', () => {
+    it('starts as idle', () => {
+      const { result } = renderHook(() => useSteps({ steps: mockSteps, initialStep: 0 }));
+      expect(result.current.stepStatus).toBe('idle');
+    });
+
+    it('returns success after nextStep completes', async () => {
+      const { result } = renderHook(() => useSteps({ steps: mockSteps, initialStep: 0 }));
+
+      await act(async () => { await result.current.nextStep(); });
+      expect(result.current.stepStatus).toBe('success');
+    });
+
+    it('returns error status when beforeStep throws', async () => {
+      const beforeStep = jest.fn().mockRejectedValue(new Error('fail'));
+      const stepsWithHooks = [mockSteps[0], { ...mockSteps[1], beforeStep }];
+      const { result } = renderHook(() => useSteps({ steps: stepsWithHooks, initialStep: 0 }));
+
+      await act(async () => { await result.current.nextStep(); });
+      expect(result.current.stepStatus).toBe('error');
+    });
+  });
 });

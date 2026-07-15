@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-07-14
+
+### Added
+- **Multi-Page (Multi-Route) Support:** New `persist` prop syncs tour state across route transitions via localStorage/sessionStorage. Includes `autoRestore` for seamless multi-page tours.
+- **Branching Tours:** New `branch` function on steps enables dynamic step jumps (e.g., `branch: () => isAdmin ? 4 : 1`).
+- **Advanced Event Triggers:** New `trigger` prop listens for `click`, `change`, `blur`, `hover`, or `drag` events on target elements to auto-advance steps.
+- **DOM Smart Wait:** New `waitForTarget` prop uses MutationObserver to wait for async-loaded target elements before showing a step.
+- **Step Status Tracking:** `useSteps` now returns `stepStatus` (`'idle'` / `'pending'` / `'success'` / `'error'`).
+- `afterStep` lifecycle hook is now properly called on step exit in `useSteps`.
+
 ## [1.3.2] - 2026-07-09
 
 ### Fixed

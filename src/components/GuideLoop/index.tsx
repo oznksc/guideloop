@@ -4,21 +4,21 @@ import { Spotlight } from '../Spotlight';
 import { Progress } from '../Progress';
 import { useSteps } from '../../hooks/useSteps';
 import { useKeyboard } from '../../hooks/useKeyboard';
-import { scrollIntoView } from '../../utils/scroll';
 import { injectKeyframes } from '../../utils/animation';
+import {
+  saveTourState,
+  loadTourState,
+  clearTourState,
+} from '../../utils/tourState';
+import { useElementTrigger } from '../../hooks/useElementTrigger';
+import { useElementClick } from '../../hooks/useElementClick';
+import { useWaitForTarget } from '../../hooks/useWaitForTarget';
+import { GUIDE_RESTART_EVENT, RESTART_DELAY } from '../../utils/events';
+import type { GuideRestartEvent } from '../../utils/events';
 import type { GuideLoopProps } from './types';
 import { Portal } from './Portal';
 import { MaskedOverlay } from '../MaskedOverlay';
 import { useSpotlight } from '../../hooks/useSpotlight';
-
-const GUIDE_RESTART_EVENT = 'guideRestart';
-const RESTART_DELAY = 100;
-type GuideRestartEvent = CustomEvent<{ nextStep: number }>;
-
-export const createRestartEvent = (nextStep: number) => 
-  new CustomEvent(GUIDE_RESTART_EVENT, { 
-    detail: { nextStep } 
-  });
 
 export const GuideLoop: React.FC<GuideLoopProps> = ({
   steps,
@@ -37,11 +37,32 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
   onSkip,
   zIndex = 2000,
   defaultButtonLabels,
+  persist,
 }) => {
   const [currentStepIndex, setCurrentStepIndex] = useState(initialStep);
   const [tourVisible, setTourVisible] = useState(isOpen);
   const [targetElement, setTargetElement] = useState<string>('');
-  const processingRef = useRef(false);
+  const autoRestoredRef = useRef(false);
+
+  const handleComplete = useCallback(() => {
+    if (persist) {
+      clearTourState(persist.key, persist.type);
+    }
+    onComplete?.();
+  }, [persist, onComplete]);
+
+  const handleClosePersistence = useCallback(() => {
+    autoRestoredRef.current = false;
+    if (persist) {
+      saveTourState(persist.key, { currentStepIndex, isActive: false }, persist.type);
+    }
+    onClose();
+  }, [persist, currentStepIndex, onClose]);
+
+  const syncedOnStepChange = useCallback((step: number) => {
+    setCurrentStepIndex(step);
+    onStepChange?.(step);
+  }, [onStepChange]);
 
   const {
     nextStep: goToNextStep,
@@ -50,12 +71,13 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
     isLastStep,
     totalSteps,
     currentStepData,
-    setCurrentStep
+    setCurrentStep,
+    stepStatus,
   } = useSteps({
     steps,
     initialStep: currentStepIndex,
-    onStepChange,
-    onComplete,
+    onStepChange: syncedOnStepChange,
+    onComplete: handleComplete,
   });
 
   // Güvenli bir şekilde target elementini güncelle
@@ -65,120 +87,56 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
     }
   }, []);
 
-  // spotlightPosition'ı sadece geçerli bir targetElement varsa hesapla
   const spotlightPosition = useSpotlight(targetElement || 'body', spotlightPadding);
+
+  const { handleElementClick, processingRef } = useElementClick({
+    scrollSmooth,
+  });
 
   useEffect(() => {
     updateTargetElement(currentStepData);
   }, [currentStepData, updateTargetElement]);
 
-  const triggerElementClick = async (element: Element): Promise<void> => {
-    return new Promise((resolve) => {
-      if (element instanceof HTMLElement) {
-        element.click();
-      } else {
-        const clickEvent = new MouseEvent('click', {
-          view: window,
-          bubbles: true,
-          cancelable: true,
-        });
-        element.dispatchEvent(clickEvent);
+  useEffect(() => {
+    if (persist?.autoRestore) {
+      const saved = loadTourState(persist.key, persist.type);
+      if (saved?.isActive && typeof saved.currentStepIndex === 'number') {
+        autoRestoredRef.current = true;
+        injectKeyframes();
+        setTourVisible(true);
+        setCurrentStepIndex(saved.currentStepIndex);
+        setCurrentStep(saved.currentStepIndex);
       }
-      
-      setTimeout(resolve, 100);
-    });
-  };
-
-  const handleElementClick = useCallback(async (
-    elementId: string | undefined,
-    delay = 0,
-    onClick?: () => void,
-    nextStepIndex?: number
-  ) => {
-    if (processingRef.current) return;
-    processingRef.current = true;
-
-    try {
-      if (onClick) {
-        await Promise.resolve(onClick());
-      }
-
-      if (elementId) {
-        const element = document.querySelector(elementId);
-        if (!element) {
-          console.warn(`Element with id '${elementId}' not found, advancing to next step`);
-          if (typeof nextStepIndex === 'number') {
-            setCurrentStepIndex(nextStepIndex);
-            setCurrentStep(nextStepIndex);
-          }
-          return;
-        }
-
-        if (scrollSmooth) {
-          await scrollIntoView(element, { behavior: 'smooth' });
-        }
-        
-        setTourVisible(false);
-        await triggerElementClick(element);
-
-        if (delay > 0) {
-          await new Promise(resolve => setTimeout(resolve, delay));
-        }
-
-        if (typeof nextStepIndex === 'number') {
-          document.dispatchEvent(createRestartEvent(nextStepIndex));
-        }
-      } else if (typeof nextStepIndex === 'number') {
-        setCurrentStepIndex(nextStepIndex);
-        setCurrentStep(nextStepIndex);
-      }
-    } catch (error) {
-      console.error('Error during element click:', error);
-      if (typeof nextStepIndex === 'number') {
-        setCurrentStepIndex(nextStepIndex);
-        setCurrentStep(nextStepIndex);
-      }
-    } finally {
-      processingRef.current = false;
     }
-  }, [steps, setCurrentStep, scrollSmooth]);
+  }, []);
 
   const handleNext = useCallback(async () => {
     if (!currentStepData || processingRef.current) return;
-    
-    const nextStepIndex = currentStepIndex + 1;
-    if (nextStepIndex >= steps.length) return;
-    
-    try {
-      if (currentStepData?.beforeStep) {
-        await currentStepData.beforeStep();
-      }
 
+    try {
       const hasElementAction = currentStepData?.nextButtonClickElementId || currentStepData?.nextButtonOnClick;
       if (hasElementAction) {
+        const nextStepIndex = currentStepIndex + 1;
+        if (nextStepIndex >= steps.length) return;
         await handleElementClick(
           currentStepData.nextButtonClickElementId,
           currentStepData.nextDelay,
           currentStepData.nextButtonOnClick,
-          nextStepIndex
+          nextStepIndex,
+          setCurrentStep,
+          setCurrentStepIndex,
+          setTourVisible
         );
       } else {
         if (currentStepData?.nextDelay) {
           await new Promise((resolve) => setTimeout(resolve, currentStepData.nextDelay));
         }
-        setCurrentStepIndex(nextStepIndex);
-        goToNextStep();
-      }
-
-      if (currentStepData?.afterStep) {
-        await currentStepData.afterStep();
+        await goToNextStep();
       }
     } catch (error) {
       console.error('Error during next step:', error);
-      setCurrentStepIndex(nextStepIndex);
-      goToNextStep();
     }
-  }, [currentStepIndex, currentStepData, steps.length, goToNextStep, handleElementClick]);
+  }, [currentStepData, currentStepIndex, steps.length, goToNextStep, handleElementClick, setCurrentStep, setCurrentStepIndex, setTourVisible]);
 
   const handlePrev = useCallback(async () => {
     if (!currentStepData || processingRef.current) return;
@@ -192,21 +150,18 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
           currentStepData.prevButtonClickElementId,
           currentStepData.prevDelay,
           currentStepData.prevButtonOnClick,
-          prevStepIndex
+          prevStepIndex,
+          setCurrentStep,
+          setCurrentStepIndex,
+          setTourVisible
         );
       } else {
-        setCurrentStepIndex(prevStepIndex);
-        goToPrevStep();
-        // Önceki adımın hedef elementini güvenli bir şekilde güncelle
-        updateTargetElement(steps[prevStepIndex]);
+        await goToPrevStep();
       }
     } catch (error) {
       console.error('Error during previous step:', error);
-      setCurrentStepIndex(prevStepIndex);
-      goToPrevStep();
-      updateTargetElement(steps[prevStepIndex]);
     }
-  }, [currentStepIndex, currentStepData, steps, goToPrevStep, handleElementClick, updateTargetElement]);
+  }, [currentStepIndex, currentStepData, goToPrevStep, handleElementClick, setCurrentStep, setCurrentStepIndex, setTourVisible]);
 
   const handleSkip = useCallback(async () => {
     if (!currentStepData || processingRef.current) return;
@@ -216,25 +171,31 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
         await handleElementClick(
           currentStepData.skipButtonClickElementId,
           currentStepData.skipDelay,
-          currentStepData.skipButtonOnClick
+          currentStepData.skipButtonOnClick,
+          undefined,
+          setCurrentStep,
+          setCurrentStepIndex,
+          setTourVisible
         );
       }
       if (isLastStep) {
-        onComplete?.();
+        handleComplete();
+        onClose();
       } else {
         onSkip?.();
+        handleClosePersistence();
       }
-      onClose();
     } catch (error) {
       console.error('Error during skip:', error);
       if (isLastStep) {
-        onComplete?.();
+        handleComplete();
+        onClose();
       } else {
         onSkip?.();
+        handleClosePersistence();
       }
-      onClose();
     }
-  }, [currentStepData, isLastStep, onSkip, onComplete, onClose, handleElementClick]);
+  }, [currentStepData, isLastStep, onSkip, handleComplete, handleClosePersistence, handleElementClick, onClose]);
 
   useEffect(() => {
     const handleRestart = (event: Event) => {
@@ -255,13 +216,14 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
   }, [setCurrentStep, steps, updateTargetElement]);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !autoRestoredRef.current) {
       injectKeyframes();
       setTourVisible(true);
       setCurrentStepIndex(initialStep);
+      setCurrentStep(initialStep);
       updateTargetElement(steps[initialStep]);
     }
-  }, [isOpen, initialStep, steps, updateTargetElement]);
+  }, [isOpen, initialStep, steps, updateTargetElement, setCurrentStep]);
 
   useEffect(() => {
     if (isOpen) {
@@ -273,6 +235,26 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!persist) return;
+    if (tourVisible && currentStepIndex >= 0) {
+      saveTourState(persist.key, { currentStepIndex, isActive: true }, persist.type);
+    }
+  }, [persist, tourVisible, currentStepIndex]);
+
+  useElementTrigger({
+    enabled: tourVisible && !!currentStepData?.trigger,
+    targetSelector: currentStepData?.target ?? '',
+    trigger: currentStepData?.trigger,
+    onTrigger: handleNext,
+  });
+
+  const { isReady: targetReady, isWaiting: targetWaiting } = useWaitForTarget({
+    targetSelector: currentStepData?.target ?? '',
+    enabled: tourVisible,
+    config: currentStepData?.waitForTarget,
+  });
+
   useKeyboard({
     enabled: keyboard && tourVisible,
     onEscape: handleSkip,
@@ -280,7 +262,44 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
     onArrowLeft: handlePrev,
   });
 
-  if (!isOpen || !tourVisible || !currentStepData) {
+  const canShow = (isOpen || autoRestoredRef.current) && tourVisible && currentStepData;
+  if (!canShow) {
+    return null;
+  }
+
+  if (targetWaiting) {
+    return (
+      <Portal>
+        <div
+          className="guideloop-container"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex,
+            isolation: 'isolate',
+          }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Guided tour"
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+              color: '#666',
+              fontSize: '0.875rem',
+            }}
+          >
+            Waiting for target element...
+          </div>
+        </div>
+      </Portal>
+    );
+  }
+
+  if (!targetReady) {
     return null;
   }
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useScroll } from '../../hooks/useScroll';
+import { useViewportSize } from '../../hooks/useViewportSize';
 import type { MaskedOverlayProps } from './types';
 
 export const MaskedOverlay: React.FC<MaskedOverlayProps> = ({
@@ -12,30 +13,7 @@ export const MaskedOverlay: React.FC<MaskedOverlayProps> = ({
   }) => {
     const maskId = React.useId();
     const scrollPosition = useScroll();
-  
-    const [viewportSize, setViewportSize] = React.useState({
-      width: window.innerWidth,
-      height: window.innerHeight
-    });
-  
-    React.useEffect(() => {
-      let rafId = 0;
-      const handleResize = () => {
-        cancelAnimationFrame(rafId);
-        rafId = requestAnimationFrame(() => {
-          setViewportSize({
-            width: window.innerWidth,
-            height: window.innerHeight
-          });
-        });
-      };
-  
-      window.addEventListener('resize', handleResize, { passive: true });
-      return () => {
-        window.removeEventListener('resize', handleResize);
-        cancelAnimationFrame(rafId);
-      };
-    }, []);
+    const viewportSize = useViewportSize();
   
     const maskRect = React.useMemo(() => {
       if (!targetRect) {

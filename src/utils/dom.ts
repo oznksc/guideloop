@@ -1,3 +1,17 @@
+export const isHTMLElement = (element: Element | null): element is HTMLElement => {
+  return element instanceof HTMLElement;
+};
+
+export const querySelectorAsHTMLElement = (selector: string): HTMLElement | null => {
+  try {
+    const element = document.querySelector(selector);
+    return isHTMLElement(element) ? element : null;
+  } catch (error) {
+    console.error(`Invalid selector: ${selector}`, error);
+    return null;
+  }
+};
+
 export const getElementPosition = (element: Element) => {
     const rect = element.getBoundingClientRect();
     const computedStyle = window.getComputedStyle(element);
