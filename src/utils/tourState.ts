@@ -32,7 +32,11 @@ export function saveTourState(
     if (!storage) return;
 
     const fullKey = `${STORAGE_PREFIX}${key}`;
-    const existing = loadTourState(key, type) ?? ({} as TourState);
+    const existing: TourState = loadTourState(key, type) ?? {
+      currentStepIndex: 0,
+      isActive: false,
+      lastUpdated: Date.now(),
+    };
     const merged: TourState = {
       ...existing,
       ...state,

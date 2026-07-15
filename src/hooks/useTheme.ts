@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Theme, ThemeConfig } from '../themes/types';
 import { themes } from '../themes';
 
-export const useTheme = (theme: Theme, customTheme?: Partial<ThemeConfig>) => {
+export const useTheme = (theme: Theme, customTheme?: Partial<ThemeConfig>): ThemeConfig => {
   return useMemo(() => {
     const baseTheme = themes[theme] || themes.tailwind;
     if (!customTheme) return baseTheme;
@@ -11,7 +11,7 @@ export const useTheme = (theme: Theme, customTheme?: Partial<ThemeConfig>) => {
     for (const key of Object.keys(customTheme) as (keyof ThemeConfig)[]) {
       const override = customTheme[key];
       if (override && typeof override === 'object') {
-        Object.assign(merged[key] as Record<string, unknown>, override);
+        Object.assign(merged[key], override);
       }
     }
     return merged;

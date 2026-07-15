@@ -14,7 +14,6 @@ import { useElementTrigger } from '../../hooks/useElementTrigger';
 import { useElementClick } from '../../hooks/useElementClick';
 import { useWaitForTarget } from '../../hooks/useWaitForTarget';
 import { GUIDE_RESTART_EVENT, RESTART_DELAY } from '../../utils/events';
-import type { GuideRestartEvent } from '../../utils/events';
 import type { GuideLoopProps } from './types';
 import { Portal } from './Portal';
 import { MaskedOverlay } from '../MaskedOverlay';
@@ -72,7 +71,6 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
     totalSteps,
     currentStepData,
     setCurrentStep,
-    stepStatus,
   } = useSteps({
     steps,
     initialStep: currentStepIndex,
@@ -199,7 +197,7 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
 
   useEffect(() => {
     const handleRestart = (event: Event) => {
-      const { detail: { nextStep } } = event as GuideRestartEvent;
+      const { detail: { nextStep } } = event as CustomEvent<{ nextStep: number }>;
       
       setTimeout(() => {
         setTourVisible(true);

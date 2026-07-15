@@ -1,5 +1,4 @@
-import React from 'react';
-import { renderHook, act, render } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { useElementTrigger } from '../../hooks/useElementTrigger';
 
 describe('useElementTrigger', () => {
@@ -93,7 +92,7 @@ describe('useElementTrigger', () => {
     const onTrigger = jest.fn();
     const btn = setupTarget();
 
-    const { rerender } = renderHook(
+    renderHook(
       ({ enabled }) => useElementTrigger({
         enabled,
         targetSelector: '#test-target',
