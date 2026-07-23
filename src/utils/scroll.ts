@@ -8,6 +8,12 @@ export const scrollIntoView = (
       return;
     }
 
+    if (typeof IntersectionObserver === 'undefined') {
+      element.scrollIntoView?.(options);
+      resolve();
+      return;
+    }
+
     const observer = new IntersectionObserver((entries) => {
       observer.disconnect();
       if (entries[0].isIntersecting) {

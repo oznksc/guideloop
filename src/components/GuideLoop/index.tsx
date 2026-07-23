@@ -18,6 +18,8 @@ import type { GuideLoopProps } from './types';
 import { Portal } from './Portal';
 import { MaskedOverlay } from '../MaskedOverlay';
 import { useSpotlight } from '../../hooks/useSpotlight';
+import { scrollIntoView } from '../../utils/scroll';
+import { querySelectorAsHTMLElement } from '../../utils/dom';
 
 export const GuideLoop: React.FC<GuideLoopProps> = ({
   steps,
@@ -122,7 +124,7 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
           currentStepData.nextButtonOnClick,
           nextStepIndex,
           setCurrentStep,
-          setCurrentStepIndex,
+          syncedOnStepChange,
           setTourVisible
         );
       } else {
@@ -134,7 +136,7 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
     } catch (error) {
       console.error('Error during next step:', error);
     }
-  }, [currentStepData, currentStepIndex, steps.length, goToNextStep, handleElementClick, setCurrentStep, setCurrentStepIndex, setTourVisible]);
+  }, [currentStepData, currentStepIndex, steps.length, goToNextStep, handleElementClick, setCurrentStep, syncedOnStepChange, setTourVisible]);
 
   const handlePrev = useCallback(async () => {
     if (!currentStepData || processingRef.current) return;
@@ -150,7 +152,7 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
           currentStepData.prevButtonOnClick,
           prevStepIndex,
           setCurrentStep,
-          setCurrentStepIndex,
+          syncedOnStepChange,
           setTourVisible
         );
       } else {
@@ -159,7 +161,7 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
     } catch (error) {
       console.error('Error during previous step:', error);
     }
-  }, [currentStepIndex, currentStepData, goToPrevStep, handleElementClick, setCurrentStep, setCurrentStepIndex, setTourVisible]);
+  }, [currentStepIndex, currentStepData, goToPrevStep, handleElementClick, setCurrentStep, syncedOnStepChange, setTourVisible]);
 
   const handleSkip = useCallback(async () => {
     if (!currentStepData || processingRef.current) return;
@@ -172,7 +174,7 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
           currentStepData.skipButtonOnClick,
           undefined,
           setCurrentStep,
-          setCurrentStepIndex,
+          syncedOnStepChange,
           setTourVisible
         );
       }
@@ -193,7 +195,7 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
         handleClosePersistence();
       }
     }
-  }, [currentStepData, isLastStep, onSkip, handleComplete, handleClosePersistence, handleElementClick, onClose]);
+  }, [currentStepData, isLastStep, onSkip, handleComplete, handleClosePersistence, handleElementClick, onClose, setCurrentStep, syncedOnStepChange]);
 
   useEffect(() => {
     const handleRestart = (event: Event) => {
@@ -252,6 +254,21 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
     enabled: tourVisible,
     config: currentStepData?.waitForTarget,
   });
+
+  useEffect(() => {
+    if (!tourVisible || !targetReady || !scrollSmooth || !currentStepData?.target) {
+      return;
+    }
+
+    const element = querySelectorAsHTMLElement(currentStepData.target);
+    if (element) {
+      void scrollIntoView(element, {
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'nearest',
+      });
+    }
+  }, [currentStepData?.target, scrollSmooth, targetReady, tourVisible]);
 
   useKeyboard({
     enabled: keyboard && tourVisible,

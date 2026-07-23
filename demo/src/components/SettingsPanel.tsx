@@ -191,6 +191,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onSettin
     <>
       {/* FAB Button */}
       <button
+        id="settings-fab"
         ref={fabRef}
         onClick={() => setIsOpen(!isOpen)}
         className={`fixed bottom-6 right-6 z-[10000] w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 group ${

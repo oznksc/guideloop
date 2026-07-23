@@ -746,7 +746,7 @@ export const buttonLabelPresets: ButtonLabelPreset[] = [
   {
     name: "turkish",
     label: "Turkce",
-    config: { next: "Ileri", prev: "Geri", skip: "Atla", finish: "Bitir" },
+    config: { next: "İleri", prev: "Geri", skip: "Atla", finish: "Bitir" },
   },
   {
     name: "english",
