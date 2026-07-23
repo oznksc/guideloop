@@ -90,6 +90,37 @@ describe('GuideLoop', () => {
     });
   });
 
+  it('calls onStepChange when a step action advances the tour', async () => {
+    const onStepChange = jest.fn();
+    const nextButtonOnClick = jest.fn();
+    const stepsWithAction = [
+      {
+        ...mockSteps[0],
+        nextButtonOnClick,
+      },
+      mockSteps[1],
+    ];
+
+    render(
+      <GuideLoop
+        steps={stepsWithAction}
+        isOpen={true}
+        onClose={jest.fn()}
+        onStepChange={onStepChange}
+      />
+    );
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Next'));
+    });
+
+    await waitFor(() => {
+      expect(nextButtonOnClick).toHaveBeenCalledTimes(1);
+      expect(onStepChange).toHaveBeenCalledWith(1);
+      expect(screen.getByText('Step 2')).toBeInTheDocument();
+    });
+  });
+
   it('navigates to next step content', async () => {
     render(<GuideLoop steps={mockSteps} isOpen={true} onClose={jest.fn()} />);
     expect(screen.getByText('Step 1')).toBeInTheDocument();

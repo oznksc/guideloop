@@ -24,6 +24,7 @@ A modern, flexible, and powerful guided tour library for React applications. Gui
 - Scroll handling & element visibility detection
 - Custom animations
 - ARIA-compliant accessibility
+- Persistent onboarding checklists with modal, tour, link, and custom actions
 
 ## Installation
 
@@ -72,6 +73,87 @@ function App() {
   );
 }
 ```
+
+## Onboarding Checklist
+
+Use `OnboardingChecklist` when onboarding is a set of independent tasks rather
+than one linear tour. Each task can start a GuideLoop tour, open an accessible
+modal, navigate to a link, or run application code.
+
+```tsx
+import { OnboardingChecklist, OnboardingItem } from 'guideloop';
+
+const onboardingItems: OnboardingItem[] = [
+  {
+    id: 'welcome',
+    title: 'Open your workspace',
+  },
+  {
+    id: 'tour',
+    title: 'Complete the product tour',
+    action: {
+      type: 'tour',
+      steps,
+    },
+  },
+  {
+    id: 'profile',
+    title: 'Complete your profile',
+    action: {
+      type: 'modal',
+      title: 'Profile details',
+      content: <ProfileForm />,
+      primaryLabel: 'Save profile',
+      secondaryLabel: 'Not now',
+    },
+  },
+  {
+    id: 'docs',
+    title: 'Read the getting started guide',
+    action: {
+      type: 'link',
+      href: '/docs/getting-started',
+    },
+  },
+  {
+    id: 'invite',
+    title: 'Invite a teammate',
+    action: {
+      type: 'custom',
+      onAction: ({ complete }) => {
+        openInvitePanel({ onInviteSent: complete });
+      },
+    },
+  },
+];
+
+function GettingStarted() {
+  return (
+    <OnboardingChecklist
+      items={onboardingItems}
+      defaultCompletedIds={['welcome']}
+      persist={{ key: 'workspace-getting-started' }}
+      onComplete={(progress) => {
+        console.log('Onboarding complete', progress);
+      }}
+    />
+  );
+}
+```
+
+Completion rules are intentional:
+
+- A tour item completes when its tour finishes, not when it is skipped.
+- A modal item completes when its primary action resolves. Returning `false`
+  from `onPrimary` keeps the modal open and the item incomplete.
+- A link item completes before navigation by default. Set
+  `completeOnClick: false` for externally verified tasks.
+- A custom action controls completion through its context, or can set
+  `completeOnResolve: true`.
+
+Use `completedIds` with `onCompletedIdsChange` for controlled server-backed
+progress. Use `defaultCompletedIds` and `persist` for built-in local or session
+storage persistence.
 
 ## Themes
 
@@ -125,6 +207,23 @@ GuideLoop comes with several built-in themes:
 | `onSkip` | `() => void` | `undefined` | Tour skip callback |
 | `zIndex` | `number` | `2000` | Base z-index for the tour |
 | `defaultButtonLabels` | `ButtonLabels` | `undefined` | Default button labels |
+
+### OnboardingChecklist Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `items` | `OnboardingItem[]` | Required | Checklist tasks and their actions |
+| `title` | `ReactNode` | `'Getting Started'` | Checklist heading |
+| `completedIds` | `string[]` | `undefined` | Controlled completed item IDs |
+| `defaultCompletedIds` | `string[]` | `[]` | Initial uncontrolled completed IDs |
+| `persist` | `OnboardingPersistConfig` | `undefined` | Local/session storage persistence |
+| `onCompletedIdsChange` | `(ids: string[]) => void` | `undefined` | Completion state callback |
+| `onProgressChange` | `(progress) => void` | `undefined` | Progress callback |
+| `onComplete` | `(progress) => void` | `undefined` | Called once when every item completes |
+| `collapsible` | `boolean` | `true` | Allow the task list to collapse |
+| `showProgressBar` | `boolean` | `true` | Show the visual progress bar |
+| `theme` | `Theme` | `'tailwind'` | Reuse a GuideLoop theme |
+| `customTheme` | `Partial<ThemeConfig>` | `undefined` | Reuse custom GuideLoop theme values |
 
 ### Step Configuration
 

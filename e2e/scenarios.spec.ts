@@ -28,6 +28,7 @@ test.describe('Scenario: Actions & Events', () => {
     // Step 1 -> İleri, #show-search-features-modal tetiklenir, modal açılır
     await page.getByRole('button', { name: 'İleri' }).click();
     await expect(page.locator('#alertBox')).toBeVisible();
+    await expect(page.getByText(/Step 2 of 4/)).toBeVisible();
 
     // Step 2 -> İleri, modal dışına geçilir, modal otomatik kapanmalı
     await page.getByRole('button', { name: 'İleri' }).click();
@@ -38,7 +39,9 @@ test.describe('Scenario: Actions & Events', () => {
   test('nextDelay is applied on the delay step', async ({ page }) => {
     await selectTour(page, 'Actions & Events');
     await page.getByRole('button', { name: 'İleri' }).click(); // modal açılır
+    await expect(page.getByText(/Step 2 of 4/)).toBeVisible();
     await page.getByRole('button', { name: 'İleri' }).click(); // Step 3 (delay step), modal kapanır
+    await expect(page.getByText(/Step 3 of 4/)).toBeVisible();
 
     const start = Date.now();
     await page.getByRole('button', { name: 'İleri' }).click(); // nextDelay 1000ms
@@ -70,6 +73,7 @@ test.describe('Scenario: Dynamic Content', () => {
     // Step 1 -> modal açılır, Step 2 (#alertBox) görünür
     await page.getByRole('button', { name: 'İleri' }).click();
     await expect(page.locator('#alertBox')).toBeVisible();
+    await expect(page.getByText(/Step 2 of 6/)).toBeVisible();
 
     // Step 2 -> İleri (artık görünür), modal kapanır
     await page.getByRole('button', { name: 'İleri' }).click();

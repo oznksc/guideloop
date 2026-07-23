@@ -52,6 +52,11 @@ graph TD
 - **`trigger` prop** on steps: `'click' | 'change' | 'blur' | 'hover' | 'drag'` — auto-advances when event fires on target element.
 - **`waitForTarget` prop** on steps: `MutationObserver`-based DOM wait system for async-loaded elements.
 
+### 2.4 Non-Linear Onboarding Checklists ✅
+- **`OnboardingChecklist` component:** combines independent onboarding tasks in a persistent "Getting Started" card.
+- **Action orchestration:** tasks can launch a GuideLoop tour, open an accessible modal, navigate to a link, or run custom async application logic.
+- **Progress state:** supports controlled state or localStorage/sessionStorage persistence using stable item IDs.
+
 ---
 
 ## 📌 Phase 3: Theme System & Style Modernization (Q1 2027)
@@ -109,6 +114,7 @@ graph TD
 | **Branching Tours** | 🟡 High | Medium | 2 Weeks | ✅ Done |
 | **Advanced Event Triggers** | 🟡 High | Medium | 1 Week | ✅ Done |
 | **DOM Smart Wait (MutationObserver)** | 🟡 High | Medium | 2 Weeks | ✅ Done |
+| **Onboarding Checklists** | 🟡 High | Medium | 1 Week | ✅ Done |
 | **CSS Variables Styling System** | 🟢 Medium | Low | 1 Week | Planned |
 | **Visual Tour Builder** | 🟢 Low | Very High | 6 Weeks | Planned |
 | **React 19 Compatibility** | 🟡 High | Medium | 2 Weeks | Planned |

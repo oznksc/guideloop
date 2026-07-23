@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { usePopper } from '../../hooks/usePopper';
 import { getAnimationStyle } from '../../utils/animation';
 import { querySelectorAsHTMLElement } from '../../utils/dom';
@@ -30,13 +30,13 @@ export const Tooltip: React.FC<TooltipProps> = ({
   style = {},
 }) => {
   const tooltipRef = useRef<HTMLDivElement>(null);
-  const targetRef = useRef<HTMLElement | null>(null);
+  const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
   const themeStyles = useTheme(theme, customTheme);
 
   useEffect(() => {
     if (!step.target) {
       console.warn('GuideLoop: Empty target selector provided for step', currentStep + 1);
-      targetRef.current = null;
+      setTargetElement(null);
       return;
     }
 
@@ -46,11 +46,11 @@ export const Tooltip: React.FC<TooltipProps> = ({
       console.warn(`GuideLoop: No HTMLElement found for selector "${step.target}" in step`, currentStep + 1);
     }
     
-    targetRef.current = element;
+    setTargetElement(element);
   }, [step.target, currentStep]);
 
   const { update } = usePopper({
-    referenceElement: targetRef.current,
+    referenceElement: targetElement,
     tooltipElement: tooltipRef.current,
     placement: step.placement || 'bottom',
   });
@@ -85,7 +85,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
     close: step.showButtons?.close !== false
   };
 
-  const fallbackStyle = !targetRef.current ? {
+  const fallbackStyle = !targetElement ? {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)'
