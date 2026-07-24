@@ -1,31 +1,25 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { GuideLoop } from "../../../src/components/GuideLoop";
-import type { Step } from "../../../src/components/GuideLoop/types";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  GuideLoop,
   OnboardingChecklist,
   type OnboardingItem,
-} from "../../../src/components/OnboardingChecklist";
-import type { ThemeConfig } from "../../../src/themes/types";
-import {
+  type Step,
+  type ThemeConfig,
   clearOnboardingState,
   loadOnboardingState,
   saveOnboardingState,
-} from "../../../src/utils/onboardingState";
-import {
-  CommandPalette,
-  type PaletteCommand,
-} from "../components/CommandPalette";
+} from "guideloop";
 import {
   ArrowRight,
-  ArrowUpRight,
   Check,
-  Command,
+  CodeIcon,
   Copy,
-  Github,
-  LoopMark,
-  Reset,
+  GuideLoopLogo,
+  Layers,
+  Shield,
+  Sparkles,
 } from "../components/DemoIcons";
 import { ProductWorkspace } from "../components/ProductWorkspace";
 import "./landing.css";
@@ -33,79 +27,219 @@ import "./landing.css";
 const GITHUB_URL = "https://github.com/oznksc/guideloop";
 const NPM_URL = "https://www.npmjs.com/package/guideloop";
 const INSTALL_COMMAND = "npm install guideloop";
-const CHECKLIST_KEY = "guideloop-demo-getting-started-v3";
+const CHECKLIST_KEY = "guideloop-demo-getting-started-v4";
+
+type DemoThemeId = "slate" | "editorial" | "terminal" | "nordic";
+
+interface DemoThemePreset {
+  id: DemoThemeId;
+  name: string;
+  badge: string;
+  description: string;
+  icon: string;
+  config: ThemeConfig;
+}
+
+const DEMO_THEMES: Record<DemoThemeId, DemoThemePreset> = {
+  slate: {
+    id: "slate",
+    name: "Developer Slate",
+    badge: "Dark Indigo",
+    description: "High-density dark slate with electric indigo & cyan indicators",
+    icon: "⚡",
+    config: {
+      tooltip: {
+        background: "#111726",
+        textColor: "#f1f5f9",
+        borderRadius: "0.5rem",
+        padding: "1.25rem",
+        boxShadow: "0 1rem 3rem rgba(0, 0, 0, 0.6)",
+      },
+      overlay: {
+        background: "#060911",
+        opacity: 0.7,
+      },
+      spotlight: {
+        borderColor: "#6366f1",
+        borderWidth: "2px",
+        borderRadius: "0.4rem",
+        animation: "guideloop-focus 1.8s cubic-bezier(0.2, 0, 0, 1) infinite",
+      },
+      buttons: {
+        primary: {
+          background: "#6366f1",
+          textColor: "#ffffff",
+          hoverBackground: "#4f46e5",
+          padding: "0.4rem 0.9rem",
+        },
+        secondary: {
+          background: "transparent",
+          textColor: "#94a3b8",
+          hoverBackground: "#182238",
+          padding: "0.4rem 0.9rem",
+        },
+      },
+    },
+  },
+  editorial: {
+    id: "editorial",
+    name: "Editorial Craft",
+    badge: "Warm Paper",
+    description: "Warm parchment paper with Newsreader serif headings & terracotta accent",
+    icon: "📜",
+    config: {
+      tooltip: {
+        background: "#ffffff",
+        textColor: "#1c1917",
+        borderRadius: "0.75rem",
+        padding: "1.25rem",
+        boxShadow: "0 1rem 2.5rem rgba(28, 25, 23, 0.16)",
+      },
+      overlay: {
+        background: "#292524",
+        opacity: 0.52,
+      },
+      spotlight: {
+        borderColor: "#9a3412",
+        borderWidth: "2px",
+        borderRadius: "0.4rem",
+        animation: "guideloop-focus 1.8s cubic-bezier(0.2, 0, 0, 1) infinite",
+      },
+      buttons: {
+        primary: {
+          background: "#9a3412",
+          textColor: "#fff7ed",
+          hoverBackground: "#7c2d12",
+          padding: "0.4rem 0.9rem",
+        },
+        secondary: {
+          background: "transparent",
+          textColor: "#57534e",
+          hoverBackground: "#f4efe6",
+          padding: "0.4rem 0.9rem",
+        },
+      },
+    },
+  },
+  terminal: {
+    id: "terminal",
+    name: "Terminal CLI",
+    badge: "Phosphor Emerald",
+    description: "Obsidian matrix midnight with glowing phosphor green prompts",
+    icon: "📟",
+    config: {
+      tooltip: {
+        background: "#0b140e",
+        textColor: "#ecfdf5",
+        borderRadius: "0.35rem",
+        padding: "1.15rem",
+        boxShadow: "0 1rem 3rem rgba(0, 0, 0, 0.85)",
+      },
+      overlay: {
+        background: "#03140a",
+        opacity: 0.78,
+      },
+      spotlight: {
+        borderColor: "#10b981",
+        borderWidth: "2px",
+        borderRadius: "0.3rem",
+        animation: "guideloop-focus 1.8s cubic-bezier(0.2, 0, 0, 1) infinite",
+      },
+      buttons: {
+        primary: {
+          background: "#10b981",
+          textColor: "#022c22",
+          hoverBackground: "#059669",
+          padding: "0.4rem 0.9rem",
+        },
+        secondary: {
+          background: "transparent",
+          textColor: "#6ee7b7",
+          hoverBackground: "#122117",
+          padding: "0.4rem 0.9rem",
+        },
+      },
+    },
+  },
+  nordic: {
+    id: "nordic",
+    name: "Nordic Frost",
+    badge: "Arctic Azure",
+    description: "Frost blue canvas with azure spotlights & crisp white cards",
+    icon: "💎",
+    config: {
+      tooltip: {
+        background: "#ffffff",
+        textColor: "#0f172a",
+        borderRadius: "0.65rem",
+        padding: "1.2rem",
+        boxShadow: "0 1rem 2.5rem rgba(15, 23, 42, 0.14)",
+      },
+      overlay: {
+        background: "#1e293b",
+        opacity: 0.5,
+      },
+      spotlight: {
+        borderColor: "#0284c7",
+        borderWidth: "2px",
+        borderRadius: "0.5rem",
+        animation: "guideloop-focus 1.8s cubic-bezier(0.2, 0, 0, 1) infinite",
+      },
+      buttons: {
+        primary: {
+          background: "#0284c7",
+          textColor: "#f0f9ff",
+          hoverBackground: "#0369a1",
+          padding: "0.4rem 0.9rem",
+        },
+        secondary: {
+          background: "transparent",
+          textColor: "#334155",
+          hoverBackground: "#e2e8f0",
+          padding: "0.4rem 0.9rem",
+        },
+      },
+    },
+  },
+};
 
 const tourSteps: Step[] = [
   {
     target: "#search-bar",
-    title: "Find anything fast",
+    title: "DOM Element Anchoring",
     content:
-      "Connect a GuideLoop step to any real element. This command bar also opens with Command K.",
+      "Binds directly to any CSS selector. Calculates target bounds dynamically on window resize or container scroll.",
     placement: "bottom",
   },
   {
     target: "#tab-section",
-    title: "Keep the launch visible",
+    title: "Popper.js Placement Rules",
     content:
-      "Guide people through navigation in context, without sending them to a separate help page.",
+      "Configurable tooltip positioning ('bottom', 'right', 'top', 'left') with automatic boundary detection.",
     placement: "right",
   },
   {
     target: "#stats-section",
-    title: "Explain the signal",
+    title: "Step Sequence Callbacks",
     content:
-      "Spotlight the information that matters at exactly the moment someone needs it.",
+      "Tracks step index state and exposes onStepChange, onSkip, and onComplete lifecycle hooks.",
     placement: "bottom",
   },
   {
     target: "#notifications",
-    title: "Reveal secondary actions",
+    title: "Overlay Mask & Focus Trap",
     content:
-      "Tours can point to compact controls too. Keyboard navigation and focus behavior stay intact.",
+      "Renders SVG/canvas overlay over non-active UI elements while enforcing keyboard tab focus loops.",
     placement: "bottom",
   },
   {
     target: "#form-section",
-    title: "End with a real action",
+    title: "Checklist Integration",
     content:
-      "The final step lands beside something useful, so guidance becomes momentum.",
+      "Embeds seamlessly into OnboardingChecklist item actions to trigger multi-step guide workflows.",
     placement: "left",
   },
 ];
-
-const guideTheme: ThemeConfig = {
-  tooltip: {
-    background: "var(--color-surface)",
-    textColor: "var(--color-ink)",
-    borderRadius: "var(--radius-medium)",
-    padding: "var(--space-6)",
-    boxShadow: "var(--shadow-strong)",
-  },
-  overlay: {
-    background: "var(--color-graphite)",
-    opacity: 0.58,
-  },
-  spotlight: {
-    borderColor: "var(--color-accent)",
-    borderWidth: "2px",
-    borderRadius: "var(--radius-small)",
-    animation: "guideloop-focus 1.8s var(--ease-standard) infinite",
-  },
-  buttons: {
-    primary: {
-      background: "var(--color-accent)",
-      textColor: "var(--color-accent-ink)",
-      hoverBackground: "var(--color-accent-hover)",
-      padding: "var(--space-2) var(--space-4)",
-    },
-    secondary: {
-      background: "var(--color-transparent)",
-      textColor: "var(--color-ink-muted)",
-      hoverBackground: "var(--color-surface-subtle)",
-      padding: "var(--space-2) var(--space-4)",
-    },
-  },
-};
 
 const integrationCode = `import { useState } from "react";
 import {
@@ -116,14 +250,14 @@ import {
 } from "guideloop";
 
 const steps: Step[] = [{
-  target: "#launch-board",
-  title: "Your launch board",
-  content: "This guidance lives beside the real work."
+  target: "#search-bar",
+  title: "DOM Element Anchoring",
+  content: "Binds to target element via CSS selector."
 }];
 
 const items: OnboardingItem[] = [{
   id: "tour",
-  title: "Tour the launch board",
+  title: "Run product walkthrough",
   action: { type: "tour", steps }
 }];
 
@@ -133,9 +267,8 @@ export function ProductOnboarding() {
   return (
     <section>
       <button onClick={() => setTourOpen(true)}>
-        Start product tour
+        Start tour
       </button>
-      <div id="launch-board">Your product interface</div>
       <GuideLoop
         steps={steps}
         isOpen={tourOpen}
@@ -156,46 +289,73 @@ function scrollToSection(id: string) {
   window.setTimeout(() => target.focus({ preventScroll: true }), 420);
 }
 
+interface CliLogEntry {
+  id: string;
+  time: string;
+  level: "SYS" | "TOUR" | "THEME" | "ACTION";
+  msg: string;
+}
+
+const initialLogs: CliLogEntry[] = [
+  { id: "1", time: "00:00:00", level: "SYS", msg: "GuideLoop guidance engine initialized." },
+  { id: "2", time: "00:00:00", level: "THEME", msg: "Active theme preset: DEVELOPER SLATE" },
+];
+
 export default function Home() {
+  const [currentTheme, setCurrentTheme] = useState<DemoThemeId>("slate");
   const [tourOpen, setTourOpen] = useState(false);
-  const [commandOpen, setCommandOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [integrationCopied, setIntegrationCopied] = useState(false);
   const [checklistInstance, setChecklistInstance] = useState(0);
+  const [dockFloating, setDockFloating] = useState(true);
+  const [cliLogs, setCliLogs] = useState<CliLogEntry[]>(initialLogs);
+  const [showConsole, setShowConsole] = useState(false);
   const [experienceStatus, setExperienceStatus] = useState(
-    "The sample is ready.",
+    "Interactive GuideLoop sandbox active.",
   );
-  const commandTriggerRef = useRef<HTMLElement | null>(null);
 
-  const openCommandPalette = useCallback(() => {
-    commandTriggerRef.current = document.activeElement as HTMLElement | null;
-    setCommandOpen(true);
+  const activeThemePreset = DEMO_THEMES[currentTheme];
+  const activeThemeConfig = activeThemePreset.config;
+
+  const pushCliLog = useCallback((level: CliLogEntry["level"], msg: string) => {
+    const time = new Date().toLocaleTimeString("en-US", { hour12: false });
+    const id = Math.random().toString(36).substring(2, 9);
+    setCliLogs((prev) => [...prev.slice(-12), { id, time, level, msg }]);
   }, []);
 
-  const closeCommandPalette = useCallback(() => {
-    setCommandOpen(false);
-    window.setTimeout(() => commandTriggerRef.current?.focus(), 0);
-  }, []);
+  const changeTheme = useCallback((themeId: DemoThemeId) => {
+    setCurrentTheme(themeId);
+    document.documentElement.setAttribute("data-theme", themeId);
+    const themeName = DEMO_THEMES[themeId].name;
+    setExperienceStatus(`Style set to ${themeName}.`);
+    pushCliLog("THEME", `Switched theme preset to ${themeName.toUpperCase()}`);
+  }, [pushCliLog]);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", currentTheme);
+  }, [currentTheme]);
 
   const copyInstallCommand = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(INSTALL_COMMAND);
       setCopied(true);
+      pushCliLog("ACTION", `Copied install command: "${INSTALL_COMMAND}"`);
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
       setCopied(false);
     }
-  }, []);
+  }, [pushCliLog]);
 
   const copyIntegrationCode = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(integrationCode);
       setIntegrationCopied(true);
+      pushCliLog("ACTION", "Copied React integration snippet.");
       window.setTimeout(() => setIntegrationCopied(false), 1800);
     } catch {
       setIntegrationCopied(false);
     }
-  }, []);
+  }, [pushCliLog]);
 
   const completePersistedItem = useCallback((itemId: string) => {
     const current =
@@ -205,119 +365,101 @@ export default function Home() {
       Array.from(new Set([...current, itemId])),
     );
     setChecklistInstance((instance) => instance + 1);
-  }, []);
+    pushCliLog("ACTION", `Checklist task completed: "${itemId}"`);
+  }, [pushCliLog]);
 
   const startTour = useCallback(() => {
-    setExperienceStatus("Tour started.");
+    setExperienceStatus("Tour active — Step 1 Spotlight focused.");
     setTourOpen(true);
-  }, []);
+    pushCliLog("TOUR", "Contextual tour started. Step 1/5 focused.");
+  }, [pushCliLog]);
 
   const resetExperience = useCallback(() => {
     clearOnboardingState(CHECKLIST_KEY);
     setTourOpen(false);
-    setCommandOpen(false);
     setChecklistInstance((instance) => instance + 1);
-    setExperienceStatus("Progress reset to 1 of 5.");
-  }, []);
+    setExperienceStatus("Demo state reset.");
+    pushCliLog("SYS", "Onboarding state cleared.");
+  }, [pushCliLog]);
 
   useEffect(() => {
     const handleShortcut = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
-        event.preventDefault();
-        if (commandOpen) closeCommandPalette();
-        else openCommandPalette();
+      const target = event.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      if (event.key === "1") {
+        changeTheme("slate");
+      } else if (event.key === "2") {
+        changeTheme("editorial");
+      } else if (event.key === "3") {
+        changeTheme("terminal");
+      } else if (event.key === "4") {
+        changeTheme("nordic");
+      } else if (event.key.toLowerCase() === "t" && !event.metaKey && !event.ctrlKey) {
+        startTour();
+      } else if (event.key.toLowerCase() === "r" && !event.metaKey && !event.ctrlKey) {
+        resetExperience();
+      } else if (event.key.toLowerCase() === "d" && !event.metaKey && !event.ctrlKey) {
+        setDockFloating((prev) => !prev);
       }
     };
 
     document.addEventListener("keydown", handleShortcut);
     return () => document.removeEventListener("keydown", handleShortcut);
-  }, [closeCommandPalette, commandOpen, openCommandPalette]);
-
-  const commands = useMemo<PaletteCommand[]>(
-    () => [
-      {
-        id: "tour",
-        label: "Start the live tour",
-        description: "Run the five-step GuideLoop experience.",
-        keywords: "demo guide onboarding",
-        shortcut: "↵",
-        onSelect: startTour,
-      },
-      {
-        id: "experience",
-        label: "Jump to the embedded demo",
-        description: "See GuideLoop inside a functional product sample.",
-        keywords: "guideloop live demo workspace",
-        onSelect: () => scrollToSection("live"),
-      },
-      {
-        id: "integration",
-        label: "Review the React integration",
-        description: "Open the complete, copy-ready component example.",
-        keywords: "api code docs react",
-        onSelect: () => scrollToSection("integration"),
-      },
-      {
-        id: "install",
-        label: "Copy the install command",
-        description: INSTALL_COMMAND,
-        keywords: "npm package",
-        onSelect: () => void copyInstallCommand(),
-      },
-      {
-        id: "github",
-        label: "View the source on GitHub",
-        description: "Read the API and explore the repository.",
-        keywords: "source repository",
-        onSelect: () => window.open(GITHUB_URL, "_blank", "noopener,noreferrer"),
-      },
-    ],
-    [copyInstallCommand, startTour],
-  );
+  }, [changeTheme, resetExperience, startTour]);
 
   const onboardingItems = useMemo<OnboardingItem[]>(
     () => [
       {
         id: "workspace",
-        title: "Open the demo interface",
-        description: "The embedded example is ready.",
+        title: "Inspect DOM workspace",
+        description: "Embedded sample React application.",
       },
       {
         id: "tour",
-        title: "Tour the launch board",
-        description: "Follow five contextual steps.",
+        title: "Execute step spotlight tour",
+        description: "Triggers 5 contextual step spotlights.",
         action: {
           type: "tour",
           steps: tourSteps,
           guideProps: {
             theme: "custom",
-            customTheme: guideTheme,
+            customTheme: activeThemeConfig,
             keyboard: true,
             scrollSmooth: true,
             spotlightPadding: 10,
             zIndex: 5000,
             defaultButtonLabels: {
-              next: "Next",
+              next: "Next Step",
               prev: "Previous",
-              skip: "Skip",
+              skip: "Skip Tour",
               finish: "Finish",
             },
           },
-          onComplete: () => setExperienceStatus("Tour completed."),
+          onComplete: () => {
+            setExperienceStatus("Tour completed successfully.");
+            pushCliLog("TOUR", "Tour finished successfully.");
+          },
         },
       },
       {
         id: "milestone",
-        title: "Create a milestone",
-        description: "Complete a focused modal task.",
+        title: "Trigger modal action",
+        description: "Executes custom React modal workflow.",
         action: {
           type: "modal",
           title: "Create a milestone",
           content: (
             <div className="onboarding-form">
               <p>
-                Add one milestone to this sample launch. Your entry stays in the
-                browser only.
+                Add a milestone to this sample launch. Saved in browser storage.
               </p>
               <label htmlFor="onboarding-milestone">Milestone name</label>
               <input
@@ -339,14 +481,16 @@ export default function Home() {
             if (!input?.value.trim()) {
               throw new Error("A milestone name is required.");
             }
-            setExperienceStatus(`Milestone “${input.value.trim()}” added.`);
+            const val = input.value.trim();
+            setExperienceStatus(`Milestone “${val}” created.`);
+            pushCliLog("ACTION", `Milestone committed: "${val}"`);
           },
         },
       },
       {
         id: "integration",
-        title: "Review the React integration",
-        description: "See the two-component setup.",
+        title: "Review component code",
+        description: "Examine React integration snippet.",
         action: {
           type: "link",
           href: "#integration",
@@ -354,339 +498,341 @@ export default function Home() {
             window.setTimeout(() => scrollToSection("integration"), 0),
         },
       },
-      {
-        id: "command",
-        title: "Open the command palette",
-        description: "Run application code from a task.",
-        action: {
-          type: "custom",
-          completeOnResolve: true,
-          onAction: () => {
-            openCommandPalette();
-            setExperienceStatus("Custom checklist action completed.");
-          },
-        },
-      },
     ],
-    [openCommandPalette],
+    [activeThemeConfig, pushCliLog],
   );
 
   return (
-    <main>
+    <main className="landing-wrapper">
       <a className="skip-link" href="#content">
-        Skip to content
+        Skip to main content
       </a>
 
-      <header className="site-nav">
-        <a className="site-brand" href="#top" aria-label="GuideLoop home">
-          <LoopMark />
-          <span>GuideLoop</span>
-        </a>
-
-        <nav className="site-links" aria-label="Primary">
-          <a href="#live">Live experience</a>
-          <a href="#integration">API</a>
-          <a href={GITHUB_URL} target="_blank" rel="noreferrer">
-            GitHub
+      {/* TOP HEADER NAV */}
+      <header className="site-header">
+        <div className="header-inner">
+          <a className="site-brand" href="#top" aria-label="GuideLoop home">
+            <GuideLoopLogo className="brand-logo" />
+            <span className="brand-badge">v1.4.0</span>
           </a>
-        </nav>
 
-        <button
-          type="button"
-          className="nav-command"
-          onClick={openCommandPalette}
-          aria-label="Open command palette"
-        >
-          <Command />
-          <span>Quick open</span>
-          <kbd>⌘ K</kbd>
-        </button>
-      </header>
-
-      <div id="content" tabIndex={-1}>
-        <section id="top" className="hero" tabIndex={-1}>
-          <div className="hero-copy">
-            <p className="eyebrow">Open-source React onboarding</p>
-            <h1>Onboarding, built into your product.</h1>
-            <p className="hero-lede">
-              GuideLoop is the React library for guided tours and persistent
-              onboarding checklists that connect to real product actions.
-            </p>
-
-            <div className="hero-actions">
+          <div className="theme-compact-selector" aria-label="Theme selector">
+            {(Object.keys(DEMO_THEMES) as DemoThemeId[]).map((id) => (
               <button
+                key={id}
                 type="button"
-                className="button button--primary"
-                onClick={() => scrollToSection("live")}
+                className={`theme-pill-btn ${currentTheme === id ? "is-active" : ""}`}
+                onClick={() => changeTheme(id)}
+                title={`Switch style to ${DEMO_THEMES[id].name}`}
               >
-                See GuideLoop in action
-                <ArrowRight />
+                <span>{DEMO_THEMES[id].icon}</span>
+                <span className="theme-pill-name">{DEMO_THEMES[id].name.split(" ")[0]}</span>
               </button>
-              <a className="text-link" href={GITHUB_URL}>
-                Read the docs
-                <ArrowUpRight />
-              </a>
-            </div>
-
-            <ul className="proof-list" aria-label="Project facts">
-              <li>React 16.8+</li>
-              <li>TypeScript</li>
-              <li>MIT</li>
-              <li>4 action types</li>
-            </ul>
+            ))}
           </div>
 
-          <div className="hero-code" aria-label="GuideLoop install example">
-            <div className="code-heading">
-              <div>
-                <span>Install</span>
-                <strong>Add it to your interface.</strong>
-              </div>
-              <button
-                type="button"
-                className="copy-button"
-                onClick={() => void copyInstallCommand()}
-                aria-label="Copy npm install command"
-              >
-                {copied ? <Check /> : <Copy />}
-                {copied ? "Copied" : "Copy"}
-              </button>
-            </div>
-            <pre tabIndex={0} aria-label="GuideLoop install example">
-              <code>
-                <span className="code-muted">$</span> npm install guideloop
-                {"\n\n"}
-                <span className="code-keyword">import</span> {"{"} GuideLoop,{" "}
-                {"\n  "}OnboardingChecklist {"}"}{" "}
-                <span className="code-keyword">from</span>{" "}
-                <span className="code-string">&quot;guideloop&quot;</span>;
-              </code>
-            </pre>
-            <p>
-              Bind steps to selectors. Let the library handle positioning,
-              progress, focus, and persistence.
-            </p>
-          </div>
-        </section>
-
-        <section id="live" className="live-section" tabIndex={-1}>
-          <div className="section-intro section-intro--hanging">
-            <p className="section-index">01 / Live experience</p>
-            <div>
-              <h2>See GuideLoop working, right here.</h2>
-              <p>
-                The fictional launch screen below is a compact proof of
-                GuideLoop in a real interface. Its tour, checklist, modal,
-                custom action, and saved progress are all live.
-              </p>
-            </div>
-          </div>
-
-          <div className="experience-frame">
-            <div className="experience-status" aria-live="polite">
-              <span>
-                <i aria-hidden="true" />
-                Live GuideLoop demo
-              </span>
-              <span>{experienceStatus}</span>
-              <button type="button" onClick={resetExperience}>
-                <Reset />
-                Reset demo
-              </button>
-            </div>
-
-            <ProductWorkspace
-              onStartTour={startTour}
-              onOpenCommand={openCommandPalette}
-            />
-
-            <div className="onboarding-dock">
-              <OnboardingChecklist
-                key={checklistInstance}
-                items={onboardingItems}
-                title="Getting started"
-                description="Try every onboarding action."
-                defaultCompletedIds={["workspace"]}
-                persist={{ key: CHECKLIST_KEY }}
-                theme="custom"
-                customTheme={guideTheme}
-                className="product-checklist"
-                ariaLabel="GuideLoop demo getting started checklist"
-                zIndex={5000}
-                labels={{
-                  progress: (completed, total) =>
-                    `${completed} of ${total} steps completed`,
-                  error: "Enter a milestone name to continue.",
-                }}
-                onProgressChange={(progress) =>
-                  setExperienceStatus(
-                    `${progress.completed} of ${progress.total} onboarding steps complete.`,
-                  )
-                }
-                onComplete={() =>
-                  setExperienceStatus("The sample onboarding is complete.")
-                }
-              />
-            </div>
-          </div>
-        </section>
-
-        <section className="capabilities">
-          <div className="section-intro section-intro--hanging">
-            <div>
-              <h2>A tour is only the beginning.</h2>
-              <p>
-                Keep the next useful action visible before, during, and after a
-                tour.
-              </p>
-            </div>
-          </div>
-
-          <div className="capability-list">
-            <article>
-              <span>01</span>
-              <div>
-                <h3>Guide the moment.</h3>
-                <p>
-                  Attach steps to real interface elements. GuideLoop handles
-                  positioning, visibility, scrolling, and keyboard navigation.
-                </p>
-              </div>
-              <code>target: &quot;#search-bar&quot;</code>
-            </article>
-            <article>
-              <span>02</span>
-              <div>
-                <h3>Keep progress visible.</h3>
-                <p>
-                  A checklist can start a tour, open a modal, follow a link, or
-                  run your application code.
-                </p>
-              </div>
-              <code>action: &quot;modal&quot;</code>
-            </article>
-            <article>
-              <span>03</span>
-              <div>
-                <h3>Connect real actions.</h3>
-                <p>
-                  Controlled progress and callbacks fit client state,
-                  localStorage, or a server-backed onboarding model.
-                </p>
-              </div>
-              <code>onCompletedIdsChange</code>
-            </article>
-            <article>
-              <span>04</span>
-              <div>
-                <h3>Make it yours.</h3>
-                <p>
-                  Start from Tailwind, Material, or Ant Design—or customize
-                  tooltip, overlay, spotlight, and button styles.
-                </p>
-              </div>
-              <code>customTheme</code>
-            </article>
-          </div>
-        </section>
-
-        <section id="integration" className="integration" tabIndex={-1}>
-          <div className="integration-inner">
-            <div className="integration-copy">
-              <h2>Tours and checklists, working together.</h2>
-              <p>
-                Use GuideLoop for contextual guidance. Use
-                OnboardingChecklist when the next step should remain visible.
-              </p>
-
-              <dl className="spec-list">
-                <div>
-                  <dt>Actions</dt>
-                  <dd>Tour · modal · link · custom</dd>
-                </div>
-                <div>
-                  <dt>Progress</dt>
-                  <dd>Controlled or locally persisted</dd>
-                </div>
-                <div>
-                  <dt>Rendering</dt>
-                  <dd>SSR-safe React components</dd>
-                </div>
-                <div>
-                  <dt>Access</dt>
-                  <dd>Keyboard, focus, reduced motion</dd>
-                </div>
-              </dl>
-            </div>
-
-            <div className="integration-code">
-              <div className="integration-code__heading">
-                <span>getting-started.tsx</span>
-                <button
-                  type="button"
-                  onClick={() => void copyIntegrationCode()}
-                  aria-label="Copy GuideLoop integration example"
-                >
-                  {integrationCopied ? <Check /> : <Copy />}
-                  {integrationCopied ? "Copied" : "Copy"}
-                </button>
-              </div>
-              <pre tabIndex={0} aria-label="GuideLoop integration example">
-                <code>{integrationCode}</code>
-              </pre>
-            </div>
-          </div>
-        </section>
-
-        <section className="final-cta">
-          <h2>Give the first session a clear next step.</h2>
-          <div>
+          <div className="header-actions">
             <a
-              className="button button--primary"
-              href={NPM_URL}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Install GuideLoop
-              <ArrowUpRight />
-            </a>
-            <a
-              className="button button--secondary"
               href={GITHUB_URL}
               target="_blank"
               rel="noreferrer"
+              className="btn btn--ghost"
             >
-              <Github />
-              View on GitHub
+              Star on GitHub
             </a>
+          </div>
+        </div>
+      </header>
+
+      <div id="content" tabIndex={-1}>
+        {/* HERO SECTION */}
+        <section id="top" className="hero-section">
+          <div className="hero-container">
+            <div className="hero-badge">
+              <Sparkles className="w-4 h-4 text-accent" />
+              <span>React Step Spotlight & Onboarding Checklist Library</span>
+            </div>
+
+            <h1 className="hero-title">
+              Contextual Product Tours &amp; <br />
+              <span className="hero-gradient-text">Onboarding Checklists for React</span>
+            </h1>
+
+            <p className="hero-subtitle">
+              Lightweight React components for element spotlight tours and persisted onboarding checklists. Powered by Popper.js positioning, keyboard focus traps, and CSS custom property themes.
+            </p>
+
+            <div className="hero-cta-group">
+              <button
+                type="button"
+                className="btn btn--primary btn--lg"
+                onClick={startTour}
+              >
+                <ArrowRight className="w-5 h-5" />
+                <span>Run Tour Sandbox [T]</span>
+              </button>
+
+              <div className="install-command-pill">
+                <code>$ npm i guideloop</code>
+                <button
+                  type="button"
+                  onClick={() => void copyInstallCommand()}
+                  title="Copy install command"
+                  aria-label="Copy install command"
+                >
+                  {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* WORKBENCH SECTION */}
+        <section id="live" className="workbench-section" tabIndex={-1}>
+          <div className="workbench-container">
+            <div className="workbench-frame">
+              {/* REAL BROWSER WINDOW CHROME */}
+              <div className="browser-chrome">
+                <div className="browser-dots">
+                  <span className="browser-dot browser-dot--red" />
+                  <span className="browser-dot browser-dot--yellow" />
+                  <span className="browser-dot browser-dot--green" />
+                </div>
+                <div className="browser-url-bar">
+                  <span className="browser-lock">🔒</span>
+                  <span className="browser-url">https://app.guideloop.dev/workbench</span>
+                </div>
+                <div className="browser-status">
+                  <span className="pulse-dot" />
+                  <span className="browser-status-text">{experienceStatus}</span>
+                </div>
+              </div>
+
+              {/* PRODUCT EMBEDDED DEMO */}
+              <ProductWorkspace
+                onStartTour={startTour}
+              />
+
+              {/* CONSOLE LOG DRAWER */}
+              <div className="console-drawer">
+                <button
+                  type="button"
+                  className="console-toggle"
+                  onClick={() => setShowConsole((prev) => !prev)}
+                >
+                  <span>❯ Event Stream Logs ({cliLogs.length})</span>
+                  <span>{showConsole ? "▼ Hide" : "▲ View Logs"}</span>
+                </button>
+                {showConsole && (
+                  <div className="console-body">
+                    {cliLogs.map((log) => (
+                      <div key={log.id} className="console-line">
+                        <span className="log-time">[{log.time}]</span>
+                        <span className={`log-tag log-tag--${log.level.toLowerCase()}`}>
+                          [{log.level}]
+                        </span>
+                        <span className="log-msg">{log.msg}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* ONBOARDING CHECKLIST DOCK */}
+              <div
+                className={`onboarding-dock ${
+                  dockFloating ? "onboarding-dock--floating" : "onboarding-dock--inline"
+                }`}
+              >
+                <OnboardingChecklist
+                  key={checklistInstance}
+                  items={onboardingItems}
+                  title="Getting Started Checklist"
+                  description="Try every onboarding task in real time."
+                  defaultCompletedIds={["workspace"]}
+                  persist={{ key: CHECKLIST_KEY }}
+                  theme="custom"
+                  customTheme={activeThemeConfig}
+                  className="product-checklist"
+                  ariaLabel="GuideLoop demo getting started checklist"
+                  zIndex={5000}
+                  labels={{
+                    progress: (completed, total) =>
+                      `${completed} of ${total} steps completed`,
+                    error: "Enter a milestone name to continue.",
+                  }}
+                  onProgressChange={(progress) => {
+                    setExperienceStatus(
+                      `${progress.completed}/${progress.total} onboarding tasks completed.`,
+                    );
+                  }}
+                  onComplete={() => {
+                    setExperienceStatus("All onboarding tasks finished!");
+                    pushCliLog("SYS", "All checklist tasks complete!");
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FEATURES GRID SECTION */}
+        <section id="features" className="features-section">
+          <div className="features-container">
+            <div className="section-header">
+              <span className="section-kicker">TECHNICAL SPECIFICATION</span>
+              <h2>Core Architecture &amp; Features</h2>
+              <p>Type-safe components for contextual guides, DOM element spotlights, and stateful checklists.</p>
+            </div>
+
+            <div className="features-grid">
+              <div className="feature-card">
+                <div className="feature-icon-box">
+                  <Sparkles className="w-6 h-6 text-accent" />
+                </div>
+                <h3>Element Spotlight Anchoring</h3>
+                <p>Target DOM elements via CSS selectors with dynamic positioning, automatic scroll alignment, and overlay masks powered by Popper.js.</p>
+              </div>
+
+              <div className="feature-card">
+                <div className="feature-icon-box">
+                  <Layers className="w-6 h-6 text-accent" />
+                </div>
+                <h3>CSS Variable Theme Engine</h3>
+                <p>Customize tooltip card backgrounds, spotlight borders, and overlays using CSS custom properties or structured JSON ThemeConfig objects.</p>
+              </div>
+
+              <div className="feature-card">
+                <div className="feature-icon-box">
+                  <Shield className="w-6 h-6 text-accent" />
+                </div>
+                <h3>Persisted Onboarding State</h3>
+                <p>Render step progress bars with automatic localStorage persistence, completion callbacks, and custom modal action triggers.</p>
+              </div>
+
+              <div className="feature-card">
+                <div className="feature-icon-box">
+                  <CodeIcon className="w-6 h-6 text-accent" />
+                </div>
+                <h3>Accessible &amp; Keyboard-First</h3>
+                <p>Built-in focus traps, Esc key handling, keyboard shortcuts (Arrow keys, Enter), and fully compliant ARIA accessibility attributes.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* QUICKSTART SECTION */}
+        <section id="quickstart" className="quickstart-section" tabIndex={-1}>
+          <div className="quickstart-container">
+            <div className="quickstart-grid">
+              <div className="quickstart-copy">
+                <span className="section-kicker">DEVELOPER INTEGRATION</span>
+                <h2>Type-Safe React API</h2>
+                <p>
+                  Import <code>GuideLoop</code> and <code>OnboardingChecklist</code> directly into your React application with TypeScript types.
+                </p>
+                <div className="spec-cards">
+                  <div className="spec-card">
+                    <span className="spec-label">Package</span>
+                    <strong>npm install guideloop</strong>
+                  </div>
+                  <div className="spec-card">
+                    <span className="spec-label">Bundle Size</span>
+                    <strong>&lt; 8 kB gzipped</strong>
+                  </div>
+                  <div className="spec-card">
+                    <span className="spec-label">License</span>
+                    <strong>MIT Open Source</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div className="code-window">
+                <div className="code-header">
+                  <div className="code-dots">
+                    <span className="dot dot--red" />
+                    <span className="dot dot--yellow" />
+                    <span className="dot dot--green" />
+                  </div>
+                  <span className="code-filename">App.tsx</span>
+                  <button
+                    type="button"
+                    className="code-copy-btn"
+                    onClick={() => void copyIntegrationCode()}
+                    aria-label="Copy GuideLoop integration example"
+                  >
+                    {integrationCopied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                    <span>{integrationCopied ? "Copied" : "Copy Code"}</span>
+                  </button>
+                </div>
+                <pre tabIndex={0} aria-label="GuideLoop integration example">
+                  <code>{integrationCode}</code>
+                </pre>
+              </div>
+            </div>
           </div>
         </section>
       </div>
 
+      {/* FOOTER */}
       <footer className="site-footer">
-        <p>Guidance that belongs in the product.</p>
-        <div>
-          <span>GuideLoop · MIT License</span>
-          <a href={GITHUB_URL}>Source</a>
-          <a href={NPM_URL}>npm</a>
+        <div className="footer-container">
+          <div className="footer-brand">
+            <GuideLoopLogo className="footer-logo" />
+            <p>Type-safe React components for contextual element guides, spotlights, and onboarding checklists.</p>
+          </div>
+
+          <div className="footer-links">
+            <div className="footer-col">
+              <strong>Resources</strong>
+              <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub Repository</a>
+              <a href={NPM_URL} target="_blank" rel="noreferrer">NPM Package</a>
+            </div>
+            <div className="footer-col">
+              <strong>License</strong>
+              <span>MIT License</span>
+              <span>Open Source</span>
+            </div>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <div className="footer-bottom-container">
+            <span>© 2026 GuideLoop. All rights reserved.</span>
+            <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a>
+          </div>
         </div>
       </footer>
 
+      {/* GUIDELOOP COMPONENT INSTANCE */}
       <GuideLoop
         steps={tourSteps}
         isOpen={tourOpen}
         onClose={() => {
           setTourOpen(false);
           setExperienceStatus("Tour closed.");
+          pushCliLog("TOUR", "Tour modal closed by user.");
         }}
-        onSkip={() => setExperienceStatus("Tour skipped.")}
+        onStepChange={(stepIndex) => {
+          const step = tourSteps[stepIndex];
+          if (step) {
+            pushCliLog(
+              "TOUR",
+              `Focused step ${stepIndex + 1}/5: ${step.target} ("${step.title}")`,
+            );
+          }
+        }}
+        onSkip={() => {
+          setExperienceStatus("Tour skipped.");
+          pushCliLog("TOUR", "Tour skipped by user.");
+        }}
         onComplete={() => {
           setTourOpen(false);
           completePersistedItem("tour");
-          setExperienceStatus("Tour completed.");
+          setExperienceStatus("Tour finished.");
+          pushCliLog("TOUR", "Tour completed successfully!");
         }}
         theme="custom"
-        customTheme={guideTheme}
+        customTheme={activeThemeConfig}
         keyboard
         scrollSmooth
         spotlightPadding={10}
@@ -697,12 +843,6 @@ export default function Home() {
           skip: "Skip",
           finish: "Finish",
         }}
-      />
-
-      <CommandPalette
-        open={commandOpen}
-        commands={commands}
-        onClose={closeCommandPalette}
       />
     </main>
   );
