@@ -44,6 +44,8 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
   const [tourVisible, setTourVisible] = useState(isOpen);
   const [targetElement, setTargetElement] = useState<string>('');
   const autoRestoredRef = useRef(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
 
   const handleComplete = useCallback(() => {
     if (persist) {
@@ -277,7 +279,89 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
     onArrowLeft: handlePrev,
   });
 
-  const canShow = (isOpen || autoRestoredRef.current) && tourVisible && currentStepData;
+  const canShow = Boolean(
+    (isOpen || autoRestoredRef.current) && tourVisible && currentStepData
+  );
+
+  useEffect(() => {
+    if (!canShow) return;
+
+    const activeElement = document.activeElement;
+    openerRef.current =
+      activeElement instanceof HTMLElement && activeElement !== document.body
+        ? activeElement
+        : null;
+
+    return () => {
+      const opener = openerRef.current;
+      openerRef.current = null;
+      if (!opener?.isConnected) return;
+
+      window.setTimeout(() => {
+        opener.focus({ preventScroll: true });
+      }, 0);
+    };
+  }, [canShow]);
+
+  useEffect(() => {
+    if (!canShow) return;
+
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    const focusableSelector = [
+      'button:not([disabled])',
+      'a[href]',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])',
+    ].join(',');
+
+    const focusInitialControl = () => {
+      const preferredControl =
+        dialog.querySelector<HTMLElement>('[data-guideloop-action="next"]') ??
+        dialog.querySelector<HTMLElement>('[data-guideloop-action="close"]') ??
+        dialog;
+      preferredControl.focus({ preventScroll: true });
+    };
+
+    const focusTimer = window.setTimeout(focusInitialControl, 0);
+    const trapFocus = (event: KeyboardEvent) => {
+      if (event.key !== 'Tab') return;
+
+      const focusable = Array.from(
+        dialog.querySelectorAll<HTMLElement>(focusableSelector)
+      );
+      if (!focusable.length) {
+        event.preventDefault();
+        dialog.focus({ preventScroll: true });
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const activeElement = document.activeElement;
+
+      if (!dialog.contains(activeElement)) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus({ preventScroll: true });
+      } else if (event.shiftKey && activeElement === first) {
+        event.preventDefault();
+        last.focus({ preventScroll: true });
+      } else if (!event.shiftKey && activeElement === last) {
+        event.preventDefault();
+        first.focus({ preventScroll: true });
+      }
+    };
+
+    document.addEventListener('keydown', trapFocus, true);
+    return () => {
+      window.clearTimeout(focusTimer);
+      document.removeEventListener('keydown', trapFocus, true);
+    };
+  }, [canShow, targetReady, targetWaiting]);
+
   if (!canShow) {
     return null;
   }
@@ -286,6 +370,7 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
     return (
       <Portal>
         <div
+          ref={dialogRef}
           className="guideloop-container"
           style={{
             position: 'fixed',
@@ -296,6 +381,7 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
           role="dialog"
           aria-modal="true"
           aria-label="Guided tour"
+          tabIndex={-1}
         >
           <div
             style={{
@@ -320,7 +406,8 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
 
   return (
     <Portal>
-      <div 
+      <div
+        ref={dialogRef}
         className="guideloop-container" 
         style={{ 
           position: 'fixed',
@@ -331,6 +418,7 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
         role="dialog"
         aria-modal="true"
         aria-label="Guided tour"
+        tabIndex={-1}
       >
         {overlay && (
           <MaskedOverlay 

@@ -202,6 +202,51 @@ describe('GuideLoop', () => {
     expect(screen.getByRole('dialog')).toHaveAttribute('aria-modal', 'true');
   });
 
+  it('moves focus into the tour, traps it, and restores the opener', async () => {
+    const TourHarness = () => {
+      const [open, setOpen] = React.useState(false);
+      return (
+        <>
+          <button type="button" onClick={() => setOpen(true)}>
+            Start tour
+          </button>
+          <button type="button">Background action</button>
+          <GuideLoop
+            steps={mockSteps}
+            isOpen={open}
+            onClose={() => setOpen(false)}
+          />
+        </>
+      );
+    };
+
+    render(<TourHarness />);
+    const opener = screen.getByRole('button', { name: 'Start tour' });
+    const backgroundAction = screen.getByRole('button', {
+      name: 'Background action',
+    });
+
+    opener.focus();
+    fireEvent.click(opener);
+
+    const nextButton = await screen.findByRole('button', { name: 'Next' });
+    const skipButton = screen.getByRole('button', { name: 'Skip' });
+    await waitFor(() => expect(nextButton).toHaveFocus());
+
+    fireEvent.keyDown(document, { key: 'Tab' });
+    expect(skipButton).toHaveFocus();
+
+    fireEvent.keyDown(document, { key: 'Tab', shiftKey: true });
+    expect(nextButton).toHaveFocus();
+
+    backgroundAction.focus();
+    fireEvent.keyDown(document, { key: 'Tab' });
+    expect(skipButton).toHaveFocus();
+
+    fireEvent.click(skipButton);
+    await waitFor(() => expect(opener).toHaveFocus());
+  });
+
   it('renders portal container in the DOM', () => {
     render(<GuideLoop steps={mockSteps} isOpen={true} onClose={jest.fn()} />);
     expect(document.getElementById('guideloop-portal')).toBeInTheDocument();

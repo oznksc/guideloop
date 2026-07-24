@@ -34,6 +34,7 @@ export const TooltipButton: React.FC<TooltipButtonProps> = ({
       <button
         key={kind}
         type="button"
+        data-guideloop-action={kind}
         onClick={handler}
         aria-label={label}
         style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
@@ -47,6 +48,7 @@ export const TooltipButton: React.FC<TooltipButtonProps> = ({
     <button
       key={kind}
       type="button"
+      data-guideloop-action={kind}
       onClick={handler}
       className={variant === 'primary' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-gray-900'}
       style={variant === 'primary' ? themeStyles.primary : themeStyles.secondary}

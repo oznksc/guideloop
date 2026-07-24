@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.1] - 2026-07-24
+
+### Added
+- GuideLoop-first product landing with a real embedded tour, onboarding checklist, modal task, command palette, and persisted progress.
+- Responsive GitHub Pages static export with project base-path support and an automated deployment workflow.
+- Focused end-to-end coverage for the landing, tour, onboarding actions, keyboard flows, persistence, and mobile layout.
+
+### Fixed
+- Move focus into open tours, contain keyboard focus, and restore the original trigger when a tour closes.
+- Clear modal action errors after a successful retry so completed onboarding items no longer retain an error state.
+
 ## [1.4.0] - 2026-07-24
 
 ### Added

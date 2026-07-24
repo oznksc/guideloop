@@ -1,8 +1,10 @@
-# GuideLoop Demo
+# GuideLoop landing and live experience
 
-This is a [Next.js](https://nextjs.org) demo application for [GuideLoop](https://github.com/oznksc/guideloop) — a modern guided tour library for React.
+This Next.js application is the public GuideLoop product landing page. It
+introduces the library, embeds a real interactive tour and onboarding checklist,
+and is exported to GitHub Pages.
 
-## Getting Started
+## Local development
 
 ```bash
 cd demo
@@ -10,14 +12,13 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to see the demo.
+Open [http://localhost:3000](http://localhost:3000).
 
-## What's Inside
+## Static export
 
-This demo showcases GuideLoop's features:
-- Multiple theme examples (Tailwind, Material, Ant Design)
-- Interactive step navigation
-- Custom themes
-- Various placement options
-- Conditional steps
-- Event callbacks
+```bash
+npm run build
+```
+
+The export is written to `demo/out`. GitHub Actions sets
+`NEXT_PUBLIC_BASE_PATH` to `/guideloop` when publishing the project site.

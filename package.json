@@ -1,6 +1,6 @@
 {
   "name": "guideloop",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Smart and flexible guided tour library for React applications",
   "author": "Ozan Kesici",
   "license": "MIT",
@@ -11,7 +11,7 @@
   "bugs": {
     "url": "https://github.com/oznksc/guideloop/issues"
   },
-  "homepage": "https://github.com/oznksc/guideloop#readme",
+  "homepage": "https://oznksc.github.io/guideloop/",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/index.d.ts",

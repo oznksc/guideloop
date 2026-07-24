@@ -31,6 +31,9 @@ coverage/
 test-results/
 demo/test-results/
 playwright-report/
+.playwright-cli/
+output/
+.codegraph/
 
 # Docs
 docs/

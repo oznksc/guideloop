@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import "../../../tokens.css";
 import "./globals.css";
-import 'antd/dist/reset.css';
-
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -16,8 +15,16 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "GuideLoop Demo",
-  description: "Interactive demo of GuideLoop — a modern guided tour library for React",
+  metadataBase: new URL("https://oznksc.github.io/guideloop/"),
+  title: "GuideLoop — React tours and onboarding",
+  description:
+    "Build contextual product tours and persistent onboarding checklists for React.",
+  openGraph: {
+    title: "GuideLoop — React tours and onboarding",
+    description:
+      "A live product onboarding experience built with GuideLoop for React.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

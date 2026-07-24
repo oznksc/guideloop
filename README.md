@@ -5,6 +5,8 @@
 
 A modern, flexible, and powerful guided tour library for React applications. GuideLoop helps you create engaging product tours, feature introductions, and onboarding experiences with minimal effort.
 
+[**Explore the live GuideLoop experience →**](https://oznksc.github.io/guideloop/)
+
 [![npm version](https://img.shields.io/npm/v/guideloop.svg)](https://www.npmjs.com/package/guideloop)
 [![npm downloads](https://img.shields.io/npm/dm/guideloop.svg)](https://www.npmjs.com/package/guideloop)
 [![CI](https://github.com/oznksc/guideloop/actions/workflows/ci.yml/badge.svg)](https://github.com/oznksc/guideloop/actions/workflows/ci.yml)

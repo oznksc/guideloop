@@ -1,0 +1,17 @@
+{
+  "date": "2026-07-24",
+  "framework": "Next.js 14 App Router with Tailwind CSS 3",
+  "fonts": [
+    "Geist",
+    "Geist Mono"
+  ],
+  "palette": "Legacy demo used Tailwind defaults and raw hex values. The landing uses root semantic OKLCH tokens.",
+  "motion": "Motion-cut approach with CSS transitions only; no motion library is installed.",
+  "spacing": "Existing Tailwind spacing is preserved. The landing adds a semantic 4px-based scale.",
+  "preserve": [
+    "Local Geist and Geist Mono font files",
+    "Tailwind directives",
+    "Existing GuideLoop and OnboardingChecklist public APIs",
+    "Existing legacy demo components as unreferenced examples"
+  ]
+}
