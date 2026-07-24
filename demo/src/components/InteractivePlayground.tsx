@@ -66,6 +66,15 @@ export function InteractivePlayground({
           <button
             type="button"
             className="trigger-pill"
+            onClick={() => onTriggerTarget("#test-filter-tabs")}
+          >
+            <Timeline className="w-3.5 h-3.5 text-accent" />
+            <span>Target Filters</span>
+          </button>
+
+          <button
+            type="button"
+            className="trigger-pill"
             onClick={() => onTriggerTarget("#test-metrics")}
           >
             <Timeline className="w-3.5 h-3.5 text-accent" />
@@ -123,16 +132,16 @@ export function InteractivePlayground({
         {/* TARGET ELEMENTS GRID */}
         <div className="sandbox-grid">
           {/* TARGET 1: SEARCH & FILTER BAR */}
-          <div id="test-search" className="sandbox-card sandbox-card--full">
+          <div className="sandbox-card sandbox-card--full">
             <div className="card-header-row">
               <div className="card-title-group">
                 <Search className="w-4 h-4 text-accent" />
-                <span className="card-title">Target Selector: #test-search</span>
+                <span className="card-title">Search &amp; Filter Controls</span>
               </div>
-              <span className="card-badge">DOM Target 1</span>
+              <span className="card-badge">DOM Targets 1 &amp; 2</span>
             </div>
             <div className="search-box-row">
-              <div className="sandbox-search-input-wrapper">
+              <div id="test-search" className="sandbox-search-input-wrapper">
                 <Search className="w-4 h-4 text-slate-400" />
                 <input
                   type="text"
@@ -144,7 +153,7 @@ export function InteractivePlayground({
                 <kbd className="search-shortcut">⌘K</kbd>
               </div>
 
-              <div id="tab-section" className="filter-pill-group">
+              <div id="test-filter-tabs" className="filter-pill-group">
                 <button type="button" className="filter-pill is-active">All Items</button>
                 <button type="button" className="filter-pill">Active Guides</button>
                 <button type="button" className="filter-pill">Checklists</button>
@@ -153,16 +162,16 @@ export function InteractivePlayground({
           </div>
 
           {/* TARGET 2: METRICS & READINESS */}
-          <div id="test-metrics" className="sandbox-card">
+          <div className="sandbox-card">
             <div className="card-header-row">
               <div className="card-title-group">
                 <Timeline className="w-4 h-4 text-accent" />
-                <span className="card-title">Target Selector: #test-metrics</span>
+                <span className="card-title">Metric Dashboard</span>
               </div>
-              <span className="card-badge">DOM Target 2</span>
+              <span className="card-badge">DOM Target 3</span>
             </div>
 
-            <div className="metrics-box">
+            <div id="test-metrics" className="metrics-box">
               <div className="metric-item">
                 <span className="metric-label">Launch Readiness</span>
                 <strong className="metric-value">88%</strong>
@@ -189,18 +198,19 @@ export function InteractivePlayground({
           </div>
 
           {/* TARGET 3: NOTIFICATIONS & POPOVER */}
-          <div id="test-notifications" className="sandbox-card">
+          <div className="sandbox-card">
             <div className="card-header-row">
               <div className="card-title-group">
                 <Bell className="w-4 h-4 text-accent" />
-                <span className="card-title">Target Selector: #test-notifications</span>
+                <span className="card-title">Activity Feed</span>
               </div>
-              <span className="card-badge">DOM Target 3</span>
+              <span className="card-badge">DOM Target 4</span>
             </div>
 
             <div className="notification-box">
               <div className="notification-trigger-row">
                 <button
+                  id="test-notifications"
                   type="button"
                   className="icon-btn-sandbox"
                   onClick={() => setShowActivity((prev) => !prev)}
@@ -211,7 +221,7 @@ export function InteractivePlayground({
                 </button>
                 <div className="notification-info">
                   <strong>Activity Popover &amp; Bell</strong>
-                  <span>Click to toggle popover feed</span>
+                  <span>Click bell to toggle activity popover feed</span>
                 </div>
               </div>
 
@@ -235,16 +245,16 @@ export function InteractivePlayground({
           </div>
 
           {/* TARGET 4: QUICK ACTION FORM */}
-          <div id="test-action-form" className="sandbox-card sandbox-card--full">
+          <div className="sandbox-card sandbox-card--full">
             <div className="card-header-row">
               <div className="card-title-group">
                 <Flag className="w-4 h-4 text-accent" />
-                <span className="card-title">Target Selector: #test-action-form</span>
+                <span className="card-title">Quick Milestone Action</span>
               </div>
-              <span className="card-badge">DOM Target 4</span>
+              <span className="card-badge">DOM Target 5</span>
             </div>
 
-            <form onSubmit={handleMilestoneSubmit} className="quick-action-row">
+            <form id="test-action-form" onSubmit={handleMilestoneSubmit} className="quick-action-row">
               <div className="form-input-group">
                 <label htmlFor="sandbox-milestone-input">Milestone or task name</label>
                 <input

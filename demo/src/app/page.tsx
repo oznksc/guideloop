@@ -212,11 +212,11 @@ const tourSteps: Step[] = [
     placement: "bottom",
   },
   {
-    target: "#tab-section",
+    target: "#test-filter-tabs",
     title: "Filter & Tab Placement",
     content:
       "Configurable tooltip placement ('bottom', 'right', 'top', 'left') with automatic boundary detection.",
-    placement: "right",
+    placement: "bottom",
   },
   {
     target: "#test-metrics",
@@ -237,7 +237,7 @@ const tourSteps: Step[] = [
     title: "Action & Form Integration",
     content:
       "Embeds into onboarding tasks to trigger multi-step guides and form completion workflows.",
-    placement: "left",
+    placement: "top",
   },
 ];
 
