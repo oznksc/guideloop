@@ -80,9 +80,9 @@ export const Tooltip: React.FC<TooltipProps> = ({
   };
 
   const showButtons = {
-    next: step.showButtons?.next !== false && !isLast,
+    next: step.showButtons?.next !== false,
     previous: step.showButtons?.previous !== false && !isFirst,
-    close: step.showButtons?.close !== false
+    close: step.showButtons?.close !== false && !isLast,
   };
 
   const fallbackStyle = !targetElement ? {
@@ -154,20 +154,20 @@ export const Tooltip: React.FC<TooltipProps> = ({
           <TooltipButton
             kind="close"
             visible={showButtons.close}
-            label={isLast ? buttonLabels.finish : buttonLabels.skip}
+            label={buttonLabels.skip}
             handler={onClose}
             variant="secondary"
-            defaultContent={isLast ? buttonLabels.finish : buttonLabels.skip}
+            defaultContent={buttonLabels.skip}
             themeStyles={themeStyles.buttons}
             customButton={step.buttons?.close}
           />
           <TooltipButton
             kind="next"
             visible={showButtons.next}
-            label={buttonLabels.next}
+            label={isLast ? buttonLabels.finish : buttonLabels.next}
             handler={onNext}
             variant="primary"
-            defaultContent={buttonLabels.next}
+            defaultContent={isLast ? buttonLabels.finish : buttonLabels.next}
             themeStyles={themeStyles.buttons}
             customButton={step.buttons?.next}
           />

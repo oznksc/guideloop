@@ -1,6 +1,4 @@
 import { useEffect, useState, useCallback } from 'react';
-import { getElementPosition } from '../utils/dom';
-import { useScroll } from './useScroll';
 
 interface SpotlightPosition {
   top: number;
@@ -18,10 +16,8 @@ const defaultPosition: SpotlightPosition = {
 
 export const useSpotlight = (selector?: string | null, padding = 8) => {
   const [position, setPosition] = useState<SpotlightPosition>(defaultPosition);
-  const scrollPosition = useScroll();
 
   const updatePosition = useCallback(() => {
-    // Return early with default position if selector is empty, null, or undefined
     if (!selector) {
       setPosition(defaultPosition);
       return;
@@ -29,45 +25,45 @@ export const useSpotlight = (selector?: string | null, padding = 8) => {
 
     try {
       const element = document.querySelector(selector);
-      
+
       if (!element) {
-        console.warn(`[useSpotlight] Element not found with selector: ${selector}`);
         setPosition(defaultPosition);
         return;
       }
 
-      const pos = getElementPosition(element);
+      const rect = element.getBoundingClientRect();
       setPosition({
-        top: pos.top - padding + scrollPosition.y,
-        left: pos.left - padding + scrollPosition.x,
-        width: pos.width + (padding * 2),
-        height: pos.height + (padding * 2),
+        top: rect.top - padding,
+        left: rect.left - padding,
+        width: rect.width + padding * 2,
+        height: rect.height + padding * 2,
       });
     } catch (error) {
       console.error('[useSpotlight] Error updating position:', error);
       setPosition(defaultPosition);
     }
-  }, [selector, padding, scrollPosition.x, scrollPosition.y]);
+  }, [selector, padding]);
 
   useEffect(() => {
-    // Skip effect if selector is empty
     if (!selector) {
       setPosition(defaultPosition);
       return;
     }
 
-    // Initial position update
     updatePosition();
 
-    // Add resize listener
-    window.addEventListener('resize', updatePosition);
-    
-    // Setup mutation observer
+    const handleScrollOrResize = () => {
+      updatePosition();
+    };
+
+    window.addEventListener('resize', handleScrollOrResize, { passive: true });
+    window.addEventListener('scroll', handleScrollOrResize, { capture: true, passive: true });
+
     const observer = new MutationObserver(updatePosition);
-    
+
     try {
       const element = document.querySelector(selector);
-      
+
       if (element) {
         observer.observe(element, {
           attributes: true,
@@ -79,9 +75,9 @@ export const useSpotlight = (selector?: string | null, padding = 8) => {
       console.error('[useSpotlight] Error setting up observer:', error);
     }
 
-    // Cleanup
     return () => {
-      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('resize', handleScrollOrResize);
+      window.removeEventListener('scroll', handleScrollOrResize, { capture: true });
       observer.disconnect();
     };
   }, [selector, updatePosition]);

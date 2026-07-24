@@ -303,6 +303,7 @@ const initialLogs: CliLogEntry[] = [
 
 export default function Home() {
   const [currentTheme, setCurrentTheme] = useState<DemoThemeId>("slate");
+  const [workspaceTab, setWorkspaceTab] = useState<"overview" | "timeline" | "team">("overview");
   const [tourOpen, setTourOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [integrationCopied, setIntegrationCopied] = useState(false);
@@ -369,6 +370,7 @@ export default function Home() {
   }, [pushCliLog]);
 
   const startTour = useCallback(() => {
+    setWorkspaceTab("overview");
     setExperienceStatus("Tour active — Step 1 Spotlight focused.");
     setTourOpen(true);
     pushCliLog("TOUR", "Contextual tour started. Step 1/5 focused.");
@@ -611,6 +613,8 @@ export default function Home() {
               {/* PRODUCT EMBEDDED DEMO */}
               <ProductWorkspace
                 onStartTour={startTour}
+                activeTab={workspaceTab}
+                onTabChange={setWorkspaceTab}
               />
 
               {/* CONSOLE LOG DRAWER */}
@@ -813,6 +817,11 @@ export default function Home() {
           pushCliLog("TOUR", "Tour modal closed by user.");
         }}
         onStepChange={(stepIndex) => {
+          if (stepIndex === 2) {
+            setWorkspaceTab("timeline");
+          } else if (stepIndex === 4 || stepIndex === 0) {
+            setWorkspaceTab("overview");
+          }
           const step = tourSteps[stepIndex];
           if (step) {
             pushCliLog(

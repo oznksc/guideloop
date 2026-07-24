@@ -4,17 +4,16 @@ import { getAnimationStyle } from '../../utils/animation';
 
 export const Spotlight: React.FC<SpotlightProps> = ({
   position,
-  padding,
   animation,
   style = {},
 }) => (
   <div
-    className="absolute border-2 border-blue-500 rounded-md pointer-events-none"
+    className="fixed border-2 border-blue-500 rounded-md pointer-events-none"
     style={{
-      top: position.top - padding,
-      left: position.left - padding,
-      width: position.width + (padding * 2),
-      height: position.height + (padding * 2),
+      top: position.top,
+      left: position.left,
+      width: position.width,
+      height: position.height,
       ...getAnimationStyle(animation, 'enter'),
       ...style
     }}
