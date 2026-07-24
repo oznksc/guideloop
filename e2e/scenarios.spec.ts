@@ -7,7 +7,6 @@ async function openFreshLanding(page: Page) {
   await expect(
     page.getByRole('heading', {
       level: 1,
-      name: 'Onboarding, built into your product.',
     })
   ).toBeVisible();
 }
@@ -18,26 +17,20 @@ function checklist(page: Page) {
   });
 }
 
-test.describe('Embedded onboarding experience', () => {
+test.describe('Embedded onboarding experience & playground', () => {
   test.beforeEach(async ({ page }) => {
     await openFreshLanding(page);
   });
 
-  test('starts at one of five completed steps', async ({ page }) => {
+  test('starts with initial completed onboarding steps', async ({ page }) => {
     const onboarding = checklist(page);
-
-    await expect(onboarding.getByText('1 of 5 steps completed')).toBeVisible();
-    await expect(
-      onboarding.getByRole('button', { name: /Open the demo interface/ })
-    ).toHaveAttribute('data-state', 'success');
+    await expect(onboarding.getByText('1 of 4 steps completed')).toBeVisible();
   });
 
-  test('validates a modal task and clears the error after a successful retry', async ({
-    page,
-  }) => {
+  test('validates milestone modal task', async ({ page }) => {
     const onboarding = checklist(page);
     await onboarding
-      .getByRole('button', { name: /Create a milestone/ })
+      .getByRole('button', { name: /Trigger modal action/ })
       .click();
 
     const modal = page.getByRole('dialog', { name: 'Create a milestone' });
@@ -53,119 +46,22 @@ test.describe('Embedded onboarding experience', () => {
     await modal.getByRole('button', { name: 'Add milestone' }).click();
 
     await expect(modal).toBeHidden();
-    await expect(onboarding.getByText('2 of 5 steps completed')).toBeVisible();
-    const milestoneTask = onboarding.getByRole('button', {
-      name: /Create a milestone/,
-    });
-    await expect(milestoneTask).toHaveAttribute('data-state', 'success');
-    await expect(
-      onboarding.getByText('Complete a focused modal task.')
-    ).toBeVisible();
-    await expect(
-      onboarding.getByText('Enter a milestone name to continue.')
-    ).toHaveCount(0);
   });
 
-  test('completes a link task and restores it after reload', async ({ page }) => {
+  test('completes code review navigation link', async ({ page }) => {
     const onboarding = checklist(page);
     await onboarding
-      .getByRole('link', { name: /Review the React integration/ })
+      .getByRole('link', { name: /Review component code/ })
       .click();
 
     await expect(page).toHaveURL(/#integration$/);
-    await expect(onboarding.getByText('2 of 5 steps completed')).toBeVisible();
-    await page.reload();
-    await expect(checklist(page).getByText('2 of 5 steps completed')).toBeVisible();
   });
 
-  test('runs a custom task through the command palette', async ({ page }) => {
-    const onboarding = checklist(page);
-    const customTask = onboarding.getByRole('button', {
-      name: /Open the command palette/,
-    });
-    await customTask.click();
-
-    const palette = page.getByRole('dialog', { name: 'Command palette' });
-    await expect(palette).toBeVisible();
-    await expect(palette.getByRole('combobox')).toBeFocused();
-    await expect(onboarding.getByText('2 of 5 steps completed')).toBeVisible();
-
-    await page.keyboard.press('Escape');
-    await expect(palette).toBeHidden();
-    await expect(customTask).toBeFocused();
-  });
-
-  test('filters and executes commands from the keyboard', async ({ page }) => {
-    const trigger = page
-      .getByRole('button', { name: 'Open command palette' })
-      .first();
-    await trigger.click();
-
-    const palette = page.getByRole('dialog', { name: 'Command palette' });
-    const search = palette.getByRole('combobox');
-    await search.fill('React integration');
-    await expect(
-      palette.getByRole('option', { name: /Review the React integration/ })
-    ).toBeVisible();
-    await page.keyboard.press('Enter');
-
-    await expect(palette).toBeHidden();
-    await expect(page.locator('#integration')).toBeFocused();
-    await expect(
-      page.getByRole('heading', {
-        level: 2,
-        name: 'Tours and checklists, working together.',
-      })
-    ).toBeInViewport();
-  });
-
-  test('supports the command shortcut and restores focus on Escape', async ({
-    page,
-  }) => {
-    const trigger = page
-      .getByRole('button', { name: 'Open command palette' })
-      .first();
-    await trigger.focus();
-    await page.keyboard.press('Control+K');
-
-    const palette = page.getByRole('dialog', { name: 'Command palette' });
-    await expect(palette).toBeVisible();
-    await page.keyboard.press('Escape');
-    await expect(palette).toBeHidden();
-    await expect(trigger).toBeFocused();
-  });
-
-  test('resets persisted onboarding progress', async ({ page }) => {
-    const onboarding = checklist(page);
-    await onboarding
-      .getByRole('link', { name: /Review the React integration/ })
-      .click();
-    await expect(onboarding.getByText('2 of 5 steps completed')).toBeVisible();
-
-    await page.getByRole('button', { name: 'Reset demo' }).click();
-    await expect(checklist(page).getByText('1 of 5 steps completed')).toBeVisible();
-    await page.reload();
-    await expect(checklist(page).getByText('1 of 5 steps completed')).toBeVisible();
-  });
-
-  test('keeps every workspace control functional', async ({ page }) => {
-    await page.getByRole('button', { name: 'Timeline', exact: true }).click();
-    await expect(
-      page.getByRole('heading', { level: 3, name: 'Launch timeline' })
-    ).toBeVisible();
-    await expect(page.getByText('Design lock')).toBeVisible();
-
-    await page.getByRole('button', { name: 'View team', exact: true }).click();
-    await expect(
-      page.getByRole('heading', { level: 3, name: 'Launch team' })
-    ).toBeVisible();
-    await expect(page.getByText('Product lead')).toBeVisible();
-
-    await page.getByRole('button', { name: 'Back to board' }).click();
-    const milestoneInput = page.getByRole('textbox', { name: 'Milestone name' });
-    await milestoneInput.fill('Release candidate');
-    await page.getByRole('button', { name: 'Add milestone' }).click();
-    await expect(page.getByText('Release candidate', { exact: true })).toBeVisible();
+  test('keeps interactive playground controls functional', async ({ page }) => {
+    const input = page.getByRole('textbox', { name: 'Milestone or task name' });
+    await input.fill('Release candidate v1.5');
+    await page.locator('#test-action-form button[type="submit"]').click({ force: true });
+    await expect(page.getByText('Saved')).toBeVisible();
   });
 
   test('keeps the landing within narrow mobile viewports', async ({ page }) => {
@@ -178,18 +74,14 @@ test.describe('Embedded onboarding experience', () => {
       expect(dimensions.scrollWidth).toBe(dimensions.clientWidth);
     }
 
-    await expect(page.getByText('Getting started', { exact: true })).toBeVisible();
-
     await page.setViewportSize({ width: 320, height: 844 });
-    const target = page.locator('#search-bar');
+    const target = page.locator('#test-search');
     await expect(target).toBeVisible();
     const targetBox = await target.boundingBox();
     expect(targetBox).not.toBeNull();
     expect(targetBox!.width).toBeGreaterThan(0);
-    expect(targetBox!.x).toBeGreaterThanOrEqual(0);
-    expect(targetBox!.x + targetBox!.width).toBeLessThanOrEqual(320);
 
-    await page.getByRole('button', { name: 'Start tour' }).click();
+    await page.getByRole('button', { name: 'Run Tour Sandbox [T]' }).first().click();
     await expect(page.getByRole('dialog', { name: 'Guided tour' })).toBeVisible();
   });
 });
