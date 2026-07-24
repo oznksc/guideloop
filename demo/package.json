@@ -11,6 +11,7 @@
   "dependencies": {
     "@ant-design/icons": "^5.5.1",
     "antd": "^5.21.6",
+    "guideloop": "^1.4.1",
     "next": "^14.2.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0"

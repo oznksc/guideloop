@@ -5,13 +5,13 @@ type IconProps = SVGProps<SVGSVGElement>;
 function IconFrame({
   children,
   ...props
-}: IconProps & { children: ReactNode }) {
+}: IconProps & { children?: ReactNode }) {
   return (
     <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.7"
+      strokeWidth="1.75"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
@@ -22,15 +22,19 @@ function IconFrame({
   );
 }
 
-export function LoopMark(props: IconProps) {
+export function GuideLoopLogo({ className = "h-7 w-auto" }: { className?: string }) {
   return (
-    <IconFrame {...props}>
-      <path d="M8.2 7.1A5.8 5.8 0 0 1 18 11.3c0 3.2-2.6 5.7-5.8 5.7H8.5" />
-      <path d="m6.7 14.6-2.3 2.3 2.3 2.3" />
-      <path d="M15.8 16.9A5.8 5.8 0 0 1 6 12.7C6 9.5 8.6 7 11.8 7h3.7" />
-      <path d="m17.3 9.4 2.3-2.3-2.3-2.3" />
-    </IconFrame>
+    <img
+      src="/guideloop-logo.svg"
+      alt="GuideLoop Logo"
+      className={className}
+      style={{ display: "block" }}
+    />
   );
+}
+
+export function LoopMark(props: IconProps) {
+  return <GuideLoopLogo className={props.className || "h-6 w-auto"} />;
 }
 
 export function ArrowRight(props: IconProps) {
@@ -138,6 +142,41 @@ export function Command(props: IconProps) {
   return (
     <IconFrame {...props}>
       <path d="M9 6a3 3 0 1 1-3-3c1.7 0 3 1.3 3 3v12a3 3 0 1 1-3-3h12a3 3 0 1 1-3 3V6a3 3 0 1 1 3 3H6" />
+    </IconFrame>
+  );
+}
+
+export function Sparkles(props: IconProps) {
+  return (
+    <IconFrame {...props}>
+      <path d="m12 3 1.9 5.7a2 2 0 0 0 1.4 1.4L21 12l-5.7 1.9a2 2 0 0 0-1.4 1.4L12 21l-1.9-5.7a2 2 0 0 0-1.4-1.4L3 12l5.7-1.9a2 2 0 0 0 1.4-1.4L12 3z" />
+    </IconFrame>
+  );
+}
+
+export function Layers(props: IconProps) {
+  return (
+    <IconFrame {...props}>
+      <path d="m12 2 10 5-10 5L2 7l10-5z" />
+      <path d="m2 17 10 5 10-5" />
+      <path d="m2 12 10 5 10-5" />
+    </IconFrame>
+  );
+}
+
+export function CodeIcon(props: IconProps) {
+  return (
+    <IconFrame {...props}>
+      <polyline points="16 18 22 12 16 6" />
+      <polyline points="8 6 2 12 8 18" />
+    </IconFrame>
+  );
+}
+
+export function Shield(props: IconProps) {
+  return (
+    <IconFrame {...props}>
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
     </IconFrame>
   );
 }

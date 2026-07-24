@@ -6,7 +6,7 @@ import {
   Board,
   Check,
   Flag,
-  LoopMark,
+  GuideLoopLogo,
   Search,
   Timeline,
   Users,
@@ -14,7 +14,6 @@ import {
 
 interface ProductWorkspaceProps {
   onStartTour: () => void;
-  onOpenCommand: () => void;
 }
 
 type WorkspaceTabId = "overview" | "timeline" | "team";
@@ -65,7 +64,7 @@ const workspaceViews: Record<WorkspaceTabId, WorkspaceView> = {
     progress: "77.7%",
     facts: [
       ["Next review", "Tue · 14:00"],
-      ["Launch", "Aug 14"],
+      ["Target Launch", "Aug 14"],
     ],
     tableKicker: "Critical path",
     tableTitle: "Milestones",
@@ -175,7 +174,7 @@ const initialRows: Record<WorkspaceTabId, WorkspaceRow[]> = {
     },
     {
       name: "Leo Martin",
-      owner: "Docs",
+      owner: "Docs lead",
       date: "Readiness",
       status: "Active",
     },
@@ -190,13 +189,14 @@ const initialRows: Record<WorkspaceTabId, WorkspaceRow[]> = {
 
 export function ProductWorkspace({
   onStartTour,
-  onOpenCommand,
 }: ProductWorkspaceProps) {
   const [activeTab, setActiveTab] = useState<WorkspaceTabId>("overview");
   const [showActivity, setShowActivity] = useState(false);
   const [milestoneDraft, setMilestoneDraft] = useState("");
   const [savedMilestone, setSavedMilestone] = useState("");
   const [rowsByTab, setRowsByTab] = useState(initialRows);
+  const [searchQuery, setSearchQuery] = useState("");
+
   const activeView = workspaceViews[activeTab];
   const ActiveRowIcon =
     activeTab === "timeline" ? Timeline : activeTab === "team" ? Users : Flag;
@@ -230,24 +230,23 @@ export function ProductWorkspace({
       <header className="product-topbar">
         <div className="product-brand">
           <span className="product-brand__mark">
-            <LoopMark />
+            <GuideLoopLogo className="h-6 w-auto" />
           </span>
-          <span>GuideLoop playground</span>
-          <span className="product-badge">Embedded demo</span>
+          <span className="product-brand__title">Acme Launch Hub</span>
+          <span className="product-badge">Embedded App</span>
         </div>
 
         <div className="product-topbar__actions">
-          <button
-            id="search-bar"
-            type="button"
-            className="product-command"
-            onClick={onOpenCommand}
-            aria-label="Open command palette"
-          >
-            <Search />
-            <span>Search or jump to…</span>
-            <kbd>⌘ K</kbd>
-          </button>
+          <div id="search-bar" className="product-search-input-wrapper">
+            <Search className="w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search workspace..."
+              className="product-search-input"
+            />
+          </div>
 
           <div className="activity-anchor">
             <button
@@ -258,7 +257,7 @@ export function ProductWorkspace({
               aria-expanded={showActivity}
               onClick={() => setShowActivity((visible) => !visible)}
             >
-              <Bell />
+              <Bell className="w-4 h-4" />
               <span className="product-notification-dot" aria-hidden="true" />
             </button>
 
@@ -266,7 +265,7 @@ export function ProductWorkspace({
               <div className="activity-popover" role="status">
                 <div className="activity-popover__header">
                   <strong>Recent activity</strong>
-                  <span>Sample data</span>
+                  <span>Live feed</span>
                 </div>
                 <p>
                   <span className="activity-dot activity-dot--done" />
@@ -289,7 +288,7 @@ export function ProductWorkspace({
       <div className="product-layout">
         <aside id="tab-section" className="product-sidebar" aria-label="Workspace">
           <div>
-            <p className="product-sidebar__label">Workspace</p>
+            <p className="product-sidebar__label">NAVIGATION</p>
             <nav>
               {workspaceTabs.map((tab) => {
                 const Icon = tab.icon;
@@ -298,10 +297,11 @@ export function ProductWorkspace({
                   <button
                     key={tab.id}
                     type="button"
+                    className={isActive ? "is-active" : ""}
                     aria-current={isActive ? "page" : undefined}
                     onClick={() => setActiveTab(tab.id)}
                   >
-                    <Icon />
+                    <Icon className="w-4 h-4" />
                     <span>{tab.label}</span>
                   </button>
                 );
@@ -334,8 +334,8 @@ export function ProductWorkspace({
                 window.setTimeout(onStartTour, 0);
               }}
             >
-              <LoopMark />
-              Start tour
+              <GuideLoopLogo className="h-5 w-auto" />
+              <span>Start Product Tour</span>
             </button>
           </div>
 
@@ -374,7 +374,7 @@ export function ProductWorkspace({
                   type="button"
                   onClick={() => setActiveTab(activeView.actionTab)}
                 >
-                  {activeView.tableAction}
+                  {activeView.tableAction} →
                 </button>
               </div>
 
@@ -394,7 +394,7 @@ export function ProductWorkspace({
                   >
                     <span role="cell">
                       <i className="milestone-icon">
-                        <ActiveRowIcon />
+                        <ActiveRowIcon className="w-4 h-4" />
                       </i>
                       <strong>{row.name}</strong>
                     </span>
@@ -417,9 +417,9 @@ export function ProductWorkspace({
 
             <aside id="form-section" className="quick-milestone">
               <span className="quick-milestone__icon">
-                <ActiveRowIcon />
+                <ActiveRowIcon className="w-5 h-5" />
               </span>
-              <p className="product-kicker">Quick action</p>
+              <p className="product-kicker">Quick Action</p>
               <h4>{activeView.quickTitle}</h4>
               <p>{activeView.quickDescription}</p>
               <label htmlFor="quick-milestone-name">
@@ -436,12 +436,13 @@ export function ProductWorkspace({
               />
               <button
                 type="button"
+                className="button button--primary w-full"
                 disabled={!milestoneDraft.trim()}
                 onClick={addWorkspaceRow}
               >
                 {savedMilestone ? (
                   <>
-                    <Check />
+                    <Check className="w-4 h-4 mr-1" />
                     Added
                   </>
                 ) : (
@@ -457,7 +458,6 @@ export function ProductWorkspace({
           </div>
         </section>
       </div>
-
     </div>
   );
 }

@@ -34,51 +34,50 @@
   --color-shadow-medium: oklch(0.19 0.018 255 / 0.14);
   --color-shadow-strong: oklch(0.14 0.018 255 / 0.22);
 
-  --font-display: var(--font-geist-sans), system-ui, sans-serif;
-  --font-body: var(--font-geist-sans), system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-serif: var(--font-newsreader), "Newsreader", Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-display: var(--font-serif);
+  --font-body: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), var(--font-geist-mono), ui-monospace, monospace;
 
-  --text-display: clamp(3.5rem, 8vw, 7.5rem);
-  --text-h1-mobile: 3.5rem;
-  --text-h2: clamp(2.25rem, 4.5vw, 4.5rem);
-  --text-h3: clamp(1.5rem, 2.2vw, 2rem);
-  --text-lede: clamp(1.125rem, 1.8vw, 1.375rem);
-  --text-body: 1rem;
-  --text-small: 0.875rem;
-  --text-micro: 0.75rem;
+  --text-display: clamp(2rem, 4vw, 3.5rem);
+  --text-h1-mobile: 2.2rem;
+  --text-h2: clamp(1.5rem, 2.5vw, 2.2rem);
+  --text-h3: clamp(1.1rem, 1.5vw, 1.35rem);
+  --text-lede: 0.95rem;
+  --text-body: 0.88rem;
+  --text-small: 0.8rem;
+  --text-micro: 0.7rem;
 
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.25rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
-  --space-10: 2.5rem;
-  --space-12: 3rem;
-  --space-16: 4rem;
-  --space-20: 5rem;
-  --space-24: 6rem;
-  --space-28: 7rem;
-  --space-32: 8rem;
+  --space-1: 0.2rem;
+  --space-2: 0.35rem;
+  --space-3: 0.5rem;
+  --space-4: 0.75rem;
+  --space-5: 1rem;
+  --space-6: 1.25rem;
+  --space-8: 1.5rem;
+  --space-10: 1.75rem;
+  --space-12: 2rem;
+  --space-16: 2.5rem;
+  --space-20: 3rem;
+  --space-24: 3.5rem;
 
-  --page-gutter: clamp(1.25rem, 4vw, 4rem);
-  --page-width: 76rem;
-  --reading-width: 42rem;
-  --nav-height: 4.5rem;
-  --control-height: 2.75rem;
+  --page-gutter: 1rem;
+  --page-width: 1024px;
+  --reading-width: 48rem;
+  --nav-height: 2.6rem;
+  --control-height: 2.1rem;
 
-  --radius-small: 0.625rem;
-  --radius-medium: 1rem;
-  --radius-large: 1.5rem;
+  --radius-small: 0.3rem;
+  --radius-medium: 0.5rem;
+  --radius-large: 0.75rem;
   --radius-pill: 100rem;
 
   --rule-hairline: 1px solid var(--color-line);
   --rule-strong: 1px solid var(--color-line-strong);
-  --focus-ring: 0 0 0 4px var(--color-accent-soft);
-  --shadow-soft: 0 1rem 3rem var(--color-shadow-soft);
-  --shadow-medium: 0 1.5rem 4rem var(--color-shadow-medium);
-  --shadow-strong: 0 2rem 6rem var(--color-shadow-strong);
+  --focus-ring: 0 0 0 3px var(--color-accent-soft);
+  --shadow-soft: 0 0.5rem 1.5rem var(--color-shadow-soft);
+  --shadow-medium: 0 1rem 2.5rem var(--color-shadow-medium);
+  --shadow-strong: 0 1.5rem 4rem var(--color-shadow-strong);
 
   --duration-fast: 120ms;
   --duration-base: 220ms;
@@ -90,4 +89,100 @@
   --z-product-popover: 80;
   --z-command: 4000;
   --z-tour: 5000;
+}
+
+/* --- THEME 1: SLATE (Compact Tech / Developer Slate) --- */
+[data-theme="slate"] {
+  color-scheme: dark;
+  --color-canvas: #090d16;
+  --color-canvas-glass: rgba(9, 13, 22, 0.88);
+  --color-surface: #111726;
+  --color-surface-subtle: #182238;
+  --color-surface-strong: #202d4a;
+  --color-ink: #f1f5f9;
+  --color-ink-muted: #94a3b8;
+  --color-ink-faint: #64748b;
+  --color-line: rgba(255, 255, 255, 0.08);
+  --color-line-strong: rgba(255, 255, 255, 0.18);
+  --color-accent: #6366f1;
+  --color-accent-hover: #4f46e5;
+  --color-accent-soft: rgba(99, 102, 241, 0.22);
+  --color-accent-ink: #ffffff;
+  --color-graphite: #060911;
+  --color-graphite-surface: #0f172a;
+  --color-shadow-soft: rgba(0, 0, 0, 0.3);
+  --color-shadow-medium: rgba(0, 0, 0, 0.5);
+  --color-shadow-strong: rgba(0, 0, 0, 0.7);
+}
+
+/* --- THEME 2: EDITORIAL (Parchment & Craft) --- */
+[data-theme="editorial"] {
+  color-scheme: light;
+  --color-canvas: #fbf8f3;
+  --color-canvas-glass: rgba(251, 248, 243, 0.92);
+  --color-surface: #ffffff;
+  --color-surface-subtle: #f4efe6;
+  --color-surface-strong: #e7dfd3;
+  --color-ink: #1c1917;
+  --color-ink-muted: #57534e;
+  --color-ink-faint: #78716c;
+  --color-line: rgba(28, 25, 23, 0.12);
+  --color-line-strong: rgba(28, 25, 23, 0.24);
+  --color-accent: #9a3412;
+  --color-accent-hover: #7c2d12;
+  --color-accent-soft: rgba(154, 52, 18, 0.15);
+  --color-accent-ink: #fff7ed;
+  --color-graphite: #292524;
+  --color-graphite-surface: #383533;
+  --color-shadow-soft: rgba(28, 25, 23, 0.06);
+  --color-shadow-medium: rgba(28, 25, 23, 0.12);
+  --color-shadow-strong: rgba(28, 25, 23, 0.2);
+}
+
+/* --- THEME 3: TERMINAL (CLI / Phosphor Emerald) --- */
+[data-theme="terminal"] {
+  color-scheme: dark;
+  --color-canvas: #050a07;
+  --color-canvas-glass: rgba(5, 10, 7, 0.9);
+  --color-surface: #0b140e;
+  --color-surface-subtle: #122117;
+  --color-surface-strong: #1a3022;
+  --color-ink: #ecfdf5;
+  --color-ink-muted: #6ee7b7;
+  --color-ink-faint: #34d399;
+  --color-line: rgba(16, 185, 129, 0.16);
+  --color-line-strong: rgba(16, 185, 129, 0.35);
+  --color-accent: #10b981;
+  --color-accent-hover: #059669;
+  --color-accent-soft: rgba(16, 185, 129, 0.22);
+  --color-accent-ink: #022c22;
+  --color-graphite: #03140a;
+  --color-graphite-surface: #0a2414;
+  --color-shadow-soft: rgba(0, 0, 0, 0.4);
+  --color-shadow-medium: rgba(0, 0, 0, 0.6);
+  --color-shadow-strong: rgba(0, 0, 0, 0.8);
+}
+
+/* --- THEME 4: NORDIC (Arctic Frost & Azure) --- */
+[data-theme="nordic"] {
+  color-scheme: light;
+  --color-canvas: #f0f4f9;
+  --color-canvas-glass: rgba(240, 244, 249, 0.9);
+  --color-surface: #ffffff;
+  --color-surface-subtle: #e2e8f0;
+  --color-surface-strong: #cbd5e1;
+  --color-ink: #0f172a;
+  --color-ink-muted: #334155;
+  --color-ink-faint: #64748b;
+  --color-line: rgba(15, 23, 42, 0.1);
+  --color-line-strong: rgba(15, 23, 42, 0.22);
+  --color-accent: #0284c7;
+  --color-accent-hover: #0369a1;
+  --color-accent-soft: rgba(2, 132, 199, 0.15);
+  --color-accent-ink: #f0f9ff;
+  --color-graphite: #1e293b;
+  --color-graphite-surface: #334155;
+  --color-shadow-soft: rgba(15, 23, 42, 0.06);
+  --color-shadow-medium: rgba(15, 23, 42, 0.12);
+  --color-shadow-strong: rgba(15, 23, 42, 0.22);
 }
