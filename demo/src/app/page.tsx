@@ -21,7 +21,7 @@ import {
   Shield,
   Sparkles,
 } from "../components/DemoIcons";
-import { ProductWorkspace } from "../components/ProductWorkspace";
+import { InteractivePlayground } from "../components/InteractivePlayground";
 import "./landing.css";
 
 const GITHUB_URL = "https://github.com/oznksc/guideloop";
@@ -205,38 +205,38 @@ const DEMO_THEMES: Record<DemoThemeId, DemoThemePreset> = {
 
 const tourSteps: Step[] = [
   {
-    target: "#search-bar",
+    target: "#test-search",
     title: "DOM Element Anchoring",
     content:
-      "Binds directly to any CSS selector. Calculates target bounds dynamically on window resize or container scroll.",
+      "Binds directly to any CSS selector (#test-search). Calculates target bounds dynamically on window resize or scroll.",
     placement: "bottom",
   },
   {
     target: "#tab-section",
-    title: "Popper.js Placement Rules",
+    title: "Filter & Tab Placement",
     content:
-      "Configurable tooltip positioning ('bottom', 'right', 'top', 'left') with automatic boundary detection.",
+      "Configurable tooltip placement ('bottom', 'right', 'top', 'left') with automatic boundary detection.",
     placement: "right",
   },
   {
-    target: "#stats-section",
-    title: "Step Sequence Callbacks",
+    target: "#test-metrics",
+    title: "Real-Time Metric Spotlights",
     content:
-      "Tracks step index state and exposes onStepChange, onSkip, and onComplete lifecycle hooks.",
+      "Spotlights metrics, latency indicators, and readiness status at the exact moment clarification is needed.",
     placement: "bottom",
   },
   {
-    target: "#notifications",
+    target: "#test-notifications",
     title: "Overlay Mask & Focus Trap",
     content:
-      "Renders SVG/canvas overlay over non-active UI elements while enforcing keyboard tab focus loops.",
+      "Renders SVG overlay over non-active UI elements while enforcing keyboard tab focus loops.",
     placement: "bottom",
   },
   {
-    target: "#form-section",
-    title: "Checklist Integration",
+    target: "#test-action-form",
+    title: "Action & Form Integration",
     content:
-      "Embeds seamlessly into OnboardingChecklist item actions to trigger multi-step guide workflows.",
+      "Embeds into onboarding tasks to trigger multi-step guides and form completion workflows.",
     placement: "left",
   },
 ];
@@ -303,7 +303,7 @@ const initialLogs: CliLogEntry[] = [
 
 export default function Home() {
   const [currentTheme, setCurrentTheme] = useState<DemoThemeId>("slate");
-  const [workspaceTab, setWorkspaceTab] = useState<"overview" | "timeline" | "team">("overview");
+  const [initialStepIndex, setInitialStepIndex] = useState(0);
   const [tourOpen, setTourOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [integrationCopied, setIntegrationCopied] = useState(false);
@@ -370,10 +370,18 @@ export default function Home() {
   }, [pushCliLog]);
 
   const startTour = useCallback(() => {
-    setWorkspaceTab("overview");
+    setInitialStepIndex(0);
     setExperienceStatus("Tour active — Step 1 Spotlight focused.");
     setTourOpen(true);
     pushCliLog("TOUR", "Contextual tour started. Step 1/5 focused.");
+  }, [pushCliLog]);
+
+  const triggerTarget = useCallback((selector: string) => {
+    const idx = tourSteps.findIndex((s) => s.target === selector);
+    setInitialStepIndex(idx >= 0 ? idx : 0);
+    setExperienceStatus(`Target spotlight active: ${selector}`);
+    setTourOpen(true);
+    pushCliLog("TOUR", `Triggered target spotlight: ${selector}`);
   }, [pushCliLog]);
 
   const resetExperience = useCallback(() => {
@@ -593,28 +601,12 @@ export default function Home() {
         <section id="live" className="workbench-section" tabIndex={-1}>
           <div className="workbench-container">
             <div className="workbench-frame">
-              {/* REAL BROWSER WINDOW CHROME */}
-              <div className="browser-chrome">
-                <div className="browser-dots">
-                  <span className="browser-dot browser-dot--red" />
-                  <span className="browser-dot browser-dot--yellow" />
-                  <span className="browser-dot browser-dot--green" />
-                </div>
-                <div className="browser-url-bar">
-                  <span className="browser-lock">🔒</span>
-                  <span className="browser-url">https://app.guideloop.dev/workbench</span>
-                </div>
-                <div className="browser-status">
-                  <span className="pulse-dot" />
-                  <span className="browser-status-text">{experienceStatus}</span>
-                </div>
-              </div>
-
-              {/* PRODUCT EMBEDDED DEMO */}
-              <ProductWorkspace
+              {/* INTERACTIVE PLAYGROUND SANDBOX */}
+              <InteractivePlayground
                 onStartTour={startTour}
-                activeTab={workspaceTab}
-                onTabChange={setWorkspaceTab}
+                onResetState={resetExperience}
+                onTriggerTarget={triggerTarget}
+                statusMessage={experienceStatus}
               />
 
               {/* CONSOLE LOG DRAWER */}
@@ -811,17 +803,13 @@ export default function Home() {
       <GuideLoop
         steps={tourSteps}
         isOpen={tourOpen}
+        initialStep={initialStepIndex}
         onClose={() => {
           setTourOpen(false);
           setExperienceStatus("Tour closed.");
           pushCliLog("TOUR", "Tour modal closed by user.");
         }}
         onStepChange={(stepIndex) => {
-          if (stepIndex === 2) {
-            setWorkspaceTab("timeline");
-          } else if (stepIndex === 4 || stepIndex === 0) {
-            setWorkspaceTab("overview");
-          }
           const step = tourSteps[stepIndex];
           if (step) {
             pushCliLog(
