@@ -14,6 +14,8 @@ import {
 
 interface ProductWorkspaceProps {
   onStartTour: () => void;
+  activeTab?: WorkspaceTabId;
+  onTabChange?: (tab: WorkspaceTabId) => void;
 }
 
 type WorkspaceTabId = "overview" | "timeline" | "team";
@@ -189,8 +191,16 @@ const initialRows: Record<WorkspaceTabId, WorkspaceRow[]> = {
 
 export function ProductWorkspace({
   onStartTour,
+  activeTab: controlledTab,
+  onTabChange,
 }: ProductWorkspaceProps) {
-  const [activeTab, setActiveTab] = useState<WorkspaceTabId>("overview");
+  const [localTab, setLocalTab] = useState<WorkspaceTabId>("overview");
+  const activeTab = controlledTab ?? localTab;
+
+  const handleTabSelect = (tab: WorkspaceTabId) => {
+    setLocalTab(tab);
+    onTabChange?.(tab);
+  };
   const [showActivity, setShowActivity] = useState(false);
   const [milestoneDraft, setMilestoneDraft] = useState("");
   const [savedMilestone, setSavedMilestone] = useState("");
@@ -299,7 +309,7 @@ export function ProductWorkspace({
                     type="button"
                     className={isActive ? "is-active" : ""}
                     aria-current={isActive ? "page" : undefined}
-                    onClick={() => setActiveTab(tab.id)}
+                    onClick={() => handleTabSelect(tab.id)}
                   >
                     <Icon className="w-4 h-4" />
                     <span>{tab.label}</span>
@@ -330,7 +340,7 @@ export function ProductWorkspace({
               type="button"
               className="product-tour-button"
               onClick={() => {
-                setActiveTab("overview");
+                handleTabSelect("overview");
                 window.setTimeout(onStartTour, 0);
               }}
             >
@@ -372,7 +382,7 @@ export function ProductWorkspace({
                 </div>
                 <button
                   type="button"
-                  onClick={() => setActiveTab(activeView.actionTab)}
+                  onClick={() => handleTabSelect(activeView.actionTab)}
                 >
                   {activeView.tableAction} →
                 </button>

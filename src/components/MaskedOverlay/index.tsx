@@ -1,127 +1,115 @@
 import React from 'react';
-import { useScroll } from '../../hooks/useScroll';
 import { useViewportSize } from '../../hooks/useViewportSize';
 import type { MaskedOverlayProps } from './types';
 
 export const MaskedOverlay: React.FC<MaskedOverlayProps> = ({
-    targetRect,
-    padding = 8,
-    onClick,
-    className = '',
-    animation,
-    style = {},
-  }) => {
-    const maskId = React.useId();
-    const scrollPosition = useScroll();
-    const viewportSize = useViewportSize();
-  
-    const maskRect = React.useMemo(() => {
-      if (!targetRect) {
-        return { x: 0, y: 0, width: 0, height: 0, rx: 8 };
-      }
-      return {
-        x: targetRect.left - padding,
-        y: targetRect.top - padding,
-        width: targetRect.width + padding * 2,
-        height: targetRect.height + padding * 2,
-        rx: 8,
-      };
-    }, [targetRect, padding]);
-  
-    // Hedef element yoksa sadece overlay göster
-    if (!targetRect) {
-      return (
-        <div
-          className={`fixed inset-0 ${className}`}
-          style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.15)',
-            width: '100vw',
-            height: '100vh',
-            ...style,
-            pointerEvents: 'auto',
-          }}
-          onClick={onClick}
-          role="presentation"
-        />
-      );
+  targetRect,
+  onClick,
+  className = '',
+  animation,
+  style = {},
+}) => {
+  const maskId = React.useId();
+  const viewportSize = useViewportSize();
+
+  const maskRect = React.useMemo(() => {
+    if (!targetRect || targetRect.width === 0 || targetRect.height === 0) {
+      return { x: 0, y: 0, width: 0, height: 0, rx: 8 };
     }
-  
+    return {
+      x: targetRect.left,
+      y: targetRect.top,
+      width: targetRect.width,
+      height: targetRect.height,
+      rx: 8,
+    };
+  }, [targetRect]);
+
+  if (!targetRect || targetRect.width === 0 || targetRect.height === 0) {
     return (
       <div
         className={`fixed inset-0 ${className}`}
         style={{
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
           width: '100vw',
           height: '100vh',
-          overflow: 'hidden',
           ...style,
+          pointerEvents: 'auto',
         }}
         onClick={onClick}
         role="presentation"
-      >
-        <svg
-          className="fixed inset-0"
-          width={viewportSize.width}
-          height={viewportSize.height}
-          style={{ 
-            pointerEvents: 'none',
-            position: 'fixed',
-            top: 0,
-            left: 0,
-          }}
-        >
-          <defs>
-            <mask id={maskId}>
-              <rect 
-                x={-scrollPosition.x} 
-                y={-scrollPosition.y} 
-                width="100%" 
-                height="100%" 
-                fill="white"
-              />
-              <rect
-                x={maskRect.x}
-                y={maskRect.y}
-                width={maskRect.width}
-                height={maskRect.height}
-                rx={maskRect.rx}
-                fill="black"
-              />
-            </mask>
-          </defs>
-  
-          <rect
-            x={-scrollPosition.x}
-            y={-scrollPosition.y}
-            width="100%"
-            height="100%"
-            fill="rgba(0, 0, 0, 0.15)"
-            mask={`url(#${maskId})`}
-          />
-        </svg>
-  
-        {/* Spotlight efekti */}
-        <div
-          className="absolute border-2 border-blue-500 rounded-lg pointer-events-none spotlight-glow"
-          style={{
-            top: maskRect.y,
-            left: maskRect.x,
-            width: maskRect.width,
-            height: maskRect.height,
-            transition: 'all 0.3s ease-in-out',
-            opacity: maskRect.width === 0 ? 0 : 1,
-            ...animation,
-          }}
-        />
-  
-        {/* Ekstra overflow overlay */}
-        <div 
-          className="fixed inset-0 pointer-events-none"
-          style={{
-            boxShadow: 'inset 0 0 0 9999px rgba(0, 0, 0, 0.35)',
-            mask: `url(#${maskId})`,
-            WebkitMask: `url(#${maskId})`,
-          }}
-        />
-      </div>
+      />
     );
-  };
+  }
+
+  return (
+    <div
+      className={`fixed inset-0 ${className}`}
+      style={{
+        width: '100vw',
+        height: '100vh',
+        overflow: 'hidden',
+        pointerEvents: 'auto',
+        ...style,
+      }}
+      onClick={onClick}
+      role="presentation"
+    >
+      <svg
+        className="fixed inset-0"
+        width={viewportSize.width}
+        height={viewportSize.height}
+        style={{
+          pointerEvents: 'none',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+        }}
+      >
+        <defs>
+          <mask id={maskId}>
+            <rect
+              x="0"
+              y="0"
+              width="100%"
+              height="100%"
+              fill="white"
+            />
+            <rect
+              x={maskRect.x}
+              y={maskRect.y}
+              width={maskRect.width}
+              height={maskRect.height}
+              rx={maskRect.rx}
+              fill="black"
+            />
+          </mask>
+        </defs>
+
+        <rect
+          x="0"
+          y="0"
+          width="100%"
+          height="100%"
+          fill="rgba(0, 0, 0, 0.55)"
+          mask={`url(#${maskId})`}
+        />
+      </svg>
+
+      {/* Spotlight glow border */}
+      <div
+        className="fixed pointer-events-none spotlight-glow"
+        style={{
+          top: maskRect.y,
+          left: maskRect.x,
+          width: maskRect.width,
+          height: maskRect.height,
+          borderRadius: maskRect.rx,
+          transition: 'all 0.15s ease-out',
+          opacity: maskRect.width === 0 ? 0 : 1,
+          ...animation,
+        }}
+      />
+    </div>
+  );
+};

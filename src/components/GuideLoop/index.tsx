@@ -115,11 +115,21 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
   const handleNext = useCallback(async () => {
     if (!currentStepData || processingRef.current) return;
 
+    if (isLastStep) {
+      handleComplete();
+      onClose();
+      return;
+    }
+
     try {
       const hasElementAction = currentStepData?.nextButtonClickElementId || currentStepData?.nextButtonOnClick;
       if (hasElementAction) {
         const nextStepIndex = currentStepIndex + 1;
-        if (nextStepIndex >= steps.length) return;
+        if (nextStepIndex >= steps.length) {
+          handleComplete();
+          onClose();
+          return;
+        }
         await handleElementClick(
           currentStepData.nextButtonClickElementId,
           currentStepData.nextDelay,
@@ -138,7 +148,7 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
     } catch (error) {
       console.error('Error during next step:', error);
     }
-  }, [currentStepData, currentStepIndex, steps.length, goToNextStep, handleElementClick, setCurrentStep, syncedOnStepChange, setTourVisible]);
+  }, [currentStepData, isLastStep, handleComplete, onClose, currentStepIndex, steps.length, goToNextStep, handleElementClick, setCurrentStep, syncedOnStepChange, setTourVisible]);
 
   const handlePrev = useCallback(async () => {
     if (!currentStepData || processingRef.current) return;
@@ -226,16 +236,6 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
       updateTargetElement(steps[initialStep]);
     }
   }, [isOpen, initialStep, steps, updateTargetElement, setCurrentStep]);
-
-  useEffect(() => {
-    if (isOpen) {
-      const originalStyle = window.getComputedStyle(document.body).overflow;
-      document.body.style.overflow = 'hidden';
-      return () => {
-        document.body.style.overflow = originalStyle;
-      };
-    }
-  }, [isOpen]);
 
   useEffect(() => {
     if (!persist) return;
