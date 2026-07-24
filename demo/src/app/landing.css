@@ -49,7 +49,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1280px;
+  max-width: 1140px;
   margin: 0 auto;
   padding: 0.75rem 1.5rem;
   height: 4rem;
@@ -175,7 +175,7 @@
    ========================================================================== */
 .hero-section {
   position: relative;
-  padding: 5rem 1.5rem 3.5rem;
+  padding: 4rem 1.5rem 2.5rem;
   text-align: center;
   overflow: hidden;
 }
@@ -385,7 +385,7 @@
 }
 
 .workbench-container {
-  max-width: 1280px;
+  max-width: 1140px;
   margin: 0 auto;
 }
 
@@ -1144,12 +1144,12 @@
    FEATURES SECTION
    ========================================================================== */
 .features-section {
-  padding: 5rem 1.5rem;
+  padding: 4rem 1.5rem;
   background: var(--color-surface, rgba(255, 255, 255, 0.01));
 }
 
 .features-container {
-  max-width: 1280px;
+  max-width: 1140px;
   margin: 0 auto;
 }
 
@@ -1228,11 +1228,11 @@
    QUICKSTART CODE SECTION
    ========================================================================== */
 .quickstart-section {
-  padding: 4rem 1.5rem 6rem;
+  padding: 3.5rem 1.5rem 5rem;
 }
 
 .quickstart-container {
-  max-width: 1280px;
+  max-width: 1140px;
   margin: 0 auto;
 }
 
@@ -1358,7 +1358,7 @@
 }
 
 .footer-container {
-  max-width: 1280px;
+  max-width: 1140px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
@@ -1418,7 +1418,7 @@
 }
 
 .footer-bottom-container {
-  max-width: 1280px;
+  max-width: 1140px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
