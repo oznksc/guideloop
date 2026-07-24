@@ -262,6 +262,51 @@ describe('OnboardingChecklist', () => {
     });
   });
 
+  it('clears a modal action error after a successful retry', async () => {
+    const onPrimary = jest
+      .fn()
+      .mockRejectedValueOnce(new Error('Name is required'))
+      .mockResolvedValueOnce(undefined);
+    const items: OnboardingItem[] = [
+      {
+        id: 'milestone',
+        title: 'Create a milestone',
+        action: {
+          type: 'modal',
+          content: 'Milestone form',
+          primaryLabel: 'Create',
+          onPrimary,
+        },
+      },
+    ];
+
+    render(<OnboardingChecklist items={items} />);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /Create a milestone/ })
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Something went wrong. Please try again.'
+      );
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(screen.getByText('1/1 steps completed')).toBeInTheDocument();
+    });
+    expect(
+      screen.getByRole('button', { name: /Create a milestone/ })
+    ).toHaveAttribute('data-state', 'success');
+    expect(
+      screen.queryByText('Something went wrong. Please try again.')
+    ).not.toBeInTheDocument();
+  });
+
   it('does not complete a skipped tour but completes a finished tour', async () => {
     const onSkip = jest.fn();
     const onComplete = jest.fn();

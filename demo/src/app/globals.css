@@ -2,132 +2,116 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #f9fafb;
-  --foreground: #171717;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: clip;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  min-width: 20rem;
+  margin: 0;
+  overflow-x: clip;
+  color: var(--color-ink);
+  background: var(--color-canvas);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
 }
 
-/* Custom scrollbar for settings panel */
-::-webkit-scrollbar {
-  width: 6px;
+button,
+input {
+  font: inherit;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+button,
+a {
+  -webkit-tap-highlight-color: var(--color-transparent);
 }
 
-::-webkit-scrollbar-thumb {
-  background: #374151;
-  border-radius: 3px;
+button,
+.button,
+.text-link,
+.site-nav a,
+.site-footer a {
+  white-space: nowrap;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #4b5563;
+h1,
+h2,
+h3,
+h4 {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
 }
 
-/* Range input custom styling */
-input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  height: 6px;
-  background: #374151;
-  border-radius: 3px;
-  outline: none;
+input {
+  outline: 2px solid var(--color-transparent);
+  outline-offset: 1px;
 }
 
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  background: #3b82f6;
-  border-radius: 50%;
-  cursor: pointer;
-  border: 2px solid #1e3a5f;
-  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+input:hover {
+  border-color: var(--color-line-strong);
 }
 
-input[type="range"]::-webkit-slider-thumb:hover {
-  background: #2563eb;
-  transform: scale(1.1);
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  box-shadow: var(--focus-ring);
 }
 
-/* Select dropdown styling */
-select {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-  background-position: right 0.5rem center;
-  background-repeat: no-repeat;
-  background-size: 1.5em 1.5em;
-  padding-right: 2.5rem;
-  -webkit-appearance: none;
-  appearance: none;
+input:focus-visible {
+  outline-offset: 1px;
 }
 
-/* Pulse animation for spotlight */
-@keyframes pulse {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+button:active {
+  transform: translateY(1px);
+}
+
+a:active {
+  color: var(--color-accent-hover);
+}
+
+button:disabled,
+input:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+input:disabled {
+  color: var(--color-ink-faint);
+  background: var(--color-surface-strong);
+}
+
+input[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+::selection {
+  color: var(--color-accent-ink);
+  background: var(--color-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
-  50% {
-    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
   }
-}
-
-/* Smooth transitions */
-* {
-  transition-property: background-color, border-color, color, fill, stroke;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-}
-
-/* Ant Design modal z-index override */
-.no-motion .ant-modal {
-  z-index: 1000 !important;
-}
-
-/* FAB popup animation */
-@keyframes fab-pop-in {
-  from {
-    opacity: 0;
-    transform: translateY(16px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* FAB glow pulse */
-@keyframes fab-glow {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 0 12px rgba(59, 130, 246, 0);
-  }
-}
-
-/* FAB button hover glow */
-.fab-glow {
-  animation: fab-glow 2s ease-in-out infinite;
-}
-
-/* Panel scrollbar inside popup */
-.panel-scroll::-webkit-scrollbar {
-  width: 4px;
-}
-
-.panel-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.panel-scroll::-webkit-scrollbar-thumb {
-  background: #4b5563;
-  border-radius: 2px;
 }

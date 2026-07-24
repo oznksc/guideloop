@@ -5,6 +5,9 @@ import React from "react";
 
 // ==================== TOUR SETS ====================
 
+const assetPath = (path: string) =>
+  `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}${path}`;
+
 export const basicTour: Step[] = [
   {
     target: "#help-button",
@@ -180,7 +183,7 @@ export const imageTour: Step[] = [
     placement: "bottom",
     image: {
       type: "image",
-      src: "/guideloop-logo.svg",
+      src: assetPath("/guideloop-logo.svg"),
       alt: "GuideLoop Logo",
       width: 120,
       height: 40,

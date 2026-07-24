@@ -1,190 +1,195 @@
-import { test, expect, type Page } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
-// Demo'daki senaryoların (tourSets) gerçek davranışını doğrular.
-// Özellikle önceki turda düzeltilen problemler regression'a karşı korumaya alınır:
-//  - modal trigger sonrası modal'ın otomatik kapanması
-//  - nextDelay uygulaması
-//  - condition:false adımının atlanması
-//  - icon ve özel ReactNode butonlarının render edilmesi
-//  - Bitir butonunun onComplete tetiklemesi
-
-async function selectTour(page: Page, labelSubstring: string) {
-  await page.getByTitle('Ayarlar').click();
-  await page.locator('button', { hasText: labelSubstring }).first().click();
-  await page.getByRole('button', { name: 'Start Tour' }).click();
-  await expect(page.locator('[role="dialog"]')).toBeVisible();
-  // "Start Tour" zaten paneli kapatır; ekstra kapatma yapmaya gerek yok.
+async function openFreshLanding(page: Page) {
+  await page.goto('/');
+  await page.evaluate(() => window.localStorage.clear());
+  await page.reload();
+  await expect(
+    page.getByRole('heading', {
+      level: 1,
+      name: 'Onboarding, built into your product.',
+    })
+  ).toBeVisible();
 }
 
-test.describe('Scenario: Actions & Events', () => {
+function checklist(page: Page) {
+  return page.getByRole('region', {
+    name: 'GuideLoop demo getting started checklist',
+  });
+}
+
+test.describe('Embedded onboarding experience', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await openFreshLanding(page);
   });
 
-  test('modal trigger opens modal, then auto-closes when leaving the modal step', async ({ page }) => {
-    await selectTour(page, 'Actions & Events');
+  test('starts at one of five completed steps', async ({ page }) => {
+    const onboarding = checklist(page);
 
-    // Step 1 -> İleri, #show-search-features-modal tetiklenir, modal açılır
-    await page.getByRole('button', { name: 'İleri' }).click();
-    await expect(page.locator('#alertBox')).toBeVisible();
-    await expect(page.getByText(/Step 2 of 4/)).toBeVisible();
-
-    // Step 2 -> İleri, modal dışına geçilir, modal otomatik kapanmalı
-    await page.getByRole('button', { name: 'İleri' }).click();
-    await expect(page.locator('#alertBox')).toBeHidden();
-    await expect(page.getByText(/Step 3 of 4/)).toBeVisible();
+    await expect(onboarding.getByText('1 of 5 steps completed')).toBeVisible();
+    await expect(
+      onboarding.getByRole('button', { name: /Open the demo interface/ })
+    ).toHaveAttribute('data-state', 'success');
   });
 
-  test('nextDelay is applied on the delay step', async ({ page }) => {
-    await selectTour(page, 'Actions & Events');
-    await page.getByRole('button', { name: 'İleri' }).click(); // modal açılır
-    await expect(page.getByText(/Step 2 of 4/)).toBeVisible();
-    await page.getByRole('button', { name: 'İleri' }).click(); // Step 3 (delay step), modal kapanır
-    await expect(page.getByText(/Step 3 of 4/)).toBeVisible();
+  test('validates a modal task and clears the error after a successful retry', async ({
+    page,
+  }) => {
+    const onboarding = checklist(page);
+    await onboarding
+      .getByRole('button', { name: /Create a milestone/ })
+      .click();
 
-    const start = Date.now();
-    await page.getByRole('button', { name: 'İleri' }).click(); // nextDelay 1000ms
-    await expect(page.getByText(/Step 4 of 4/)).toBeVisible();
-    expect(Date.now() - start).toBeGreaterThan(900);
+    const modal = page.getByRole('dialog', { name: 'Create a milestone' });
+    await expect(modal).toBeVisible();
+    await modal.getByRole('button', { name: 'Add milestone' }).click();
+    await expect(
+      modal.getByText('Enter a milestone name to continue.')
+    ).toBeVisible();
+
+    await modal
+      .getByRole('textbox', { name: 'Milestone name' })
+      .fill('Release candidate');
+    await modal.getByRole('button', { name: 'Add milestone' }).click();
+
+    await expect(modal).toBeHidden();
+    await expect(onboarding.getByText('2 of 5 steps completed')).toBeVisible();
+    const milestoneTask = onboarding.getByRole('button', {
+      name: /Create a milestone/,
+    });
+    await expect(milestoneTask).toHaveAttribute('data-state', 'success');
+    await expect(
+      onboarding.getByText('Complete a focused modal task.')
+    ).toBeVisible();
+    await expect(
+      onboarding.getByText('Enter a milestone name to continue.')
+    ).toHaveCount(0);
   });
 
-  test('full actions tour completes', async ({ page }) => {
-    await selectTour(page, 'Actions & Events');
-    for (let i = 1; i < 4; i++) {
-      await expect(page.getByText(new RegExp(`Step ${i} of 4`))).toBeVisible();
-      await page.getByRole('button', { name: 'İleri' }).click();
+  test('completes a link task and restores it after reload', async ({ page }) => {
+    const onboarding = checklist(page);
+    await onboarding
+      .getByRole('link', { name: /Review the React integration/ })
+      .click();
+
+    await expect(page).toHaveURL(/#integration$/);
+    await expect(onboarding.getByText('2 of 5 steps completed')).toBeVisible();
+    await page.reload();
+    await expect(checklist(page).getByText('2 of 5 steps completed')).toBeVisible();
+  });
+
+  test('runs a custom task through the command palette', async ({ page }) => {
+    const onboarding = checklist(page);
+    const customTask = onboarding.getByRole('button', {
+      name: /Open the command palette/,
+    });
+    await customTask.click();
+
+    const palette = page.getByRole('dialog', { name: 'Command palette' });
+    await expect(palette).toBeVisible();
+    await expect(palette.getByRole('combobox')).toBeFocused();
+    await expect(onboarding.getByText('2 of 5 steps completed')).toBeVisible();
+
+    await page.keyboard.press('Escape');
+    await expect(palette).toBeHidden();
+    await expect(customTask).toBeFocused();
+  });
+
+  test('filters and executes commands from the keyboard', async ({ page }) => {
+    const trigger = page
+      .getByRole('button', { name: 'Open command palette' })
+      .first();
+    await trigger.click();
+
+    const palette = page.getByRole('dialog', { name: 'Command palette' });
+    const search = palette.getByRole('combobox');
+    await search.fill('React integration');
+    await expect(
+      palette.getByRole('option', { name: /Review the React integration/ })
+    ).toBeVisible();
+    await page.keyboard.press('Enter');
+
+    await expect(palette).toBeHidden();
+    await expect(page.locator('#integration')).toBeFocused();
+    await expect(
+      page.getByRole('heading', {
+        level: 2,
+        name: 'Tours and checklists, working together.',
+      })
+    ).toBeInViewport();
+  });
+
+  test('supports the command shortcut and restores focus on Escape', async ({
+    page,
+  }) => {
+    const trigger = page
+      .getByRole('button', { name: 'Open command palette' })
+      .first();
+    await trigger.focus();
+    await page.keyboard.press('Control+K');
+
+    const palette = page.getByRole('dialog', { name: 'Command palette' });
+    await expect(palette).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(palette).toBeHidden();
+    await expect(trigger).toBeFocused();
+  });
+
+  test('resets persisted onboarding progress', async ({ page }) => {
+    const onboarding = checklist(page);
+    await onboarding
+      .getByRole('link', { name: /Review the React integration/ })
+      .click();
+    await expect(onboarding.getByText('2 of 5 steps completed')).toBeVisible();
+
+    await page.getByRole('button', { name: 'Reset demo' }).click();
+    await expect(checklist(page).getByText('1 of 5 steps completed')).toBeVisible();
+    await page.reload();
+    await expect(checklist(page).getByText('1 of 5 steps completed')).toBeVisible();
+  });
+
+  test('keeps every workspace control functional', async ({ page }) => {
+    await page.getByRole('button', { name: 'Timeline', exact: true }).click();
+    await expect(
+      page.getByRole('heading', { level: 3, name: 'Launch timeline' })
+    ).toBeVisible();
+    await expect(page.getByText('Design lock')).toBeVisible();
+
+    await page.getByRole('button', { name: 'View team', exact: true }).click();
+    await expect(
+      page.getByRole('heading', { level: 3, name: 'Launch team' })
+    ).toBeVisible();
+    await expect(page.getByText('Product lead')).toBeVisible();
+
+    await page.getByRole('button', { name: 'Back to board' }).click();
+    const milestoneInput = page.getByRole('textbox', { name: 'Milestone name' });
+    await milestoneInput.fill('Release candidate');
+    await page.getByRole('button', { name: 'Add milestone' }).click();
+    await expect(page.getByText('Release candidate', { exact: true })).toBeVisible();
+  });
+
+  test('keeps the landing within narrow mobile viewports', async ({ page }) => {
+    for (const width of [320, 375, 414, 768]) {
+      await page.setViewportSize({ width, height: 844 });
+      const dimensions = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth,
+      }));
+      expect(dimensions.scrollWidth).toBe(dimensions.clientWidth);
     }
-    await expect(page.getByText('Step 4 of 4')).toBeVisible();
-    await page.getByRole('button', { name: 'Bitir' }).click();
-    await expect(page.locator('.guideloop-container')).not.toBeVisible();
-  });
-});
 
-test.describe('Scenario: Dynamic Content', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-  });
+    await expect(page.getByText('Getting started', { exact: true })).toBeVisible();
 
-  test('completes full dynamic tour without getting stuck on the modal step', async ({ page }) => {
-    await selectTour(page, 'Dynamic Content');
+    await page.setViewportSize({ width: 320, height: 844 });
+    const target = page.locator('#search-bar');
+    await expect(target).toBeVisible();
+    const targetBox = await target.boundingBox();
+    expect(targetBox).not.toBeNull();
+    expect(targetBox!.width).toBeGreaterThan(0);
+    expect(targetBox!.x).toBeGreaterThanOrEqual(0);
+    expect(targetBox!.x + targetBox!.width).toBeLessThanOrEqual(320);
 
-    // Step 1 -> modal açılır, Step 2 (#alertBox) görünür
-    await page.getByRole('button', { name: 'İleri' }).click();
-    await expect(page.locator('#alertBox')).toBeVisible();
-    await expect(page.getByText(/Step 2 of 6/)).toBeVisible();
-
-    // Step 2 -> İleri (artık görünür), modal kapanır
-    await page.getByRole('button', { name: 'İleri' }).click();
-    await expect(page.locator('#alertBox')).toBeHidden();
-
-    for (let i = 3; i <= 5; i++) {
-      await expect(page.getByText(new RegExp(`Step ${i} of 6`))).toBeVisible();
-      await page.getByRole('button', { name: 'İleri' }).click();
-    }
-    await expect(page.getByText('Step 6 of 6')).toBeVisible();
-    // Son adımda "İleri" gizli, "Bitir" (finish) butonu tamamlar
-    await expect(page.getByRole('button', { name: 'İleri' })).toHaveCount(0);
-    await page.getByRole('button', { name: 'Bitir' }).click();
-    await expect(page.locator('.guideloop-container')).not.toBeVisible();
-  });
-});
-
-test.describe('Scenario: Image & SVG (icon rendering)', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-  });
-
-  test('renders the inline icon on the icon step', async ({ page }) => {
-    await selectTour(page, 'Image & SVG');
-    await page.getByRole('button', { name: 'İleri' }).click(); // Step 2 (svg component)
-    await page.getByRole('button', { name: 'İleri' }).click(); // Step 3 (icon)
-
-    await expect(page.locator('[role="tooltip"] h3', { hasText: 'Icon Content' })).toBeVisible();
-    // icon adımında yalnızca ikon svg'i render edilir (image yok)
-    await expect(page.locator('[role="tooltip"] svg')).toHaveCount(1);
-  });
-});
-
-test.describe('Scenario: Button customization (custom ReactNode buttons)', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-  });
-
-  test('renders custom ReactNode buttons and they work', async ({ page }) => {
-    await selectTour(page, 'Buton Özelleştirme');
-
-    // Step 1, 2 -> İleri (next görünür)
-    await expect(page.getByText(/Step 1 of 4/)).toBeVisible();
-    await page.getByRole('button', { name: 'İleri' }).click();
-    await expect(page.getByText(/Step 2 of 4/)).toBeVisible();
-    await page.getByRole('button', { name: 'İleri' }).click();
-
-    // Step 3 -> yalnızca Close butonu var, ilerlemek için ArrowRight
-    await expect(page.getByText(/Step 3 of 4/)).toBeVisible();
-    await expect(page.getByRole('button', { name: 'İleri' })).toHaveCount(0);
-    await page.keyboard.press('ArrowRight');
-
-    // Step 4 -> özel ReactNode butonlar render edilir (prev + close)
-    await expect(page.getByText(/Step 4 of 4/)).toBeVisible();
-    await expect(page.locator('[role="tooltip"]').getByText('← Geri')).toBeVisible();
-    await expect(page.locator('[role="tooltip"]').getByText('✕')).toBeVisible();
-
-    // özel close (finish) butonu tour'u tamamlar
-    await page.locator('[role="tooltip"]').getByText('✕').click();
-    await expect(page.locator('.guideloop-container')).not.toBeVisible();
-  });
-});
-
-test.describe('Scenario: Hooks & Conditions (condition-based skip)', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-  });
-
-  test('skips the condition:false step', async ({ page }) => {
-    await selectTour(page, 'Hooks & Conditions');
-    // condition:false adımı filtrelenir -> 4 geçerli adım
-    await expect(page.getByText(/Step 1 of 4/)).toBeVisible();
-
-    await page.getByRole('button', { name: 'İleri' }).click();
-    await expect(page.getByText(/Step 2 of 4/)).toBeVisible();
-    await page.getByRole('button', { name: 'İleri' }).click();
-    await expect(page.getByText(/Step 3 of 4/)).toBeVisible();
-
-    // Step 3 "Condition" adımı (#tab-section)
-    await expect(page.locator('[role="tooltip"] h3', { hasText: 'Condition' })).toBeVisible();
-
-    // İleri, condition:false adımını (#stats-section) atlayıp doğrudan #notifications'a gider
-    await page.getByRole('button', { name: 'İleri' }).click();
-    await expect(page.getByText(/Step 4 of 4/)).toBeVisible();
-    await expect(page.locator('[role="tooltip"] h3', { hasText: 'Async Hooks' })).toBeVisible();
-  });
-});
-
-test.describe('Scenario: Finish triggers onComplete', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-  });
-
-  test('completing the basic tour logs "Tour tamamlandı!" (onComplete)', async ({ page }) => {
-    await page.locator('#help-button').click();
-    const steps = 5;
-    for (let i = 1; i < steps; i++) {
-      await expect(page.getByText(new RegExp(`Step ${i} of ${steps}`))).toBeVisible();
-      await page.getByRole('button', { name: 'İleri' }).click();
-    }
-    await expect(page.getByText(`Step ${steps} of ${steps}`)).toBeVisible();
-    await page.getByRole('button', { name: 'Bitir' }).click();
-    await expect(page.locator('.guideloop-container')).not.toBeVisible();
-
-    // Event Log'a bak: "Bitir" artık onComplete tetiklemeli (önceki davranış onSkip'ti)
-    await page.getByTitle('Ayarlar').click();
-    await page.getByText('Event Log', { exact: true }).click();
-    await expect(page.getByText('Tour tamamlandı!')).toBeVisible();
+    await page.getByRole('button', { name: 'Start tour' }).click();
+    await expect(page.getByRole('dialog', { name: 'Guided tour' })).toBeVisible();
   });
 });

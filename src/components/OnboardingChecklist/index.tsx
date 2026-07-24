@@ -297,6 +297,7 @@ export const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({
 
   const closeModal = () => {
     setActiveModalItem(null);
+    setErrorItemId(null);
     deferFocus(triggerElementRef.current);
   };
 
