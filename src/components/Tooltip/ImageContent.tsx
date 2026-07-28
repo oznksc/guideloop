@@ -8,12 +8,8 @@ interface ImageContentProps {
 export const ImageContentRenderer: React.FC<ImageContentProps> = ({ image }) => {
   if (image.type === 'svg') {
     return (
-      <div 
-        className="mb-4" 
-        style={{ 
-          width: image.width,
-          height: image.height
-        }}
+      <div
+        style={{ marginBottom: '1rem', width: image.width, height: image.height }}
       >
         {image.component}
       </div>
@@ -24,12 +20,13 @@ export const ImageContentRenderer: React.FC<ImageContentProps> = ({ image }) => 
     <img
       src={image.src}
       alt={image.alt || ''}
-      className="mb-4 rounded-lg"
       style={{
+        marginBottom: '1rem',
+        borderRadius: '0.5rem',
         width: image.width,
         height: image.height,
         maxWidth: '100%',
-        objectFit: 'contain'
+        objectFit: 'contain',
       }}
     />
   );

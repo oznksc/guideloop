@@ -28,8 +28,13 @@ export const MaskedOverlay: React.FC<MaskedOverlayProps> = ({
   if (!targetRect || targetRect.width === 0 || targetRect.height === 0) {
     return (
       <div
-        className={`fixed inset-0 ${className}`}
+        className={className}
         style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
           backgroundColor: 'rgba(0, 0, 0, 0.5)',
           width: '100vw',
           height: '100vh',
@@ -44,8 +49,13 @@ export const MaskedOverlay: React.FC<MaskedOverlayProps> = ({
 
   return (
     <div
-      className={`fixed inset-0 ${className}`}
+      className={className}
       style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
         width: '100vw',
         height: '100vh',
         overflow: 'hidden',
@@ -56,7 +66,6 @@ export const MaskedOverlay: React.FC<MaskedOverlayProps> = ({
       role="presentation"
     >
       <svg
-        className="fixed inset-0"
         width={viewportSize.width}
         height={viewportSize.height}
         style={{
@@ -98,8 +107,10 @@ export const MaskedOverlay: React.FC<MaskedOverlayProps> = ({
 
       {/* Spotlight glow border */}
       <div
-        className="fixed pointer-events-none spotlight-glow"
+        className="spotlight-glow"
         style={{
+          position: 'fixed',
+          pointerEvents: 'none',
           top: maskRect.y,
           left: maskRect.x,
           width: maskRect.width,

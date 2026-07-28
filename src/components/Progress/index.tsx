@@ -6,17 +6,33 @@ export const Progress: React.FC<ProgressProps> = ({
   total,
   style = {},
 }) => (
-  <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2" style={{
-    ...style
-  }}>
-    <div className="bg-white rounded-full shadow-lg px-4 py-2">
-      <div className="flex gap-1">
+  <div
+    style={{
+      position: 'fixed',
+      bottom: '1rem',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      ...style,
+    }}
+  >
+    <div
+      style={{
+        backgroundColor: '#ffffff',
+        borderRadius: '9999px',
+        boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)',
+        padding: '0.5rem 1rem',
+      }}
+    >
+      <div style={{ display: 'flex', gap: '0.25rem' }}>
         {Array.from({ length: total }).map((_, i) => (
           <div
             key={i}
-            className={`w-2 h-2 rounded-full ${
-              i < current ? 'bg-blue-600' : 'bg-gray-200'
-            }`}
+            style={{
+              width: '0.5rem',
+              height: '0.5rem',
+              borderRadius: '9999px',
+              backgroundColor: i < current ? '#2563eb' : '#e5e7eb',
+            }}
           />
         ))}
       </div>

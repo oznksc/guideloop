@@ -33,6 +33,34 @@ describe('scrollIntoView', () => {
     expect(mockDisconnect).toHaveBeenCalled();
   });
 
+  it('falls back to scrollIntoView when IntersectionObserver is undefined', async () => {
+    const el = document.createElement('div');
+    el.scrollIntoView = jest.fn();
+    const origObserver = window.IntersectionObserver;
+    (window as any).IntersectionObserver = undefined;
+
+    const promise = scrollIntoView(el);
+    jest.runAllTimers();
+    await promise;
+    expect(el.scrollIntoView).toHaveBeenCalled();
+    (window as any).IntersectionObserver = origObserver;
+  });
+
+  it('calls scrollIntoView with passed options', async () => {
+    const el = document.createElement('div');
+    el.scrollIntoView = jest.fn();
+    const origObserver = window.IntersectionObserver;
+    (window as any).IntersectionObserver = undefined;
+
+    const promise = scrollIntoView(el, { behavior: 'smooth', block: 'center' });
+    jest.runAllTimers();
+    await promise;
+    expect(el.scrollIntoView).toHaveBeenCalledWith(
+      expect.objectContaining({ behavior: 'smooth', block: 'center' })
+    );
+    (window as any).IntersectionObserver = origObserver;
+  });
+
   it('calls scrollIntoView and resolves after delay when not intersecting', async () => {
     const el = document.createElement('div');
     el.scrollIntoView = jest.fn();

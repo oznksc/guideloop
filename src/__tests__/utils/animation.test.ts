@@ -30,6 +30,13 @@ describe('animation utils', () => {
       expect(result.animationDuration).toBe('300ms');
       expect(result.animationTimingFunction).toBe('ease');
     });
+
+    it('returns exit animation when exit state is provided', () => {
+      const result = getAnimationStyle({ exit: 'fade-out 0.2s', duration: 200, timing: 'ease-in' }, 'exit');
+      expect(result.animation).toBe('fade-out 0.2s');
+      expect(result.animationDuration).toBe('200ms');
+      expect(result.animationTimingFunction).toBe('ease-in');
+    });
   });
 
   describe('createAnimation', () => {
@@ -46,6 +53,13 @@ describe('animation utils', () => {
       expect(result).toContain('animation: fade-in 0.3s');
       expect(result).toContain('animation-duration: 300');
       expect(result).toContain('animation-timing-function: ease');
+    });
+
+    it('returns animation string for exit state', () => {
+      const result = createAnimation({ exit: 'fade-out 0.2s', duration: 200, timing: 'ease-in' }, 'exit');
+      expect(result).toContain('animation: fade-out 0.2s');
+      expect(result).toContain('animation-duration: 200');
+      expect(result).toContain('animation-timing-function: ease-in');
     });
   });
 

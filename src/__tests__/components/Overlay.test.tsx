@@ -34,4 +34,24 @@ describe('Overlay', () => {
     render(<Overlay />);
     expect(screen.getByRole('presentation')).toBeInTheDocument();
   });
+
+  it('handles null onClick without error', () => {
+    const { container } = render(<Overlay />);
+    const overlay = container.firstChild as HTMLElement;
+    expect(() => fireEvent.click(overlay)).not.toThrow();
+  });
+
+  it('stops propagation when clicked', () => {
+    const parentClick = jest.fn();
+    const onClick = jest.fn();
+    const { container } = render(
+      <div onClick={parentClick}>
+        <Overlay onClick={onClick} />
+      </div>
+    );
+    const overlay = container.firstChild?.firstChild as HTMLElement;
+    fireEvent.click(overlay);
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(parentClick).not.toHaveBeenCalled();
+  });
 });

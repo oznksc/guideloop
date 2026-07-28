@@ -94,8 +94,9 @@ export const Tooltip: React.FC<TooltipProps> = ({
   return (
     <div
       ref={tooltipRef}
-      className="fixed"
+      className="guideloop-tooltip"
       style={{
+        position: 'fixed',
         ...themeStyles.tooltip,
         ...getAnimationStyle(animation, 'enter'),
         pointerEvents: 'auto',
@@ -108,36 +109,36 @@ export const Tooltip: React.FC<TooltipProps> = ({
       aria-label={step.title}
     >
       {/* Progress indicator */}
-      <div className="text-sm text-gray-500 mb-2" role="status">
+      <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem' }} role="status">
         Step {currentStep + 1} of {totalSteps}
       </div>
 
       {/* Image content if exists */}
       {step.image && (
-        <div className="flex justify-center">
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
           <ImageContentRenderer image={step.image} />
         </div>
       )}
 
       {/* Content */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           {step.icon && (
-            <span className="shrink-0 text-blue-600" aria-hidden="true">
+            <span style={{ flexShrink: 0, color: '#2563eb' }} aria-hidden="true">
               {step.icon}
             </span>
           )}
-          <h3 className="text-lg font-semibold">
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 600 }}>
             {step.title}
           </h3>
         </div>
-        <div className="text-gray-600">
+        <div style={{ color: '#4b5563' }}>
           {step.content}
         </div>
       </div>
 
       {/* Navigation buttons */}
-      <div className="flex justify-between mt-4 pt-3 border-t border-gray-100">
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid #f3f4f6' }}>
         <div>
           <TooltipButton
             kind="prev"
@@ -150,7 +151,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
             customButton={step.buttons?.prev}
           />
         </div>
-        <div className="flex gap-2">
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
           <TooltipButton
             kind="close"
             visible={showButtons.close}

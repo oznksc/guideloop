@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { ReactNode } from 'react';
 
 type ActionKind = 'prev' | 'next' | 'close';
@@ -17,6 +17,16 @@ interface TooltipButtonProps {
   customButton?: ReactNode;
 }
 
+const baseStyle: React.CSSProperties = {
+  border: 'none',
+  padding: '8px 16px',
+  borderRadius: '6px',
+  cursor: 'pointer',
+  fontSize: '0.875rem',
+  fontWeight: 500,
+  transition: 'background-color 150ms, color 150ms',
+};
+
 export const TooltipButton: React.FC<TooltipButtonProps> = ({
   kind,
   visible,
@@ -27,6 +37,8 @@ export const TooltipButton: React.FC<TooltipButtonProps> = ({
   themeStyles,
   customButton,
 }) => {
+  const [hovered, setHovered] = useState(false);
+
   if (!visible) return null;
 
   if (customButton) {
@@ -44,14 +56,28 @@ export const TooltipButton: React.FC<TooltipButtonProps> = ({
     );
   }
 
+  const isPrimary = variant === 'primary';
+  const defaultStyle: React.CSSProperties = isPrimary
+    ? { backgroundColor: '#2563eb', color: '#ffffff' }
+    : { backgroundColor: 'transparent', color: '#4b5563' };
+  const hoverStyle: React.CSSProperties = isPrimary
+    ? { backgroundColor: '#1d4ed8' }
+    : { backgroundColor: '#f3f4f6', color: '#111827' };
+
   return (
     <button
       key={kind}
       type="button"
       data-guideloop-action={kind}
       onClick={handler}
-      className={variant === 'primary' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-gray-900'}
-      style={variant === 'primary' ? themeStyles.primary : themeStyles.secondary}
+      style={{
+        ...baseStyle,
+        ...defaultStyle,
+        ...themeStyles[variant],
+        ...(hovered ? hoverStyle : {}),
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       aria-label={label}
     >
       {defaultContent}

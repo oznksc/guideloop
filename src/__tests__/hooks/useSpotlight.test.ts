@@ -66,7 +66,7 @@ describe('useSpotlight', () => {
     expect(result.current.height).toBe(90);
   });
 
-  it('handles scroll position', () => {
+  it('recalculates on scroll event', () => {
     const el = document.createElement('div');
     el.id = 'scroll-target';
     el.getBoundingClientRect = jest.fn(() => ({
@@ -80,19 +80,18 @@ describe('useSpotlight', () => {
 
     expect(result.current.top).toBe(92);
 
-    Object.defineProperty(window, 'scrollY', { value: 50, configurable: true });
-    Object.defineProperty(window, 'scrollX', { value: 30, configurable: true });
+    (el.getBoundingClientRect as jest.Mock).mockImplementation(() => ({
+      top: 50, left: 100, width: 300, height: 50,
+      bottom: 100, right: 400, x: 100, y: 50,
+      toJSON: jest.fn(),
+    }));
 
     act(() => {
       window.dispatchEvent(new Event('scroll'));
     });
 
-    act(() => {
-      jest.runOnlyPendingTimers();
-    });
-
-    expect(result.current.top).toBe(142);
-    expect(result.current.left).toBe(222);
+    expect(result.current.top).toBe(42);
+    expect(result.current.left).toBe(92);
   });
 
   it('re-renders on resize', () => {

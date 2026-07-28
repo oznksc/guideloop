@@ -230,12 +230,17 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
   useEffect(() => {
     if (isOpen && !autoRestoredRef.current) {
       injectKeyframes();
-      setTourVisible(true);
       setCurrentStepIndex(initialStep);
       setCurrentStep(initialStep);
-      updateTargetElement(steps[initialStep]);
+      const stepData = steps[initialStep];
+      if (stepData?.target) {
+        setTargetElement(stepData.target);
+      }
+      setTourVisible(true);
+    } else if (!isOpen) {
+      setTourVisible(false);
     }
-  }, [isOpen, initialStep, steps, updateTargetElement, setCurrentStep]);
+  }, [isOpen, initialStep, steps, setCurrentStep]);
 
   useEffect(() => {
     if (!persist) return;

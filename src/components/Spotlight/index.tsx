@@ -8,8 +8,12 @@ export const Spotlight: React.FC<SpotlightProps> = ({
   style = {},
 }) => (
   <div
-    className="fixed border-2 border-blue-500 rounded-md pointer-events-none"
+    className="guideloop-spotlight"
     style={{
+      position: 'fixed',
+      pointerEvents: 'none',
+      border: '2px solid #3b82f6',
+      borderRadius: '0.375rem',
       top: position.top,
       left: position.left,
       width: position.width,

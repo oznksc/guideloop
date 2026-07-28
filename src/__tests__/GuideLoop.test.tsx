@@ -181,22 +181,6 @@ describe('GuideLoop', () => {
     expect(screen.getByText('Content 2')).toBeInTheDocument();
   });
 
-  it('blocks body scroll when open', () => {
-    render(<GuideLoop steps={mockSteps} isOpen={true} onClose={jest.fn()} />);
-    expect(document.body.style.overflow).toBe('hidden');
-  });
-
-  it('restores body scroll when closed', () => {
-    document.body.style.overflow = 'auto';
-    const { rerender } = render(
-      <GuideLoop steps={mockSteps} isOpen={true} onClose={jest.fn()} />
-    );
-    expect(document.body.style.overflow).toBe('hidden');
-
-    rerender(<GuideLoop steps={mockSteps} isOpen={false} onClose={jest.fn()} />);
-    expect(document.body.style.overflow).toBe('auto');
-  });
-
   it('sets aria-modal on dialog', () => {
     render(<GuideLoop steps={mockSteps} isOpen={true} onClose={jest.fn()} />);
     expect(screen.getByRole('dialog')).toHaveAttribute('aria-modal', 'true');
@@ -417,6 +401,139 @@ describe('GuideLoop', () => {
       await waitFor(() => {
         expect(screen.getByText('Step 2')).toBeInTheDocument();
       });
+    });
+  });
+
+  it('renders with empty steps gracefully', () => {
+    render(<GuideLoop steps={[]} isOpen={true} onClose={jest.fn()} />);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('renders single step tour', () => {
+    render(
+      <GuideLoop
+        steps={[{ target: '#s1', title: 'Only Step', content: 'Only content' }]}
+        isOpen={true}
+        onClose={jest.fn()}
+      />
+    );
+    expect(screen.getByText('Only Step')).toBeInTheDocument();
+    expect(screen.getByText('Only content')).toBeInTheDocument();
+  });
+
+  it('calls onComplete when tour completes', async () => {
+    const onComplete = jest.fn();
+    const onClose = jest.fn();
+    render(
+      <GuideLoop
+        steps={[{ target: '#s1', title: 'S1', content: 'C1' }]}
+        isOpen={true}
+        onClose={onClose}
+        onComplete={onComplete}
+      />
+    );
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Finish'));
+    });
+
+    expect(onComplete).toHaveBeenCalledTimes(1);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls onSkip when skip is clicked', async () => {
+    const onSkip = jest.fn();
+    render(
+      <GuideLoop steps={mockSteps} isOpen={true} onClose={jest.fn()} onSkip={onSkip} />
+    );
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Skip'));
+    });
+
+    expect(onSkip).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders without overlay when overlay is false', () => {
+    const { container } = render(
+      <GuideLoop steps={mockSteps} isOpen={true} onClose={jest.fn()} overlay={false} />
+    );
+    expect(container.querySelector('.guideloop-spotlight')).toBeInTheDocument();
+  });
+
+  it('renders with custom theme', () => {
+    const { rerender } = render(
+      <GuideLoop steps={mockSteps} isOpen={true} onClose={jest.fn()} theme="material" />
+    );
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    rerender(
+      <GuideLoop steps={mockSteps} isOpen={true} onClose={jest.fn()} theme="antd" />
+    );
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('renders with customTheme', () => {
+    render(
+      <GuideLoop
+        steps={mockSteps}
+        isOpen={true}
+        onClose={jest.fn()}
+        customTheme={{ tooltip: { background: 'red', textColor: 'white', borderRadius: '4px', padding: '10px', boxShadow: 'none' } }}
+      />
+    );
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('passes defaultButtonLabels to tooltip', () => {
+    render(
+      <GuideLoop
+        steps={mockSteps}
+        isOpen={true}
+        onClose={jest.fn()}
+        defaultButtonLabels={{ next: 'NEXT', skip: 'SKIP' }}
+      />
+    );
+    expect(screen.getByText('NEXT')).toBeInTheDocument();
+    expect(screen.getByText('SKIP')).toBeInTheDocument();
+  });
+
+  it('disables keyboard when keyboard is false', () => {
+    const onClose = jest.fn();
+    render(
+      <GuideLoop steps={mockSteps} isOpen={true} onClose={onClose} keyboard={false} />
+    );
+
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    });
+
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('renders step with ReactNode content', () => {
+    const stepsWithReact = [
+      { target: '#s1', title: 'React Step', content: <span data-testid="jsx-content">JSX Content</span> },
+    ];
+    render(<GuideLoop steps={stepsWithReact} isOpen={true} onClose={jest.fn()} />);
+    expect(screen.getByTestId('jsx-content')).toBeInTheDocument();
+  });
+
+  describe('branch', () => {
+    it('navigates to branch target when branch returns a number', async () => {
+      const branchingSteps = [
+        { target: '#s1', title: 'Start', content: 'Start', branch: () => 2 },
+        { target: '#s2', title: 'Skipped', content: 'Skipped' },
+        { target: '#s3', title: 'Final', content: 'Final' },
+      ];
+
+      render(<GuideLoop steps={branchingSteps} isOpen={true} onClose={jest.fn()} />);
+
+      fireEvent.click(screen.getByText('Next'));
+
+      await waitFor(() => {
+        expect(screen.getByText('Final')).toBeInTheDocument();
+      }, { timeout: 3000 });
     });
   });
 

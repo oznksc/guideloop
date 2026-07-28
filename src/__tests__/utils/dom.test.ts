@@ -1,4 +1,52 @@
-import { getElementPosition } from '../../utils/dom';
+import { isHTMLElement, querySelectorAsHTMLElement, getElementPosition } from '../../utils/dom';
+
+describe('isHTMLElement', () => {
+  it('returns true for HTMLElement', () => {
+    const div = document.createElement('div');
+    expect(isHTMLElement(div)).toBe(true);
+  });
+
+  it('returns false for SVGElement', () => {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    expect(isHTMLElement(svg)).toBe(false);
+  });
+
+  it('returns false for null', () => {
+    expect(isHTMLElement(null)).toBe(false);
+  });
+});
+
+describe('querySelectorAsHTMLElement', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('returns HTMLElement for valid selector', () => {
+    const div = document.createElement('div');
+    div.id = 'test';
+    document.body.appendChild(div);
+    expect(querySelectorAsHTMLElement('#test')).toBe(div);
+  });
+
+  it('returns null for non-HTMLElement (SVG)', () => {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.id = 'svg-el';
+    document.body.appendChild(svg);
+    expect(querySelectorAsHTMLElement('#svg-el')).toBeNull();
+  });
+
+  it('returns null for non-existent element', () => {
+    expect(querySelectorAsHTMLElement('#nonexistent')).toBeNull();
+  });
+
+  it('handles invalid selector without throwing', () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+    const result = querySelectorAsHTMLElement('???invalid');
+    expect(result).toBeNull();
+    expect(errorSpy).toHaveBeenCalled();
+    errorSpy.mockRestore();
+  });
+});
 
 describe('getElementPosition', () => {
   it('returns element position with getBoundingClientRect', () => {

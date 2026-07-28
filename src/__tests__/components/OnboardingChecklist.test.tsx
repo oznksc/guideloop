@@ -475,6 +475,167 @@ describe('OnboardingChecklist', () => {
     });
   });
 
+  it('renders with empty items array', () => {
+    render(<OnboardingChecklist items={[]} />);
+    expect(screen.getByText('No onboarding steps yet.')).toBeInTheDocument();
+  });
+
+  it('renders custom title and description', () => {
+    render(
+      <OnboardingChecklist
+        items={[]}
+        title="Custom Title"
+        description="Custom Description"
+      />
+    );
+    expect(screen.getByText('Custom Title')).toBeInTheDocument();
+    expect(screen.getByText('Custom Description')).toBeInTheDocument();
+  });
+
+  it('renders disabled item', () => {
+    const items: OnboardingItem[] = [
+      { id: 'disabled-item', title: 'Disabled Task', disabled: true },
+    ];
+    render(<OnboardingChecklist items={items} />);
+    const button = screen.getByRole('button', { name: /Disabled Task/ });
+    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('renders items with custom icons', () => {
+    const items: OnboardingItem[] = [
+      { id: 'icon-item', title: 'Has Icon', icon: <span data-testid="custom-icon">icon</span> },
+    ];
+    render(<OnboardingChecklist items={items} />);
+    expect(screen.getByTestId('custom-icon')).toBeInTheDocument();
+  });
+
+  it('does not collapse when collapsible is false', () => {
+    render(
+      <OnboardingChecklist
+        items={baseItems}
+        collapsible={false}
+      />
+    );
+    expect(screen.queryByRole('button', { name: 'Collapse checklist' })).not.toBeInTheDocument();
+    expect(screen.getByText('Create your profile')).toBeInTheDocument();
+  });
+
+  it('uses collapsed initial state', () => {
+    render(
+      <OnboardingChecklist
+        items={baseItems}
+        defaultCollapsed={true}
+      />
+    );
+    expect(screen.queryByText('Create your profile')).not.toBeInTheDocument();
+  });
+
+  it('honors controlled collapsed state', () => {
+    const { rerender } = render(
+      <OnboardingChecklist
+        items={baseItems}
+        collapsed={true}
+      />
+    );
+    expect(screen.queryByText('Create your profile')).not.toBeInTheDocument();
+
+    rerender(
+      <OnboardingChecklist
+        items={baseItems}
+        collapsed={false}
+      />
+    );
+    expect(screen.getByText('Create your profile')).toBeInTheDocument();
+  });
+
+  it('hides progress bar when showProgressBar is false', () => {
+    render(
+      <OnboardingChecklist
+        items={baseItems}
+        showProgressBar={false}
+      />
+    );
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+  });
+
+  it('renders a link item with rel attribute when target is _blank', () => {
+    const items: OnboardingItem[] = [
+      {
+        id: 'ext-link',
+        title: 'External link',
+        action: { type: 'link', href: 'https://example.com', target: '_blank' },
+      },
+    ];
+    render(<OnboardingChecklist items={items} />);
+    const link = screen.getByRole('link', { name: /External link/ });
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
+  it('renders a link item with custom rel', () => {
+    const items: OnboardingItem[] = [
+      {
+        id: 'custom-link',
+        title: 'Custom rel link',
+        action: { type: 'link', href: '/page', rel: 'nofollow' },
+      },
+    ];
+    render(<OnboardingChecklist items={items} />);
+    const link = screen.getByRole('link', { name: /Custom rel link/ });
+    expect(link).toHaveAttribute('rel', 'nofollow');
+  });
+
+  it('calls onCollapsedChange when toggled', () => {
+    const onCollapsedChange = jest.fn();
+    render(
+      <OnboardingChecklist
+        items={baseItems}
+        onCollapsedChange={onCollapsedChange}
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Collapse checklist' }));
+    expect(onCollapsedChange).toHaveBeenCalledWith(true);
+  });
+
+  it('calls onItemAction when an item is clicked', () => {
+    const onItemAction = jest.fn();
+    render(
+      <OnboardingChecklist
+        items={baseItems}
+        onItemAction={onItemAction}
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: /Create your profile/ }));
+    expect(onItemAction).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'profile' })
+    );
+  });
+
+  it('handles link items with completeOnClick=false', () => {
+    const items: OnboardingItem[] = [
+      {
+        id: 'read-docs',
+        title: 'Read docs',
+        action: { type: 'link', href: '/docs', completeOnClick: false },
+      },
+    ];
+    render(<OnboardingChecklist items={items} />);
+    const link = screen.getByRole('link', { name: /Read docs/ });
+    link.addEventListener('click', (e) => e.preventDefault());
+    fireEvent.click(link);
+    expect(screen.getByText('0/1 steps completed')).toBeInTheDocument();
+  });
+
+  it('completes a no-action item on click', () => {
+    const items: OnboardingItem[] = [
+      { id: 'simple', title: 'Simple Task' },
+    ];
+    render(<OnboardingChecklist items={items} />);
+    fireEvent.click(screen.getByRole('button', { name: /Simple Task/ }));
+    expect(screen.getByText('1/1 steps completed')).toBeInTheDocument();
+  });
+
   it('reports a rejected custom action and leaves it incomplete', async () => {
     const error = new Error('Import failed');
     const onActionError = jest.fn();

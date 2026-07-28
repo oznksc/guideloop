@@ -46,6 +46,19 @@ describe('calculateTooltipPosition', () => {
     expect(pos.left).toBeLessThanOrEqual(window.innerWidth - 12);
   });
 
+  it('clamps position to stay within viewport top boundary', () => {
+    const nearTopTarget = { ...targetPos, top: 5 };
+    const pos = calculateTooltipPosition(nearTopTarget, 'top', tooltipSize);
+    expect(pos.top).toBe(12);
+  });
+
+  it('clamps position to stay within viewport bottom boundary', () => {
+    Object.defineProperty(window, 'innerHeight', { value: 200, configurable: true });
+    const nearBottomTarget = { ...targetPos, top: 150, bottom: 200 };
+    const pos = calculateTooltipPosition(nearBottomTarget, 'bottom', tooltipSize);
+    expect(pos.top + tooltipSize.height).toBeLessThanOrEqual(window.innerHeight + 12);
+  });
+
   it('adds scroll offset to position', () => {
     Object.defineProperty(window, 'scrollY', { value: 200, configurable: true });
     Object.defineProperty(window, 'scrollX', { value: 100, configurable: true });

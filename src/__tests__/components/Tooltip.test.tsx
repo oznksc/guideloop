@@ -186,4 +186,90 @@ describe('Tooltip', () => {
     render(<Tooltip {...defaultProps} step={stepWithPartialLabels} isLast={true} />);
     expect(screen.getByText('Bitti')).toBeInTheDocument();
   });
+
+  it('shows Previous when not first and not hidden by showButtons', () => {
+    render(
+      <Tooltip
+        {...defaultProps}
+        isFirst={false}
+        step={{ ...baseStep, showButtons: { previous: true } }}
+      />
+    );
+    expect(screen.getByText('Previous')).toBeInTheDocument();
+  });
+
+  it('hides both Skip and Previous when close=false on first step', () => {
+    render(
+      <Tooltip
+        {...defaultProps}
+        isFirst={true}
+        isLast={false}
+        step={{ ...baseStep, showButtons: { close: false } }}
+      />
+    );
+    expect(screen.queryByText('Skip')).not.toBeInTheDocument();
+    expect(screen.queryByText('Previous')).not.toBeInTheDocument();
+  });
+
+  it('renders custom ReactNode for buttons', () => {
+    const stepWithCustomButtons = {
+      ...baseStep,
+      buttons: {
+        next: <span data-testid="custom-next">Custom Next</span>,
+        prev: <span data-testid="custom-prev">Custom Prev</span>,
+        close: <span data-testid="custom-close">Custom Close</span>,
+      },
+    };
+    render(<Tooltip {...defaultProps} step={stepWithCustomButtons} isFirst={false} />);
+    expect(screen.getByTestId('custom-next')).toBeInTheDocument();
+    expect(screen.getByTestId('custom-prev')).toBeInTheDocument();
+    expect(screen.getByTestId('custom-close')).toBeInTheDocument();
+  });
+
+  it('renders icon when provided', () => {
+    const stepWithIcon = {
+      ...baseStep,
+      icon: <span data-testid="step-icon">icon</span>,
+    };
+    render(<Tooltip {...defaultProps} step={stepWithIcon} />);
+    expect(screen.getByTestId('step-icon')).toBeInTheDocument();
+  });
+
+  it('uses fallback style when target element is null', () => {
+    const { container } = render(<Tooltip {...defaultProps} />);
+    const tooltip = container.firstChild as HTMLElement;
+    expect(tooltip.style.top).toBe('50%');
+    expect(tooltip.style.left).toBe('50%');
+  });
+
+  it('renders step counter correctly for first step', () => {
+    render(<Tooltip {...defaultProps} currentStep={0} totalSteps={1} />);
+    expect(screen.getByText('Step 1 of 1')).toBeInTheDocument();
+  });
+
+  it('renders empty content string', () => {
+    const stepWithEmptyContent = { ...baseStep, content: '' };
+    const { container } = render(<Tooltip {...defaultProps} step={stepWithEmptyContent} />);
+    const tooltip = container.firstChild as HTMLElement;
+    expect(tooltip.textContent).toContain('Test Title');
+  });
+
+  it('handles undefined step.target gracefully', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation();
+    const stepNoTarget = { ...baseStep, target: '' };
+    render(<Tooltip {...defaultProps} step={stepNoTarget} />);
+    expect(warn).toHaveBeenCalledWith(
+      'GuideLoop: Empty target selector provided for step',
+      expect.any(Number)
+    );
+    warn.mockRestore();
+  });
+
+  it('has role="tooltip" and proper aria-label even without target', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation();
+    render(<Tooltip {...defaultProps} />);
+    const tooltip = screen.getByRole('tooltip');
+    expect(tooltip).toHaveAttribute('aria-label', 'Test Title');
+    warn.mockRestore();
+  });
 });

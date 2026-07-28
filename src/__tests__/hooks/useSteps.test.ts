@@ -178,6 +178,67 @@ describe('useSteps', () => {
     });
   });
 
+  it('handles empty steps array', () => {
+    const { result } = renderHook(() => useSteps({ steps: [], initialStep: 0 }));
+    expect(result.current.currentStepData).toBeUndefined();
+    expect(result.current.totalSteps).toBe(0);
+    expect(result.current.isFirstStep).toBe(true);
+    expect(result.current.isLastStep).toBe(true);
+  });
+
+  it('handles all steps filtered out by condition', () => {
+    const allFiltered = [
+      { target: '#s1', title: 'S1', content: 'C1', condition: () => false },
+      { target: '#s2', title: 'S2', content: 'C2', condition: () => false },
+    ];
+    const { result } = renderHook(() => useSteps({ steps: allFiltered, initialStep: 0 }));
+    expect(result.current.totalSteps).toBe(0);
+    expect(result.current.currentStepData).toBeUndefined();
+  });
+
+  it('calls onComplete when nextStep on last step with complete and no branch', async () => {
+    const onComplete = jest.fn();
+    const { result } = renderHook(() => useSteps({ steps: mockSteps, initialStep: 2, onComplete }));
+
+    await act(async () => { await result.current.nextStep(); });
+    expect(onComplete).toHaveBeenCalledTimes(1);
+  });
+
+  it('handles async branch function', async () => {
+    const branch = jest.fn().mockResolvedValue(2);
+    const stepsWithBranch = [
+      { target: '#s0', title: 'S0', content: 'C0', branch },
+      { target: '#s1', title: 'S1', content: 'C1' },
+      { target: '#s2', title: 'S2', content: 'C2' },
+    ];
+    const { result } = renderHook(() => useSteps({ steps: stepsWithBranch, initialStep: 0 }));
+
+    await act(async () => { await result.current.nextStep(); });
+    expect(result.current.currentStepData).toEqual(stepsWithBranch[2]);
+    expect(branch).toHaveBeenCalledTimes(1);
+  });
+
+  it('updates validSteps when steps change', () => {
+    const { result, rerender } = renderHook(
+      ({ steps }) => useSteps({ steps, initialStep: 0 }),
+      { initialProps: { steps: mockSteps } }
+    );
+    expect(result.current.totalSteps).toBe(3);
+
+    rerender({ steps: [mockSteps[0]] });
+    expect(result.current.totalSteps).toBe(1);
+  });
+
+  it('advances correctly from middle step', async () => {
+    const { result } = renderHook(() => useSteps({ steps: mockSteps, initialStep: 1 }));
+
+    await act(async () => { await result.current.nextStep(); });
+    expect(result.current.currentStepData).toEqual(mockSteps[2]);
+
+    await act(async () => { await result.current.prevStep(); });
+    expect(result.current.currentStepData).toEqual(mockSteps[1]);
+  });
+
   describe('stepStatus', () => {
     it('starts as idle', () => {
       const { result } = renderHook(() => useSteps({ steps: mockSteps, initialStep: 0 }));
