@@ -55,7 +55,7 @@
     "react-dom": ">=16.8.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.22.0",
+    "@babel/core": "^8.0.1",
     "@playwright/test": "^1.61.1",
     "@rollup/plugin-commonjs": "^21.1.0",
     "@rollup/plugin-node-resolve": "^13.3.0",
