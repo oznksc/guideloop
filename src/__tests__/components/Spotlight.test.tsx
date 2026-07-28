@@ -5,15 +5,15 @@ import { Spotlight } from '../../components/Spotlight';
 describe('Spotlight', () => {
   const defaultPosition = { top: 100, left: 200, width: 300, height: 50 };
 
-  it('renders at correct position', () => {
+  it('renders at correct position with padding', () => {
     const { container } = render(
       <Spotlight position={defaultPosition} padding={8} />
     );
     const div = container.firstChild as HTMLElement;
-    expect(div.style.top).toBe('100px');
-    expect(div.style.left).toBe('200px');
-    expect(div.style.width).toBe('300px');
-    expect(div.style.height).toBe('50px');
+    expect(div.style.top).toBe('92px');
+    expect(div.style.left).toBe('192px');
+    expect(div.style.width).toBe('316px');
+    expect(div.style.height).toBe('66px');
   });
 
   it('renders with zero position', () => {
@@ -21,13 +21,13 @@ describe('Spotlight', () => {
       <Spotlight position={{ top: 0, left: 0, width: 0, height: 0 }} padding={8} />
     );
     const div = container.firstChild as HTMLElement;
-    expect(div.style.top).toBe('0px');
-    expect(div.style.left).toBe('0px');
-    expect(div.style.width).toBe('0px');
-    expect(div.style.height).toBe('0px');
+    expect(div.style.top).toBe('-8px');
+    expect(div.style.left).toBe('-8px');
+    expect(div.style.width).toBe('16px');
+    expect(div.style.height).toBe('16px');
   });
 
-  it('handles zero padding (pre-padded position)', () => {
+  it('handles zero padding', () => {
     const { container } = render(
       <Spotlight position={defaultPosition} padding={0} />
     );
@@ -68,8 +68,8 @@ describe('Spotlight', () => {
       <Spotlight position={{ top: -10, left: -20, width: 100, height: 50 }} padding={8} />
     );
     const div = container.firstChild as HTMLElement;
-    expect(div.style.top).toBe('-10px');
-    expect(div.style.left).toBe('-20px');
+    expect(div.style.top).toBe('-18px');
+    expect(div.style.left).toBe('-28px');
   });
 
   it('renders with large position values', () => {
@@ -77,16 +77,16 @@ describe('Spotlight', () => {
       <Spotlight position={{ top: 5000, left: 3000, width: 100, height: 50 }} padding={8} />
     );
     const div = container.firstChild as HTMLElement;
-    expect(div.style.top).toBe('5000px');
-    expect(div.style.left).toBe('3000px');
+    expect(div.style.top).toBe('4992px');
+    expect(div.style.left).toBe('2992px');
   });
 
-  it('has correct border styling', () => {
+  it('uses theme border color from tailwind theme', () => {
     const { container } = render(
-      <Spotlight position={defaultPosition} padding={8} />
+      <Spotlight position={defaultPosition} padding={8} theme="tailwind" />
     );
     const div = container.firstChild as HTMLElement;
     expect(div.style.border).toContain('2px solid');
-    expect(div.style.borderWidth).toBe('2px');
+    expect(div.style.borderColor).toBe('#2563EB');
   });
 });

@@ -1,4 +1,5 @@
 import { CSSProperties } from 'react';
+import { Theme, ThemeConfig } from '../../themes';
 import { AnimationConfig } from '../../utils/animation';
 
 export interface TargetRect {
@@ -13,6 +14,8 @@ export interface MaskedOverlayProps {
   padding?: number;
   onClick?: () => void;
   className?: string;
+  theme?: Theme;
+  customTheme?: Partial<ThemeConfig>;
   animation?: AnimationConfig['overlay'];
   style?: CSSProperties;
 }

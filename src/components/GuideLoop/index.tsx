@@ -429,6 +429,8 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
           <MaskedOverlay 
             targetRect={spotlightPosition}
             padding={spotlightPadding}
+            theme={theme}
+            customTheme={customTheme}
             onClick={handleSkip}
             animation={animations?.overlay}
             style={{
@@ -442,6 +444,8 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
         <Spotlight 
           position={spotlightPosition}
           padding={spotlightPadding}
+          theme={theme}
+          customTheme={customTheme}
           animation={animations?.spotlight}
           style={{
             position: 'absolute',
