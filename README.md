@@ -12,6 +12,8 @@ A modern, flexible, and powerful guided tour library for React applications. Gui
 [![CI](https://github.com/oznksc/guideloop/actions/workflows/ci.yml/badge.svg)](https://github.com/oznksc/guideloop/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/oznksc/guideloop/blob/main/CONTRIBUTING.md)
+[![AI Ready](https://img.shields.io/badge/AI-Ready-blueviolet)](AGENTS.md)
+[![OpenCode](https://img.shields.io/badge/OpenCode-Skill-8A2BE2)](.opencode/skills/guideloop/SKILL.md)
 
 ## Features
 

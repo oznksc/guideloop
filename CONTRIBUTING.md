@@ -68,6 +68,15 @@ npm run dev
 - Follow existing patterns in the codebase
 - Write tests for new features when possible
 
+## AI-Assisted Development
+
+This project is optimized for AI coding assistants. When using AI tools:
+
+1. **AGENTS.md** at the project root contains the essential context — project overview, architecture, conventions, and common gotchas. AI assistants should read this first.
+2. **`.opencode/skills/guideloop/SKILL.md`** provides deep project knowledge: component relationships, hook contracts, modification patterns, and debugging tips. Load this skill when working on the codebase.
+3. **Follow the conventions in AGENTS.md** — TypeScript strict mode, named exports, relative imports, co-located types, and the component/hook/utils separation pattern.
+4. **Tell AI assistants about AGENTS.md** early in the conversation so they have the full project context.
+
 ## Commit Guidelines
 
 We follow conventional commits:
