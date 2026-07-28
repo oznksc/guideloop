@@ -156,12 +156,12 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-  test:
+  quality:
     runs-on: ubuntu-latest
 
     strategy:
@@ -169,7 +169,7 @@ jobs:
         node-version: [18.x, 20.x, 22.x]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
@@ -183,8 +183,11 @@ jobs:
     - name: Run ESLint
       run: npm run lint
 
+    - name: TypeScript check
+      run: npx tsc --noEmit
+
     - name: Run Unit Tests with Coverage
-      run: npm run test -- --coverage
+      run: npm test -- --coverage
 
     - name: Build Project
       run: npm run build

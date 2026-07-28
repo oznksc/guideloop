@@ -11,6 +11,7 @@ assistants understand the project and produce correct, idiomatic code.
 - **Build**: Rollup (CJS + ESM + dts)
 - **Tests**: Jest (unit/component) + Playwright (e2e)
 - **Lint**: ESLint + TypeScript strict mode
+- **CI**: GitHub Actions (lint, tsc, test, build, e2e, audit) + Dependabot
 
 ## Architecture
 
@@ -20,10 +21,9 @@ src/
 ├── components/
 │   ├── GuideLoop/            # Main tour orchestrator
 │   ├── Tooltip/              # Step tooltip popover
-│   ├── Spotlight/            # Target highlight ring
-│   ├── MaskedOverlay/        # Full-page dim overlay
-│   ├── Overlay/              # Simple overlay
-│   ├── Progress/             # Step progress indicator
+│   ├── Spotlight/            # Target highlight ring (also exported standalone)
+│   ├── MaskedOverlay/        # Full-page dim overlay with SVG cutout
+│   ├── Progress/             # Step progress indicator (also exported standalone)
 │   └── OnboardingChecklist/  # Non-linear task list
 ├── hooks/
 │   ├── useSteps.ts           # Step navigation + branching + lifecycle
@@ -33,16 +33,14 @@ src/
 │   ├── useElementTrigger.ts  # Auto-advance on DOM events
 │   ├── useElementClick.ts    # Programmatic click + delay
 │   ├── useWaitForTarget.ts   # MutationObserver DOM wait
-│   ├── useScroll.ts          # Window scroll position (RAF)
-│   ├── useTheme.ts           # Theme resolution
+│   ├── useTheme.ts           # Theme resolution (structuredClone merge)
 │   └── useViewportSize.ts    # Viewport resize tracking
 ├── utils/
 │   ├── tourState.ts          # Multi-page tour persistence
 │   ├── onboardingState.ts    # Onboarding checklist persistence
-│   ├── animation.ts          # Keyframe injection + config types
+│   ├── animation.ts          # Keyframe injection + getAnimationStyle
 │   ├── dom.ts                # DOM query helpers
 │   ├── events.ts             # Custom event constants
-│   ├── position.ts           # Coordinate math
 │   ├── scroll.ts             # Scroll-into-view with fallback
 │   └── waitForElement.ts     # Polling DOM waiter
 └── themes/
@@ -50,7 +48,7 @@ src/
     ├── tailwind.ts           # Tailwind-inspired theme
     ├── material.ts           # Material Design theme
     ├── antd.ts               # Ant Design theme
-    └── index.ts              # Theme lookup
+    └── index.ts              # Theme lookup (custom resolved at runtime)
 ```
 
 ## Key Conventions
@@ -70,7 +68,9 @@ src/
 - Props defined as local `interface` in a `types.ts` file co-located with component
 - `Portal` component wraps tooltip/overlay into `#guideloop-portal` div
 - Hooks are pure logic — no JSX, no DOM queries at module level
-- Animation configs are plain objects, not styled-components
+- Animation configs are plain objects via `getAnimationStyle()`
+- **No external CSS** — all styles are inline JS objects; no Tailwind dependency
+- Semantic class names (`guideloop-tooltip`, `guideloop-spotlight`) for identification only
 
 ### Step Data Flow
 1. `GuideLoop` receives `steps: Step[]` and `isOpen: boolean`
@@ -85,8 +85,9 @@ src/
 ### Theme System
 - `Theme` = `'tailwind' | 'material' | 'antd' | 'custom'`
 - `ThemeConfig` has `tooltip`, `overlay`, `spotlight`, `buttons` sections
-- `customTheme: Partial<ThemeConfig>` merges over the built-in theme
-- Theme files export a complete `ThemeConfig` object
+- `customTheme: Partial<ThemeConfig>` merges over the base theme via `structuredClone`
+- When `theme='custom'`, `tailwind` is used as the base (no separate `custom` entry in lookup)
+- All visual components consume theme: `Tooltip`, `Spotlight` (border), `MaskedOverlay` (dim), `Progress` (dots), `OnboardingChecklist` (CSS vars)
 
 ### OnboardingChecklist
 - Manages a set of independent tasks, each with an action type
@@ -115,11 +116,13 @@ npm run test:e2e     # Playwright e2e (requires demo running)
 
 ## Common Gotchas
 
-1. **Popper.js** must be mocked in Jest tests (use the mock in TESTING.md)
-2. **ResizeObserver** is not available in JSDOM — must be mocked globally
-3. **Portal** renders into `#guideloop-portal` — test queries must look there
-4. **Focus trapping** uses `data-guideloop-action` attributes on controls
-5. **Target selectors** are CSS selectors, not just IDs — use `querySelector`
-6. **Rollup** builds both CJS and ESM — make sure imports are compatible
-7. **No external CSS files** — styles are injected via JS objects
-8. **sideEffects: false** in package.json — tree-shake friendly code expected
+1. **Popper.js** is mocked globally in `test-setup.ts` — no need to mock per-test
+2. **ResizeObserver** is mocked globally in `test-setup.ts`
+3. **scrollIntoView** is mocked globally in `test-setup.ts`
+4. **Portal** renders into `#guideloop-portal` — test queries must look there
+5. **Focus trapping** uses `data-guideloop-action` attributes on controls
+6. **Target selectors** are CSS selectors, not just IDs — use `querySelector`
+7. **Rollup** builds both CJS and ESM — make sure imports are compatible
+8. **No external CSS** — styles are injected via JS objects; no Tailwind dependency
+9. **sideEffects: false** in package.json — tree-shake friendly code expected
+10. **Spotlight padding** is a geometric offset (position - pad, size + pad*2) since the Tailwind removal

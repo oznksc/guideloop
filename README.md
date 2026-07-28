@@ -183,13 +183,104 @@ GuideLoop comes with several built-in themes:
       borderRadius: '12px',
     },
     overlay: {
-      color: 'rgba(0, 0, 0, 0.75)',
+      background: '#000000',
+      opacity: 0.75,
     },
   }}
 />
 ```
 
+Themes are applied to the tooltip, spotlight border, overlay dim, and progress
+indicator. See [ThemeConfig](src/themes/types.ts) for the full configuration
+interface.
+
+## Standalone Components
+
+GuideLoop exports several components for standalone use outside of a tour:
+
+### Spotlight
+
+Highlight an element independently:
+
+```tsx
+import { Spotlight } from 'guideloop';
+
+function Demo() {
+  const rect = document.getElementById('my-element')?.getBoundingClientRect();
+  if (!rect) return null;
+
+  return (
+    <Spotlight
+      position={{ top: rect.top, left: rect.left, width: rect.width, height: rect.height }}
+      padding={8}
+      theme="material"
+    />
+  );
+}
+```
+
+### Progress
+
+Render a step progress indicator outside of the tooltip:
+
+```tsx
+import { Progress } from 'guideloop';
+
+<Progress current={2} total={5} theme="tailwind" />
+```
+
 ## API Reference
+
+### Full Export List
+
+```typescript
+// Components
+GuideLoop           // Main tour orchestrator
+OnboardingChecklist // Non-linear onboarding task list
+Spotlight           // Target highlight ring (standalone)
+Progress            // Step progress indicator (standalone)
+
+// Types
+Step                // Step configuration
+GuideLoopProps      // GuideLoop component props
+ButtonLabels        // Button label configuration
+StepStatus          // 'idle' | 'pending' | 'success' | 'error'
+StepTrigger         // 'click' | 'change' | 'blur' | 'hover' | 'drag'
+ShowButtons         // Per-step button visibility
+ImageContent        // Image/SVG content in steps
+WaitForTargetConfig // DOM wait configuration
+TooltipProps        // Tooltip component props
+SpotlightProps      // Spotlight component props
+ProgressProps       // Progress component props
+MaskedOverlayProps  // Masked overlay component props
+TargetRect          // Target element rectangle
+Theme               // 'tailwind' | 'material' | 'antd' | 'custom'
+ThemeConfig         // Full theme configuration interface
+AnimationConfig     // Animation configuration
+AnimationSettings   // Per-component animation settings
+PersistConfig       // Multi-page tour persistence config
+TourState           // Saved tour state shape
+OnboardingState     // Saved onboarding state shape
+OnboardingChecklistProps
+OnboardingItem      // Checklist task definition
+OnboardingItemAction
+OnboardingActionContext
+OnboardingProgress  // { completed, total, percentage, completedIds }
+OnboardingPersistConfig
+OnboardingLabels
+OnboardingTourAction
+OnboardingModalAction
+OnboardingLinkAction
+OnboardingCustomAction
+
+// Utilities
+saveTourState       // Persist tour state
+loadTourState       // Restore tour state
+clearTourState      // Clear persisted tour state
+saveOnboardingState // Persist onboarding progress
+loadOnboardingState // Restore onboarding progress
+clearOnboardingState // Clear persisted onboarding progress
+```
 
 ### GuideLoop Props
 

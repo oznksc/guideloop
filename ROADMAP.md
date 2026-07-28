@@ -22,7 +22,7 @@ graph TD
 *Goal: Increase codebase stability, minimize bugs, and drive test coverage above 90%.*
 
 ### 1.1 Unit & Component Test Expansion
-- **Custom Hooks:** Write detailed unit tests for `useSteps`, `useSpotlight`, `useKeyboard`, `usePopper`, `useScroll`, and `useTheme`.
+- **Custom Hooks:** Write detailed unit tests for `useSteps`, `useSpotlight`, `useKeyboard`, `usePopper`, `useTheme`, and other hooks.
 - **Component Integrity:** Ensure components like `Tooltip`, `MaskedOverlay`, `Spotlight`, and `Progress` render correctly under various combinations of props.
 - **Robust Error Handling (Error Boundaries):** Ensure the library runs fallback behaviors without crashing when target elements are missing or invalid selectors are passed.
 
@@ -59,18 +59,25 @@ graph TD
 
 ---
 
-## 📌 Phase 3: Theme System & Style Modernization (Q1 2027)
+## 📌 Phase 3: Theme System & Style Modernization ✅ Completed
 *Goal: Ensure GuideLoop components adapt to any design system or branding requirements.*
 
-### 3.1 CSS Variables & CSS-in-JS Support
-- Transition from inline-style configurations to a flexible CSS Custom Properties (CSS Variables) architecture.
-- Enable direct styling overrides via global CSS class namespace hooks (`.guideloop-tooltip`, `.guideloop-spotlight`).
+### 3.1 Theme System with structuredClone Merge ✅ Completed
+- All components consume `ThemeConfig` via the `useTheme` hook (tooltip, overlay, spotlight, buttons sections).
+- `structuredClone`-based deep merge: `customTheme: Partial<ThemeConfig>` overrides the base theme.
+- `hexToRgba` utility converts theme `overlay.background` + `overlay.opacity` into a single rgba string.
 
-### 3.2 Tailwind CSS v4 and Modern Framework Integrations
-- Guarantee full compatibility with Tailwind CSS v4 and enrich pre-built Tailwind theme configurations.
-- Provide adapter presets for popular UI libraries like Shadcn UI, Chakra UI, and Mantine.
+### 3.2 Tailwind Removal & Inline Styles ✅ Completed
+- Removed all Tailwind CSS dependency (tailwind.config, postcss.config, CSS files).
+- All styles are inline JS objects — no external CSS, no Tailwind utility classes.
+- `guideloop-*` semantic class names remain for DOM identification only.
 
-### 3.3 Advanced Masking and Spotlight Shapes
+### 3.3 Built-in Theme Library ✅ Completed
+- Three built-in themes: `tailwind`, `material`, `antd`.
+- Theme lookup falls back to `tailwind` when `theme='custom'` is used.
+- Theme types exported as part of the public API: `Theme`, `ThemeConfig`.
+
+### 3.4 Advanced Masking and Spotlight Shapes
 - Support custom SVG clipping masks for spotlight shapes (circles, ellipses, or custom polygons).
 - Implement multi-spotlight capabilities to highlight multiple target elements simultaneously in a single step.
 
@@ -115,6 +122,8 @@ graph TD
 | **Advanced Event Triggers** | 🟡 High | Medium | 1 Week | ✅ Done |
 | **DOM Smart Wait (MutationObserver)** | 🟡 High | Medium | 2 Weeks | ✅ Done |
 | **Onboarding Checklists** | 🟡 High | Medium | 1 Week | ✅ Done |
-| **CSS Variables Styling System** | 🟢 Medium | Low | 1 Week | Planned |
+| **Theme System (structuredClone Merge)** | 🟡 High | Medium | 2 Weeks | ✅ Done |
+| **Tailwind Removal & Inline Styles** | 🟡 High | Medium | 1 Week | ✅ Done |
+| **Built-in Theme Library** | 🟢 Medium | Low | 1 Week | ✅ Done |
 | **Visual Tour Builder** | 🟢 Low | Very High | 6 Weeks | Planned |
 | **React 19 Compatibility** | 🟡 High | Medium | 2 Weeks | Planned |

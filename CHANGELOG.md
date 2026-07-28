@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Public API expansion:** `Spotlight` and `Progress` components exported for standalone use; types `TooltipProps`, `SpotlightProps`, `ProgressProps`, `MaskedOverlayProps`, `TargetRect`, `ButtonLabels`, `StepStatus`, `StepTrigger`, `ShowButtons`, `ImageContent`, `WaitForTargetConfig`, `AnimationSettings` now exported.
+- `Spotlight` now accepts optional `theme` and `customTheme` props, consumes theme `spotlight.borderColor`/`borderWidth`/`borderRadius`.
+- `MaskedOverlay` now accepts optional `theme` and `customTheme` props, consumes theme `overlay.background`/`opacity` via `hexToRgba`.
+- `Progress` now consumes the `theme` prop via `useTheme` for active/inactive dot colors.
+- **CI:** `tsc --noEmit` type check step, `npm audit` security scanning, coverage artifact upload, Playwright browser caching, Dependabot config for automated updates.
+- **Test infrastructure:** Global Popper.js mock, `ResizeObserver` mock, `scrollIntoView` mock in `test-setup.ts` (matching TESTING.md docs).
+
+### Changed
+- **Tailwind CSS dependency removed** — all components (`Tooltip`, `TooltipButton`, `ImageContent`, `Progress`, `Spotlight`, `MaskedOverlay`) converted from utility classes to inline styles with semantic class names (`guideloop-tooltip`, `guideloop-spotlight`).
+- **Animation system simplified** — removed duplicate `createAnimation` (CSS string API), all consumers now use `getAnimationStyle` (React.CSSProperties). `MaskedOverlay` fixed to use `getAnimationStyle` instead of spreading `AnimationSettings` directly.
+- **Theme resolution** — replaced `JSON.parse(JSON.stringify(...))` with `structuredClone`; `custom` theme key removed from `themes` Record (handled at runtime in `useTheme`).
+- **GuideLoop lifecycle** — open sequence reordered (`setTourVisible` fires after state setup), close cleanup now explicitly hides the tour.
+- `Spotlight` now applies `padding` as a geometric offset (position - padding, size + padding*2).
+- `GuideLoop` passes `theme`/`customTheme` to both `Spotlight` and `MaskedOverlay`.
+
+### Fixed
+- `dom.ts`: `console.error` → `console.warn` for invalid selectors (recoverable error).
+- `TooltipButton`: hover state now managed via `useState` instead of CSS `:hover` (component has no external CSS).
+- Test setup now matches documented mocks from TESTING.md.
+
+### Removed
+- Dead code: `Overlay` component (superseded by `MaskedOverlay`), `position.ts` (manual positioning — Popper handles this), `useScroll.ts` (unused), orphaned `spotlight.css`, `tokens.css`.
+
 ## [1.4.1] - 2026-07-24
 
 ### Added

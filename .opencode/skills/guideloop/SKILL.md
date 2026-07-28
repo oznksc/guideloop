@@ -19,7 +19,9 @@ Load this skill when working on any aspect of the GuideLoop codebase:
 - **Build**: Rollup -> CJS (`dist/cjs/`) + ESM (`dist/esm/`) + bundled types (`dist/index.d.ts`)
 - **Test**: Jest (jsdom, ts-jest) + Playwright
 - **Lint**: ESLint + TypeScript strict mode
+- **CI**: GitHub Actions (quality matrix + e2e + pages deploy + npm publish)
 - **No external CSS** — styles injected via JS; `sideEffects: false`
+- **No Tailwind dependency** — all styles are inline JS objects
 
 ## Architecture Deep-Dive
 
@@ -28,10 +30,10 @@ Load this skill when working on any aspect of the GuideLoop codebase:
 ```
 <Portal>  (renders into #guideloop-portal)
   <div role="dialog" aria-modal="true">
-    <MaskedOverlay />   (full-page dim + cutout)
-    <Spotlight />       (animated ring around target)
+    <MaskedOverlay />   (full-page dim + SVG cutout)
+    <Spotlight />       (themed border ring around target)
     <Tooltip />         (popper-positioned popover)
-    <Progress />        (step dots at bottom)
+    <Progress />        (themed step dots at bottom)
   </div>
 </Portal>
 ```
@@ -43,10 +45,9 @@ Load this skill when working on any aspect of the GuideLoop codebase:
 | `GuideLoop` | `src/components/GuideLoop/index.tsx` | Orchestrator — wires all sub-components and hooks |
 | `Portal` | `src/components/GuideLoop/Portal.tsx` | `createPortal` into `#guideloop-portal` (auto-creates if missing) |
 | `Tooltip` | `src/components/Tooltip/` | Step content display — title, body, buttons, image/icon |
-| `Spotlight` | `src/components/Spotlight/` | Animated border ring around target element |
-| `MaskedOverlay` | `src/components/MaskedOverlay/` | SVG clip-path mask over full page dim |
-| `Overlay` | `src/components/Overlay/` | Simple full-page dim (no mask) |
-| `Progress` | `src/components/Progress/` | Step indicator dots |
+| `Spotlight` | `src/components/Spotlight/` | Themed border ring around target element (also exported standalone) |
+| `MaskedOverlay` | `src/components/MaskedOverlay/` | SVG clip-path mask over full page dim, theme-aware |
+| `Progress` | `src/components/Progress/` | Themed step indicator dots (also exported standalone) |
 | `OnboardingChecklist` | `src/components/OnboardingChecklist/` | Non-linear task list with action types |
 
 ### Hook Contract
@@ -60,45 +61,22 @@ Load this skill when working on any aspect of the GuideLoop codebase:
 | `useElementTrigger` | enabled, targetSelector, trigger, onTrigger | — | DOM event listener on target element (click/change/blur/hover/drag) |
 | `useElementClick` | scrollSmooth | `{ handleElementClick, processingRef }` | Dispatches click events, scrolls into view, advances tour |
 | `useWaitForTarget` | targetSelector, enabled, config | `{ isReady, isWaiting }` | MutationObserver or polling for async DOM elements |
+| `useTheme` | theme, customTheme | ThemeConfig | `structuredClone`-based deep merge |
 
-### Step Object (extended)
+### Theme Flow
 
 ```
-Step {
-  target: string                    // CSS selector (required)
-  title: string                     // Step title (required)
-  content: string | ReactNode       // Step body (required)
-  placement?: Placement             // Popper placement (default: 'bottom')
-
-  // Lifecycle
-  beforeStep?: () => void | Promise<void>
-  afterStep?: () => void | Promise<void>
-  condition?: () => boolean         // false = auto-skip this step
-  branch?: () => number | Promise<number>  // jump to arbitrary step index
-
-  // Auto-click
-  nextButtonClickElementId?: string  // element to click when "Next" pressed
-  prevButtonClickElementId?: string
-  skipButtonClickElementId?: string
-  nextButtonOnClick?: () => void
-  prevButtonOnClick?: () => void
-  skipButtonOnClick?: () => void
-  nextDelay?: number                 // ms to wait after click before advancing
-  prevDelay?: number
-  skipDelay?: number
-
-  // UI
-  buttonLabels?: { next, prev, skip, finish }
-  buttons?: { next, prev, close }    // ReactNode overrides
-  image?: ImageContent
-  icon?: ReactNode
-  showButtons?: { next, previous, close }
-  spotlightPadding?: number          // per-step override
-
-  // Triggers
-  trigger?: 'click' | 'change' | 'blur' | 'hover' | 'drag'
-  waitForTarget?: boolean | { timeout, root }
-}
+GuideLoop receives theme="tailwind" + customTheme={{ tooltip: {...} }}
+  -> useTheme(theme, customTheme)
+     -> themes[theme] || themes.tailwind (base lookup)
+     -> structuredClone(base)
+     -> Object.assign(merged[key], customTheme[key])
+  -> ThemeConfig passed to:
+     -> Tooltip (tooltip/buttons styles)
+     -> Spotlight (borderColor, borderWidth, borderRadius)
+     -> MaskedOverlay (overlay.background + opacity via hexToRgba)
+     -> Progress (buttons.primary.background for active dots)
+     -> OnboardingChecklist (CSS vars via --gl-onboarding-*)
 ```
 
 ## Common Modification Patterns
@@ -106,15 +84,16 @@ Step {
 ### Adding a new built-in theme
 1. Create `src/themes/mytheme.ts` exporting a `ThemeConfig` object
 2. Add `'mytheme'` to the `Theme` union in `src/themes/types.ts`
-3. Import and add it to the lookup in `src/themes/index.ts`
+3. Import and add to the lookup in `src/themes/index.ts`
 
 ### Adding a new prop to GuideLoop
 1. Add the prop to `GuideLoopProps` interface in `src/components/GuideLoop/types.ts`
 2. Destructure it in `src/components/GuideLoop/index.tsx`
 3. Pass it down to child components as needed
-4. Export the type from `src/index.ts` if it's part of the public API
-5. Update the README API reference table
-6. Add tests for the new prop behavior
+4. If the prop affects a child component's theme, also update that component's props interface
+5. Export the type from `src/index.ts` if it's part of the public API
+6. Update the README API reference table
+7. Add tests for the new prop behavior
 
 ### Adding a new hook
 1. Create the file under `src/hooks/`
@@ -130,19 +109,11 @@ Step {
 
 ## Testing Patterns
 
-### Jest mocks required (in `src/test-setup.ts`)
-```typescript
-// Popper.js mock
-jest.mock('@popperjs/core', () => ({
-  createPopper: () => ({ state: {}, destroy: jest.fn(), forceUpdate: jest.fn(), update: jest.fn(() => Promise.resolve()), setOptions: jest.fn() }),
-}));
-// ResizeObserver mock
-global.ResizeObserver = class ResizeObserver {
-  observe = jest.fn(); unobserve = jest.fn(); disconnect = jest.fn();
-};
-// scrollIntoView mock
-window.HTMLElement.prototype.scrollIntoView = jest.fn();
-```
+### Jest mocks (in `src/test-setup.ts`)
+These are already set up globally — no need to mock per-test:
+- Popper.js (`@popperjs/core`)
+- `ResizeObserver`
+- `scrollIntoView` on `HTMLElement.prototype`
 
 ### Test file locations
 - Components: `src/__tests__/components/`
@@ -151,35 +122,44 @@ window.HTMLElement.prototype.scrollIntoView = jest.fn();
 
 ### E2E tests
 - Location: `e2e/`
-- Requires demo app running (`cd demo && npm run dev`)
+- Playwright config at `playwright.config.ts` auto-starts demo via `webServer`
 - Run: `npm run test:e2e`
-
-## Build Pipeline
-
-```
-src/index.ts
-  -> rollup-plugin-peer-deps-external (excludes react/react-dom)
-  -> @rollup/plugin-node-resolve
-  -> @rollup/plugin-commonjs
-  -> @rollup/plugin-typescript
-  -> rollup-plugin-postcss (modules + minify)
-  -> rollup-plugin-terser
-  -> CJS: dist/cjs/index.js
-  -> ESM: dist/esm/index.js
-  -> dts: dist/index.d.ts (from dist/esm/index.d.ts via rollup-plugin-dts)
-```
 
 ## Understanding the Spotlight System
 
-The spotlight is NOT a CSS glow — it is a **SVG clip-path mask** on the overlay:
+The spotlight is a **SVG clip-path mask** on the overlay combined with a decorative border `div`:
 
 1. `useSpotlight` hook watches the target element and returns its `DOMRect`
-2. `MaskedOverlay` renders a full-screen `<svg>` with a `<mask>` that has:
-   - A full-screen white rect (everything visible)
-   - A transparent circle/rect at the target position (cutout hole)
-3. `Spotlight` renders a decorative border ring at the same position (CSS animation)
+2. `MaskedOverlay` renders a full-screen `<svg>` with a `<mask>`:
+   - Full-screen white rect (everything visible)
+   - Black rect at target position (cutout hole)
+   - Overlay color comes from theme `overlay.background` + `overlay.opacity`
+3. `Spotlight` renders a decorative border ring at the same position using theme `spotlight.borderColor`/`borderWidth`/`borderRadius`
+4. Spotlight `padding` is applied as geometric offset: `top - padding`, `left - padding`, `width + padding*2`, `height + padding*2`
 
-To modify spotlight behavior, edit the SVG math in `MaskedOverlay`.
+## Public API
+
+```typescript
+// Components (4)
+GuideLoop, OnboardingChecklist, Spotlight, Progress
+
+// Types (20+)
+Step, GuideLoopProps, ButtonLabels, StepStatus, StepTrigger,
+ShowButtons, ImageContent, WaitForTargetConfig,
+TooltipProps, SpotlightProps, ProgressProps,
+MaskedOverlayProps, TargetRect,
+Theme, ThemeConfig,
+AnimationConfig, AnimationSettings,
+PersistConfig, TourState, OnboardingState,
+OnboardingChecklistProps, OnboardingItem, OnboardingItemAction,
+OnboardingActionContext, OnboardingProgress, OnboardingPersistConfig,
+OnboardingLabels, OnboardingTourAction, OnboardingModalAction,
+OnboardingLinkAction, OnboardingCustomAction
+
+// Utilities (6)
+saveTourState, loadTourState, clearTourState,
+saveOnboardingState, loadOnboardingState, clearOnboardingState
+```
 
 ## Persistence Layer
 
@@ -190,10 +170,12 @@ To modify spotlight behavior, edit the SVG math in `MaskedOverlay`.
 
 ## Debugging Tips
 
-- **Tour not showing?** Check `isOpen` prop, `canShow` logic at line 287 of `GuideLoop/index.tsx`
+- **Tour not showing?** Check `isOpen` prop, `canShow` logic at line ~287 of `GuideLoop/index.tsx`
 - **Spotlight in wrong position?** Check `useSpotlight` hook — it queries DOM on scroll/resize via RAF
 - **Tooltip in wrong position?** Check Popper placement and `usePopper` offset config
 - **Auto-click not firing?** Check `useElementClick` — it requires `nextButtonClickElementId` AND the element to be in DOM
 - **Target not found?** Check `useWaitForTarget` — it polls with MutationObserver; `waitForTarget: true` enables it
 - **Focus trap broken?** Check `[data-guideloop-action]` attributes on interactive controls
 - **Keyboard not working?** Check `keyboard` prop and `useKeyboard` hook (keydown listener on window)
+- **Overlay color wrong?** Check theme `overlay.background` (hex) + `overlay.opacity` — `hexToRgba` in `MaskedOverlay` combines them
+- **Spotlight border wrong?** Check theme `spotlight.borderColor`, `borderWidth`, `borderRadius`
