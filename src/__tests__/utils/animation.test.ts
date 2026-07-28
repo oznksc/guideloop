@@ -1,4 +1,4 @@
-import { getAnimationStyle, createAnimation, injectKeyframes, defaultAnimations } from '../../utils/animation';
+import { getAnimationStyle, injectKeyframes, defaultAnimations } from '../../utils/animation';
 
 describe('animation utils', () => {
   describe('defaultAnimations', () => {
@@ -36,30 +36,6 @@ describe('animation utils', () => {
       expect(result.animation).toBe('fade-out 0.2s');
       expect(result.animationDuration).toBe('200ms');
       expect(result.animationTimingFunction).toBe('ease-in');
-    });
-  });
-
-  describe('createAnimation', () => {
-    it('returns empty string when no settings', () => {
-      expect(createAnimation(undefined, 'enter')).toBe('');
-    });
-
-    it('returns empty string when state is missing', () => {
-      expect(createAnimation({ exit: 'fade-out' }, 'enter')).toBe('');
-    });
-
-    it('returns CSS animation string', () => {
-      const result = createAnimation({ enter: 'fade-in 0.3s', duration: 300, timing: 'ease' }, 'enter');
-      expect(result).toContain('animation: fade-in 0.3s');
-      expect(result).toContain('animation-duration: 300');
-      expect(result).toContain('animation-timing-function: ease');
-    });
-
-    it('returns animation string for exit state', () => {
-      const result = createAnimation({ exit: 'fade-out 0.2s', duration: 200, timing: 'ease-in' }, 'exit');
-      expect(result).toContain('animation: fade-out 0.2s');
-      expect(result).toContain('animation-duration: 200');
-      expect(result).toContain('animation-timing-function: ease-in');
     });
   });
 

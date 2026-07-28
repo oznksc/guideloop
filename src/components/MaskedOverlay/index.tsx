@@ -1,5 +1,6 @@
 import React from 'react';
 import { useViewportSize } from '../../hooks/useViewportSize';
+import { getAnimationStyle } from '../../utils/animation';
 import type { MaskedOverlayProps } from './types';
 
 export const MaskedOverlay: React.FC<MaskedOverlayProps> = ({
@@ -118,7 +119,7 @@ export const MaskedOverlay: React.FC<MaskedOverlayProps> = ({
           borderRadius: maskRect.rx,
           transition: 'all 0.15s ease-out',
           opacity: maskRect.width === 0 ? 0 : 1,
-          ...animation,
+          ...getAnimationStyle(animation, 'enter'),
         }}
       />
     </div>

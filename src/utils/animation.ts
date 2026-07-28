@@ -33,22 +33,6 @@ export interface AnimationSettings {
     }
   };
   
-  export const createAnimation = (
-    settings: AnimationSettings | undefined,
-    state: 'enter' | 'exit'
-  ): string => {
-    if (!settings || !settings[state]) {
-      return '';
-    }
-  
-    return `
-      animation: ${settings[state]};
-      animation-duration: ${settings.duration || '300ms'};
-      animation-timing-function: ${settings.timing || 'ease'};
-    `;
-  };
-  
-  // Component'lerde kullanılacak yardımcı fonksiyon
   export const getAnimationStyle = (
     settings: AnimationSettings | undefined,
     state: 'enter' | 'exit'
