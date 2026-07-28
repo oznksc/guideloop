@@ -1,3 +1,23 @@
+import '@testing-library/jest-dom/extend-expect';
+
+jest.mock('@popperjs/core', () => ({
+  createPopper: () => ({
+    state: {},
+    destroy: jest.fn(),
+    forceUpdate: jest.fn(),
+    update: jest.fn(() => Promise.resolve()),
+    setOptions: jest.fn(),
+  }),
+}));
+
+global.ResizeObserver = class ResizeObserver {
+  observe = jest.fn();
+  unobserve = jest.fn();
+  disconnect = jest.fn();
+};
+
+window.HTMLElement.prototype.scrollIntoView = jest.fn();
+
 const originalWarn = console.warn;
 
 beforeEach(() => {

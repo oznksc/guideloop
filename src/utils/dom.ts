@@ -7,7 +7,7 @@ export const querySelectorAsHTMLElement = (selector: string): HTMLElement | null
     const element = document.querySelector(selector);
     return isHTMLElement(element) ? element : null;
   } catch (error) {
-    console.error(`Invalid selector: ${selector}`, error);
+    console.warn(`GuideLoop: Invalid selector "${selector}"`, error);
     return null;
   }
 };
