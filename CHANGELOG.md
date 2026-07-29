@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Visual Tour Builder (MVP+):** `examples/tour-builder` — canvas-scoped pick mode, selector validation, multi-spotlight extras, drag-reorder, undo/redo, localStorage drafts, import/export JSON+TS, live GuideLoop preview.
 - **React 19 / RSC support:** `"use client"` on interactive components (preserved in build); `guideloop/types` RSC-safe export for step/theme types + storage helpers.
 - **`npm run size`** — reports raw/gzip sizes for the published ESM module graph.
 - **Examples library:** `examples/` starters for Next.js App Router, Vite React, Remix, and React Native Web (local monorepo install via `file:../..`). See `examples/README.md`.

@@ -138,6 +138,7 @@ cd examples/<name> && npm install && npm run dev
 | `vite-react` | 3101 | Shapes / multi-spotlight / debug |
 | `remix` | 3102 | Multi-route resume |
 | `react-native-web` | 3103 | RN-Web; targets via `nativeID` |
+| `tour-builder` | 3104 | Visual Tour Builder MVP |
 
 ## Testing
 

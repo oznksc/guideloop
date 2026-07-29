@@ -87,8 +87,17 @@ graph TD
 ## 📌 Phase 4: Developer Experience & DX Tools (Q2 2027)
 *Goal: Streamline the integration and debugging workflow for engineers.*
 
-### 4.1 Visual Tour Builder
-- Create a Storybook addon or a Chrome extension allowing developers to select DOM elements, arrange steps visually, and export the resulting GuideLoop JSON configuration array.
+### 4.1 Visual Tour Builder ✅ Completed (MVP+)
+- **Web builder** at `examples/tour-builder` (Vite, port 3104):
+  - Canvas-scoped pick mode (`elementsFromPoint`, hover ring + selector chip)
+  - Step list: drag-reorder, ↑↓, duplicate, delete, live found/missing dots
+  - Editor: title/content/placement/shape/padding/trigger + **additionalTargets** multi-pick
+  - Selector validation badges (valid / missing / invalid / ambiguous)
+  - Live GuideLoop preview with spotlight
+  - Export JSON + TypeScript; import paste/file; `localStorage` draft auto-save
+  - Undo/redo + keyboard shortcuts (`P`, `Esc`, ⌘/Ctrl+Enter, ⌘/Ctrl+Z)
+- Unit tests (`npm test` in example) + Playwright smoke verified pick → edit → preview → import.
+- Future stretch: Chrome extension packaging / Storybook addon.
 
 ### 4.2 Interactive Debug HUD ✅ Completed
 - **`debug` prop** on `<GuideLoop>`: `true` | `false` | `'auto'` (default auto = `NODE_ENV === 'development'` only).
@@ -142,7 +151,7 @@ graph TD
 | **Spotlight Shapes (rect/circle/ellipse/polygon)** | 🟡 High | Medium | 1 Week | ✅ Done |
 | **Multi-Spotlight Targets** | 🟡 High | Medium | 1 Week | ✅ Done |
 | **Interactive Debug HUD** | 🟡 High | Medium | 1 Week | ✅ Done |
-| **Visual Tour Builder** | 🟢 Low | Very High | 6 Weeks | Planned |
+| **Visual Tour Builder (MVP web tool)** | 🟢 Low | High | 6 Weeks | ✅ Done (MVP) |
 | **Examples Library** | 🟢 Medium | Medium | 3 Weeks | ✅ Done |
 | **Bundle / tree-shaking (Popper external)** | 🟡 High | Medium | 1 Week | ✅ Done |
 | **React 19 / RSC support** | 🟡 High | Medium | 2 Weeks | ✅ Done |

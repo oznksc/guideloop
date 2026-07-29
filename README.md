@@ -88,10 +88,12 @@ Copy-paste ready apps live in [`examples/`](./examples):
 | [`vite-react`](./examples/vite-react) | Vite + React | Shapes, multi-spotlight, Debug HUD |
 | [`remix`](./examples/remix) | Remix (Vite) | Multi-route tour resume |
 | [`react-native-web`](./examples/react-native-web) | RN Web | DOM tour over RN primitives |
+| [`tour-builder`](./examples/tour-builder) | Vite | Visual Tour Builder (pick → export) |
 
 ```bash
 npm run build
 cd examples/vite-react && npm install && npm run dev
+# or: cd examples/tour-builder && npm install && npm run dev
 ```
 
 ## Quick Start
