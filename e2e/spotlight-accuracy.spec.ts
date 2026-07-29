@@ -12,12 +12,12 @@ function guidedTour(page: Page) {
 }
 
 /**
- * Get the spotlight glow overlay bounding rect.
+ * Get the spotlight ring bounding rect (div or SVG with .guideloop-spotlight).
  */
 async function getSpotlightRect(page: Page) {
-  const glow = page.locator('.spotlight-glow');
-  await expect(glow).toBeVisible();
-  return glow.boundingBox();
+  const ring = page.locator('.guideloop-spotlight').first();
+  await expect(ring).toBeVisible();
+  return ring.boundingBox();
 }
 
 /**
