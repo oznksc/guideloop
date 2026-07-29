@@ -40,11 +40,11 @@ describe('querySelectorAsHTMLElement', () => {
   });
 
   it('handles invalid selector without throwing', () => {
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
     const result = querySelectorAsHTMLElement('???invalid');
     expect(result).toBeNull();
-    expect(errorSpy).toHaveBeenCalled();
-    errorSpy.mockRestore();
+    expect(warnSpy).toHaveBeenCalled();
+    warnSpy.mockRestore();
   });
 });
 

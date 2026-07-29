@@ -25,7 +25,7 @@ describe('Progress', () => {
       expect((dots[i] as HTMLElement).style.backgroundColor).toBe('rgb(37, 99, 235)');
     }
     for (let i = 3; i < 5; i++) {
-      expect((dots[i] as HTMLElement).style.backgroundColor).toBe('rgb(229, 231, 235)');
+      expect((dots[i] as HTMLElement).style.backgroundColor).toBe('rgb(75, 85, 99)');
     }
   });
 

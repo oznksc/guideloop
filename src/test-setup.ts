@@ -1,5 +1,9 @@
 import '@testing-library/jest-dom/extend-expect';
 
+if (typeof global.structuredClone === 'undefined') {
+  (global as any).structuredClone = (obj: unknown) => JSON.parse(JSON.stringify(obj));
+}
+
 jest.mock('@popperjs/core', () => ({
   createPopper: () => ({
     state: {},

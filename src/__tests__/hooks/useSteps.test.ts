@@ -179,7 +179,8 @@ describe('useSteps', () => {
   });
 
   it('handles empty steps array', () => {
-    const { result } = renderHook(() => useSteps({ steps: [], initialStep: 0 }));
+    const props = { steps: [] as any[], initialStep: 0 };
+    const { result } = renderHook(() => useSteps(props));
     expect(result.current.currentStepData).toBeUndefined();
     expect(result.current.totalSteps).toBe(0);
     expect(result.current.isFirstStep).toBe(true);
@@ -191,7 +192,8 @@ describe('useSteps', () => {
       { target: '#s1', title: 'S1', content: 'C1', condition: () => false },
       { target: '#s2', title: 'S2', content: 'C2', condition: () => false },
     ];
-    const { result } = renderHook(() => useSteps({ steps: allFiltered, initialStep: 0 }));
+    const props = { steps: allFiltered, initialStep: 0 };
+    const { result } = renderHook(() => useSteps(props));
     expect(result.current.totalSteps).toBe(0);
     expect(result.current.currentStepData).toBeUndefined();
   });
@@ -219,13 +221,14 @@ describe('useSteps', () => {
   });
 
   it('updates validSteps when steps change', () => {
+    const initialProps = { steps: mockSteps, initialStep: 0 };
     const { result, rerender } = renderHook(
-      ({ steps }) => useSteps({ steps, initialStep: 0 }),
-      { initialProps: { steps: mockSteps } }
+      (props: { steps: any[]; initialStep: number }) => useSteps(props),
+      { initialProps }
     );
     expect(result.current.totalSteps).toBe(3);
 
-    rerender({ steps: [mockSteps[0]] });
+    rerender({ steps: [mockSteps[0]], initialStep: 0 });
     expect(result.current.totalSteps).toBe(1);
   });
 

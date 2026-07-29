@@ -87,6 +87,6 @@ describe('Spotlight', () => {
     );
     const div = container.firstChild as HTMLElement;
     expect(div.style.border).toContain('2px solid');
-    expect(div.style.borderColor).toBe('#2563EB');
+    expect(div.style.borderColor).toBe('#2563eb');
   });
 });

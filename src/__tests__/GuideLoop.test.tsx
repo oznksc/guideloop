@@ -455,10 +455,10 @@ describe('GuideLoop', () => {
   });
 
   it('renders without overlay when overlay is false', () => {
-    const { container } = render(
+    render(
       <GuideLoop steps={mockSteps} isOpen={true} onClose={jest.fn()} overlay={false} />
     );
-    expect(container.querySelector('.guideloop-spotlight')).toBeInTheDocument();
+    expect(document.querySelector('.guideloop-spotlight')).toBeInTheDocument();
   });
 
   it('renders with custom theme', () => {
@@ -532,7 +532,7 @@ describe('GuideLoop', () => {
       fireEvent.click(screen.getByText('Next'));
 
       await waitFor(() => {
-        expect(screen.getByText('Final')).toBeInTheDocument();
+        expect(screen.getByRole('tooltip', { name: 'Final' })).toBeInTheDocument();
       }, { timeout: 3000 });
     });
   });

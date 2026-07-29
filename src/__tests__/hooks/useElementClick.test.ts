@@ -165,7 +165,7 @@ describe('useElementClick', () => {
   it('scrolls smoothly before click when scrollSmooth is true', async () => {
     createTarget('smooth-target');
     const scrollIntoViewMock = jest.fn();
-    Element.prototype.scrollIntoView = scrollIntoViewMock;
+    HTMLElement.prototype.scrollIntoView = scrollIntoViewMock;
 
     const origObserver = window.IntersectionObserver;
     (window as any).IntersectionObserver = undefined;
