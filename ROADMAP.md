@@ -77,9 +77,10 @@ graph TD
 - Theme lookup falls back to `tailwind` when `theme='custom'` is used.
 - Theme types exported as part of the public API: `Theme`, `ThemeConfig`.
 
-### 3.4 Advanced Masking and Spotlight Shapes
-- Support custom SVG clipping masks for spotlight shapes (circles, ellipses, or custom polygons).
-- Implement multi-spotlight capabilities to highlight multiple target elements simultaneously in a single step.
+### 3.4 Advanced Masking and Spotlight Shapes ✅ Completed
+- **`spotlightShape` on steps:** `'rect' | 'circle' | 'ellipse' | { type: 'polygon'; points }` — SVG mask cutouts via `resolveSpotlightShape`.
+- **Multi-spotlight:** `additionalTargets` on steps highlights extra selectors in the same step (tooltip/triggers still use primary `target`).
+- **Components:** `MaskedOverlay` and `Spotlight` accept `targets: SpotlightHole[]`; `useSpotlights` tracks multiple elements.
 
 ---
 
@@ -89,25 +90,38 @@ graph TD
 ### 4.1 Visual Tour Builder
 - Create a Storybook addon or a Chrome extension allowing developers to select DOM elements, arrange steps visually, and export the resulting GuideLoop JSON configuration array.
 
-### 4.2 Interactive Debug HUD
-- Provide a visual debug overlay in development mode (`process.env.NODE_ENV !== 'production'`) displaying step statistics, trigger histories, missing selectors, and performance metrics.
+### 4.2 Interactive Debug HUD ✅ Completed
+- **`debug` prop** on `<GuideLoop>`: `true` | `false` | `'auto'` (default auto = `NODE_ENV === 'development'` only).
+- Floating panel shows step index/title/status, time-on-step, target found/missing (incl. `additionalTargets`), trigger + waitForTarget, persist key, and a rolling event history (open/next/prev/skip/trigger/step-change/errors).
+- Standalone `DebugHUD` export + `DebugSnapshot` types for custom tooling.
 
-### 4.3 Examples Library
-- Create a monorepo containing production-ready boilerplate examples for Next.js (App Router), Remix, Vite, and React Native Web.
+### 4.3 Examples Library ✅ Completed
+- **`examples/`** standalone starters (local monorepo link via `guideloop: file:../..`):
+  - `nextjs-app-router` — App Router client island + multi-page `persist`
+  - `vite-react` — shapes, multi-spotlight, Debug HUD
+  - `remix` — multi-route resume with Remix + Vite
+  - `react-native-web` — DOM tour over RN-Web (`nativeID` targets)
+- Documented run instructions in `examples/README.md` and root README.
 
 ---
 
 ## 📌 Phase 5: React 19 & Core Performance (Q3 2027)
 *Goal: Align GuideLoop with future React standards and minimize its runtime footprint.*
 
-### 5.1 React 19 Server Components Support
-- Align with React 19 standards, optimizing `"use client"` boundaries and ensuring safe import trees for React Server Components (RSC).
-- Update portal render logic and DOM manipulation hooks to align with React 19 hydration cycles.
+### 5.1 React 19 Server Components Support ✅ Completed
+- **`"use client"`** on all interactive components; preserved in published ESM/CJS via Rollup.
+- **`guideloop/types`** RSC-safe entry (types + storage helpers only — no client components).
+- **SSR-safe Portal** — mounts portal root after client effect (no `document` during RSC pre-render).
+- **SSR-safe `useViewportSize`** / storage helpers / `isBrowser()` util.
+- **Focus trap** retries until portal container exists (works with deferred portal + React 18/19).
+- Peer range remains `react` / `react-dom` `>=16.8.0` (includes React 19).
 
-### 5.2 Bundle Size & Tree Shaking Optimization
-- Enable lazy-loading or dynamic imports for the core PopperJS dependencies.
-- Reduce overall package size to under **5KB** (minified + gzipped).
-- Eliminate non-essential external dependencies.
+### 5.2 Bundle Size & Tree Shaking Optimization ✅ Completed
+- **`@popperjs/core` external** — no longer inlined into `dist` (saves ~7 kB gzip vs prior fat bundle).
+- **Dynamic `import('@popperjs/core')` in `usePopper`** — consumer bundlers can async-chunk Popper.
+- **ESM/CJS `preserveModules`** + `sideEffects: false` — unused exports (Onboarding, DebugHUD, …) tree-shakeable.
+- **Compile target ES2019** (was ES5) — less downlevel bloat; removed unused PostCSS pipeline.
+- **`npm run size`** reports raw/gzip per graph (full ESM ~18 kB gzip deps-external; GuideLoop chunk ~3 kB gzip).
 
 ---
 
@@ -125,5 +139,10 @@ graph TD
 | **Theme System (structuredClone Merge)** | 🟡 High | Medium | 2 Weeks | ✅ Done |
 | **Tailwind Removal & Inline Styles** | 🟡 High | Medium | 1 Week | ✅ Done |
 | **Built-in Theme Library** | 🟢 Medium | Low | 1 Week | ✅ Done |
+| **Spotlight Shapes (rect/circle/ellipse/polygon)** | 🟡 High | Medium | 1 Week | ✅ Done |
+| **Multi-Spotlight Targets** | 🟡 High | Medium | 1 Week | ✅ Done |
+| **Interactive Debug HUD** | 🟡 High | Medium | 1 Week | ✅ Done |
 | **Visual Tour Builder** | 🟢 Low | Very High | 6 Weeks | Planned |
-| **React 19 Compatibility** | 🟡 High | Medium | 2 Weeks | Planned |
+| **Examples Library** | 🟢 Medium | Medium | 3 Weeks | ✅ Done |
+| **Bundle / tree-shaking (Popper external)** | 🟡 High | Medium | 1 Week | ✅ Done |
+| **React 19 / RSC support** | 🟡 High | Medium | 2 Weeks | ✅ Done |

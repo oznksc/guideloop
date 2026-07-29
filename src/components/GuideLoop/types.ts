@@ -3,6 +3,15 @@ import { Theme, ThemeConfig } from '../../themes/types';
 import { AnimationConfig } from '../../utils/animation';
 import { PersistConfig } from '../../utils/tourState';
 import { Placement } from '@popperjs/core';
+import type { SpotlightShape, AdditionalSpotlightTarget } from '../../utils/spotlightShape';
+
+export type {
+  SpotlightShape,
+  SpotlightShapeName,
+  SpotlightPolygonShape,
+  AdditionalSpotlightTarget,
+  SpotlightHole,
+} from '../../utils/spotlightShape';
 
 export type ImageContent = {
   type: 'image';
@@ -53,6 +62,17 @@ export interface StepUI {
   icon?: ReactNode;
   showButtons?: ShowButtons;
   spotlightPadding?: number;
+  /**
+   * Shape of the primary spotlight / overlay cutout.
+   * @default 'rect'
+   */
+  spotlightShape?: SpotlightShape;
+  /**
+   * Additional elements to highlight in the same step (multi-spotlight).
+   * Tooltip, scroll, triggers, and waitForTarget still use the primary `target`.
+   * Each entry may be a CSS selector string or a full config object.
+   */
+  additionalTargets?: Array<string | AdditionalSpotlightTarget>;
 }
 
 export interface StepHooks {
@@ -102,4 +122,11 @@ export interface GuideLoopProps {
   zIndex?: number;
   defaultButtonLabels?: ButtonLabels;
   persist?: PersistConfig;
+  /**
+   * Interactive debug HUD (step stats, target status, event history).
+   * - `true` — always show when the tour is open
+   * - `false` — never show
+   * - `'auto'` / omitted — show only when `process.env.NODE_ENV === 'development'`
+   */
+  debug?: boolean | 'auto';
 }

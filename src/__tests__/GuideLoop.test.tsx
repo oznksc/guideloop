@@ -239,9 +239,11 @@ describe('GuideLoop', () => {
     await waitFor(() => expect(opener).toHaveFocus());
   });
 
-  it('renders portal container in the DOM', () => {
+  it('renders portal container in the DOM', async () => {
     render(<GuideLoop steps={mockSteps} isOpen={true} onClose={jest.fn()} />);
-    expect(document.getElementById('guideloop-portal')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(document.getElementById('guideloop-portal')).toBeInTheDocument();
+    });
   });
 
   it('renders with different themes without error', () => {
@@ -467,6 +469,23 @@ describe('GuideLoop', () => {
       <GuideLoop steps={mockSteps} isOpen={true} onClose={jest.fn()} overlay={false} />
     );
     expect(document.querySelector('.guideloop-spotlight')).toBeInTheDocument();
+  });
+
+  it('shows debug HUD when debug is true', () => {
+    render(
+      <GuideLoop steps={mockSteps} isOpen={true} onClose={jest.fn()} debug={true} />
+    );
+    const hud = screen.getByTestId('guideloop-debug-hud');
+    expect(hud).toBeInTheDocument();
+    expect(hud).toHaveTextContent('GuideLoop Debug');
+    expect(hud).toHaveTextContent('Step 1');
+  });
+
+  it('hides debug HUD when debug is false', () => {
+    render(
+      <GuideLoop steps={mockSteps} isOpen={true} onClose={jest.fn()} debug={false} />
+    );
+    expect(screen.queryByTestId('guideloop-debug-hud')).not.toBeInTheDocument();
   });
 
   it('renders with custom theme', () => {

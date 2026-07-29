@@ -18,7 +18,7 @@ test('debug spotlight positioning', async ({ page }) => {
   // Debug: get computed styles and positions from the page
   const debugInfo = await page.evaluate(() => {
     const target = document.querySelector('#test-search');
-    const spotlightGlow = document.querySelector('.spotlight-glow');
+    const spotlightGlow = document.querySelector('.guideloop-spotlight');
     const overlayContainer = spotlightGlow?.parentElement;
     
     const targetRect = target?.getBoundingClientRect();

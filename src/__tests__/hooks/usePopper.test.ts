@@ -1,110 +1,140 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor, act } from '@testing-library/react';
 import { usePopper } from '../../hooks/usePopper';
 
-jest.mock('@popperjs/core', () => ({
-  createPopper: jest.fn(() => ({
-    state: {},
-    destroy: jest.fn(),
-    forceUpdate: jest.fn(),
-    update: jest.fn().mockResolvedValue(undefined),
-    setOptions: jest.fn(),
-  })),
+const mockDestroy = jest.fn();
+const mockUpdate = jest.fn().mockResolvedValue(undefined);
+const mockCreatePopper = jest.fn(() => ({
+  state: {},
+  destroy: mockDestroy,
+  forceUpdate: jest.fn(),
+  update: mockUpdate,
+  setOptions: jest.fn(),
 }));
 
-import { createPopper } from '@popperjs/core';
+jest.mock('@popperjs/core', () => ({
+  createPopper: mockCreatePopper,
+}));
 
 describe('usePopper', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('creates popper instance when both elements exist', () => {
+  it('creates popper instance when both elements exist', async () => {
     const ref = document.createElement('div');
     const tooltip = document.createElement('div');
 
-    const { result } = renderHook(() => usePopper({
-      referenceElement: ref,
-      tooltipElement: tooltip,
-    }));
+    const { result } = renderHook(() =>
+      usePopper({
+        referenceElement: ref,
+        tooltipElement: tooltip,
+      })
+    );
 
-    expect(createPopper).toHaveBeenCalledWith(ref, tooltip, expect.objectContaining({
-      placement: 'bottom',
-      strategy: 'fixed',
-    }));
+    await waitFor(() => {
+      expect(mockCreatePopper).toHaveBeenCalledWith(
+        ref,
+        tooltip,
+        expect.objectContaining({
+          placement: 'bottom',
+          strategy: 'fixed',
+        })
+      );
+    });
     expect(result.current.update).toBeDefined();
   });
 
-  it('does not create popper when referenceElement is null', () => {
-    renderHook(() => usePopper({
-      referenceElement: null,
-      tooltipElement: document.createElement('div'),
-    }));
+  it('does not create popper when referenceElement is null', async () => {
+    renderHook(() =>
+      usePopper({
+        referenceElement: null,
+        tooltipElement: document.createElement('div'),
+      })
+    );
 
-    expect(createPopper).not.toHaveBeenCalled();
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(mockCreatePopper).not.toHaveBeenCalled();
   });
 
-  it('does not create popper when tooltipElement is null', () => {
-    renderHook(() => usePopper({
-      referenceElement: document.createElement('div'),
-      tooltipElement: null,
-    }));
+  it('does not create popper when tooltipElement is null', async () => {
+    renderHook(() =>
+      usePopper({
+        referenceElement: document.createElement('div'),
+        tooltipElement: null,
+      })
+    );
 
-    expect(createPopper).not.toHaveBeenCalled();
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(mockCreatePopper).not.toHaveBeenCalled();
   });
 
-  it('does not create popper when both elements are null', () => {
-    renderHook(() => usePopper({
-      referenceElement: null,
-      tooltipElement: null,
-    }));
+  it('does not create popper when both elements are null', async () => {
+    renderHook(() =>
+      usePopper({
+        referenceElement: null,
+        tooltipElement: null,
+      })
+    );
 
-    expect(createPopper).not.toHaveBeenCalled();
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(mockCreatePopper).not.toHaveBeenCalled();
   });
 
-  it('destroys popper instance on unmount', () => {
+  it('destroys popper instance on unmount', async () => {
     const ref = document.createElement('div');
     const tooltip = document.createElement('div');
-    const mockDestroy = jest.fn();
 
-    (createPopper as jest.Mock).mockReturnValueOnce({
-      state: {},
-      destroy: mockDestroy,
-      forceUpdate: jest.fn(),
-      update: jest.fn().mockResolvedValue(undefined),
-      setOptions: jest.fn(),
+    const { unmount } = renderHook(() =>
+      usePopper({
+        referenceElement: ref,
+        tooltipElement: tooltip,
+      })
+    );
+
+    await waitFor(() => {
+      expect(mockCreatePopper).toHaveBeenCalled();
     });
-
-    const { unmount } = renderHook(() => usePopper({
-      referenceElement: ref,
-      tooltipElement: tooltip,
-    }));
 
     unmount();
     expect(mockDestroy).toHaveBeenCalledTimes(1);
   });
 
-  it('accepts custom placement', () => {
+  it('accepts custom placement', async () => {
     const ref = document.createElement('div');
     const tooltip = document.createElement('div');
 
-    renderHook(() => usePopper({
-      referenceElement: ref,
-      tooltipElement: tooltip,
-      placement: 'top',
-    }));
-
-    expect(createPopper).toHaveBeenCalledWith(
-      ref, tooltip,
-      expect.objectContaining({ placement: 'top' })
+    renderHook(() =>
+      usePopper({
+        referenceElement: ref,
+        tooltipElement: tooltip,
+        placement: 'top',
+      })
     );
+
+    await waitFor(() => {
+      expect(mockCreatePopper).toHaveBeenCalledWith(
+        ref,
+        tooltip,
+        expect.objectContaining({ placement: 'top' })
+      );
+    });
   });
 
-  it('provides update function that returns undefined when no instance', () => {
-    const { result } = renderHook(() => usePopper({
-      referenceElement: null,
-      tooltipElement: null,
-    }));
+  it('provides update function when no instance', () => {
+    const { result } = renderHook(() =>
+      usePopper({
+        referenceElement: null,
+        tooltipElement: null,
+      })
+    );
 
     expect(result.current.update).toBeDefined();
+    expect(() => result.current.update()).not.toThrow();
   });
 });

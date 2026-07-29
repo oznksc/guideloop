@@ -19,6 +19,9 @@ export interface UseFocusTrapOptions {
 /**
  * Traps Tab focus inside `containerRef` while enabled and restores focus to
  * the previously focused element when the trap is torn down.
+ *
+ * Retries until `containerRef.current` is set so deferred portals (SSR-safe
+ * client mount) still receive initial focus under React 18/19.
  */
 export const useFocusTrap = ({
   enabled,
@@ -50,51 +53,75 @@ export const useFocusTrap = ({
   useEffect(() => {
     if (!enabled) return;
 
-    const dialog = containerRef.current;
-    if (!dialog) return;
+    let cancelled = false;
+    let focusTimer: number | undefined;
+    let retryTimer: number | undefined;
+    let removeTrap: (() => void) | undefined;
 
-    const focusInitialControl = () => {
-      const preferredControl =
-        dialog.querySelector<HTMLElement>('[data-guideloop-action="next"]') ??
-        dialog.querySelector<HTMLElement>('[data-guideloop-action="close"]') ??
-        dialog;
-      preferredControl.focus({ preventScroll: true });
+    const attach = (dialog: HTMLElement) => {
+      const focusInitialControl = () => {
+        if (cancelled) return;
+        const preferredControl =
+          dialog.querySelector<HTMLElement>('[data-guideloop-action="next"]') ??
+          dialog.querySelector<HTMLElement>('[data-guideloop-action="close"]') ??
+          dialog;
+        preferredControl.focus({ preventScroll: true });
+      };
+
+      focusTimer = window.setTimeout(focusInitialControl, 0);
+
+      const trapFocus = (event: KeyboardEvent) => {
+        if (event.key !== 'Tab') return;
+
+        const focusable = Array.from(
+          dialog.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+        );
+        if (!focusable.length) {
+          event.preventDefault();
+          dialog.focus({ preventScroll: true });
+          return;
+        }
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const activeElement = document.activeElement;
+
+        if (!dialog.contains(activeElement)) {
+          event.preventDefault();
+          (event.shiftKey ? last : first).focus({ preventScroll: true });
+        } else if (event.shiftKey && activeElement === first) {
+          event.preventDefault();
+          last.focus({ preventScroll: true });
+        } else if (!event.shiftKey && activeElement === last) {
+          event.preventDefault();
+          first.focus({ preventScroll: true });
+        }
+      };
+
+      document.addEventListener('keydown', trapFocus, true);
+      removeTrap = () => {
+        document.removeEventListener('keydown', trapFocus, true);
+      };
     };
 
-    const focusTimer = window.setTimeout(focusInitialControl, 0);
-
-    const trapFocus = (event: KeyboardEvent) => {
-      if (event.key !== 'Tab') return;
-
-      const focusable = Array.from(
-        dialog.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
-      );
-      if (!focusable.length) {
-        event.preventDefault();
-        dialog.focus({ preventScroll: true });
+    const tryAttach = () => {
+      if (cancelled) return;
+      const dialog = containerRef.current;
+      if (!dialog) {
+        // Portal may still be null after first paint (client-only mount)
+        retryTimer = window.setTimeout(tryAttach, 0);
         return;
       }
-
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      const activeElement = document.activeElement;
-
-      if (!dialog.contains(activeElement)) {
-        event.preventDefault();
-        (event.shiftKey ? last : first).focus({ preventScroll: true });
-      } else if (event.shiftKey && activeElement === first) {
-        event.preventDefault();
-        last.focus({ preventScroll: true });
-      } else if (!event.shiftKey && activeElement === last) {
-        event.preventDefault();
-        first.focus({ preventScroll: true });
-      }
+      attach(dialog);
     };
 
-    document.addEventListener('keydown', trapFocus, true);
+    tryAttach();
+
     return () => {
-      window.clearTimeout(focusTimer);
-      document.removeEventListener('keydown', trapFocus, true);
+      cancelled = true;
+      if (focusTimer !== undefined) window.clearTimeout(focusTimer);
+      if (retryTimer !== undefined) window.clearTimeout(retryTimer);
+      removeTrap?.();
     };
   }, [enabled, containerRef, focusKey]);
 };

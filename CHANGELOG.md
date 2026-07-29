@@ -8,6 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **React 19 / RSC support:** `"use client"` on interactive components (preserved in build); `guideloop/types` RSC-safe export for step/theme types + storage helpers.
+- **`npm run size`** — reports raw/gzip sizes for the published ESM module graph.
+- **Examples library:** `examples/` starters for Next.js App Router, Vite React, Remix, and React Native Web (local monorepo install via `file:../..`). See `examples/README.md`.
+- **Interactive Debug HUD:** `debug` prop on `<GuideLoop>` (`true` | `false` | `'auto'`). Dev overlay shows step stats, missing selectors, multi-target status, trigger/wait state, time-on-step, and event history. Also exports `DebugHUD` + `DebugSnapshot` types.
+
+### Changed
+- **Portal** mounts only after client hydration (SSR/RSC-safe); focus trap waits for the portal container.
+- **`useViewportSize`** no longer reads `window` during SSR init.
+- **Bundle optimization:** `@popperjs/core` is no longer bundled into `dist` (external dependency). `usePopper` loads it via dynamic `import()` so apps can code-split positioning.
+- **Build output:** ESM and CJS emit a `preserveModules` graph for better consumer tree-shaking (`sideEffects: false`).
+- **Compile target** raised from ES5 → ES2019; unused Rollup PostCSS plugin removed.
+- **Spotlight shapes:** Step `spotlightShape` supports `'rect' | 'circle' | 'ellipse'` or a custom polygon (`{ type: 'polygon'; points: [x,y][] }` with points normalized 0–1 to the padded bbox). MaskedOverlay cutouts and Spotlight rings follow the shape.
+- **Multi-spotlight:** Step `additionalTargets` highlights extra elements in the same step (string selectors or `{ selector, shape?, padding? }`). Tooltip, scroll, triggers, and `waitForTarget` still use the primary `target`.
+- **`useSpotlights` hook** and shared `spotlightShape` helpers (`resolveSpotlightShape`, `SpotlightHole` types).
+- Public type exports: `SpotlightShape`, `SpotlightShapeName`, `SpotlightPolygonShape`, `AdditionalSpotlightTarget`, `SpotlightHole`.
 - **Public API expansion:** `Spotlight` and `Progress` components exported for standalone use; types `TooltipProps`, `SpotlightProps`, `ProgressProps`, `MaskedOverlayProps`, `TargetRect`, `ButtonLabels`, `StepStatus`, `StepTrigger`, `ShowButtons`, `ImageContent`, `WaitForTargetConfig`, `AnimationSettings` now exported.
 - `Spotlight` now accepts optional `theme` and `customTheme` props, consumes theme `spotlight.borderColor`/`borderWidth`/`borderRadius`.
 - `MaskedOverlay` now accepts optional `theme` and `customTheme` props, consumes theme `overlay.background`/`opacity` via `hexToRgba`.

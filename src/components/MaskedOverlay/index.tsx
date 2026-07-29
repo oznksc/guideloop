@@ -1,11 +1,52 @@
+'use client';
+
 import React from 'react';
 import { useViewportSize } from '../../hooks/useViewportSize';
 import { useTheme } from '../../hooks/useTheme';
 import { getAnimationStyle } from '../../utils/animation';
+import {
+  isValidHole,
+  resolveSpotlightShape,
+  type SpotlightHole,
+  type ResolvedSpotlightShape,
+} from '../../utils/spotlightShape';
 import type { MaskedOverlayProps } from './types';
+
+function MaskCutout({ shape }: { shape: ResolvedSpotlightShape }) {
+  switch (shape.type) {
+    case 'circle':
+      return <circle cx={shape.cx} cy={shape.cy} r={shape.r} fill="black" />;
+    case 'ellipse':
+      return (
+        <ellipse
+          cx={shape.cx}
+          cy={shape.cy}
+          rx={shape.rx}
+          ry={shape.ry}
+          fill="black"
+        />
+      );
+    case 'polygon':
+      return <polygon points={shape.points} fill="black" />;
+    case 'rect':
+    default:
+      return (
+        <rect
+          x={shape.x}
+          y={shape.y}
+          width={shape.width}
+          height={shape.height}
+          rx={shape.rx}
+          fill="black"
+        />
+      );
+  }
+}
 
 export const MaskedOverlay: React.FC<MaskedOverlayProps> = ({
   targetRect,
+  targets,
+  shape = 'rect',
   onClick,
   className = '',
   theme = 'tailwind',
@@ -20,21 +61,27 @@ export const MaskedOverlay: React.FC<MaskedOverlayProps> = ({
   const overlayColor = themeStyles.overlay.background;
   const overlayOpacity = themeStyles.overlay.opacity;
   const overlayRgba = hexToRgba(overlayColor, overlayOpacity);
+  const borderRadius = themeStyles.spotlight.borderRadius;
 
-  const maskRect = React.useMemo(() => {
-    if (!targetRect || targetRect.width === 0 || targetRect.height === 0) {
-      return { x: 0, y: 0, width: 0, height: 0, rx: 8 };
+  const holes = React.useMemo((): SpotlightHole[] => {
+    if (targets && targets.length > 0) {
+      return targets.filter(isValidHole).map((h) => ({
+        ...h,
+        shape: h.shape ?? 'rect',
+      }));
     }
-    return {
-      x: targetRect.left,
-      y: targetRect.top,
-      width: targetRect.width,
-      height: targetRect.height,
-      rx: 8,
-    };
-  }, [targetRect]);
+    if (targetRect && isValidHole(targetRect)) {
+      return [{ ...targetRect, shape }];
+    }
+    return [];
+  }, [targets, targetRect, shape]);
 
-  if (!targetRect || targetRect.width === 0 || targetRect.height === 0) {
+  const resolvedShapes = React.useMemo(
+    () => holes.map((hole) => resolveSpotlightShape(hole, hole.shape, borderRadius)),
+    [holes, borderRadius]
+  );
+
+  if (holes.length === 0) {
     return (
       <div
         className={className}
@@ -88,21 +135,10 @@ export const MaskedOverlay: React.FC<MaskedOverlayProps> = ({
       >
         <defs>
           <mask id={maskId}>
-            <rect
-              x="0"
-              y="0"
-              width="100%"
-              height="100%"
-              fill="white"
-            />
-            <rect
-              x={maskRect.x}
-              y={maskRect.y}
-              width={maskRect.width}
-              height={maskRect.height}
-              rx={maskRect.rx}
-              fill="black"
-            />
+            <rect x="0" y="0" width="100%" height="100%" fill="white" />
+            {resolvedShapes.map((resolved, index) => (
+              <MaskCutout key={index} shape={resolved} />
+            ))}
           </mask>
         </defs>
 
@@ -115,23 +151,6 @@ export const MaskedOverlay: React.FC<MaskedOverlayProps> = ({
           mask={`url(#${maskId})`}
         />
       </svg>
-
-      {/* Spotlight glow border */}
-      <div
-        className="spotlight-glow"
-        style={{
-          position: 'fixed',
-          pointerEvents: 'none',
-          top: maskRect.y,
-          left: maskRect.x,
-          width: maskRect.width,
-          height: maskRect.height,
-          borderRadius: maskRect.rx,
-          transition: 'all 0.15s ease-out',
-          opacity: maskRect.width === 0 ? 0 : 1,
-          ...getAnimationStyle(animation, 'enter'),
-        }}
-      />
     </div>
   );
 };
