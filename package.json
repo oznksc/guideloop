@@ -25,6 +25,11 @@
       "types": "./dist/rsc-types.d.ts",
       "import": "./dist/esm/rsc-types.js",
       "require": "./dist/cjs/rsc-types.js"
+    },
+    "./builder": {
+      "types": "./dist/builder.d.ts",
+      "import": "./dist/esm/builder.js",
+      "require": "./dist/cjs/builder.js"
     }
   },
   "scripts": {

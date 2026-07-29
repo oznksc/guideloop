@@ -76,6 +76,8 @@ function createBuild(format) {
       index: 'src/index.ts',
       // RSC-safe type/util surface (no components / no "use client")
       'rsc-types': 'src/rsc-types.ts',
+      // Dev Tour Builder (import from guideloop/builder — not in main barrel)
+      builder: 'src/builder.ts',
     },
     output: {
       dir,
@@ -127,6 +129,12 @@ export default [
   {
     input: 'dist/esm/rsc-types.d.ts',
     output: [{ file: 'dist/rsc-types.d.ts', format: 'esm' }],
+    plugins: [dts()],
+    external: [/\.css$/, /@popperjs\/core/],
+  },
+  {
+    input: 'dist/esm/builder.d.ts',
+    output: [{ file: 'dist/builder.d.ts', format: 'esm' }],
     plugins: [dts()],
     external: [/\.css$/, /@popperjs\/core/],
   },

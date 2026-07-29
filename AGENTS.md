@@ -25,6 +25,7 @@ src/
 │   ├── MaskedOverlay/        # Full-page dim overlay with SVG cutout
 │   ├── Progress/             # Step progress indicator (also exported standalone)
 │   ├── DebugHUD/             # Dev-only tour debug overlay (also exported)
+│   ├── TourBuilder/          # In-app dev Tour Builder (guideloop/builder)
 │   └── OnboardingChecklist/  # Non-linear task list
 ├── hooks/
 │   ├── useSteps.ts           # Single-source step index + branching + lifecycle
@@ -121,6 +122,7 @@ npm run test:e2e     # Playwright e2e (requires demo running)
 ### React 19 / RSC
 - Client components start with `'use client'` (preserved in dist by Rollup).
 - RSC-safe entry: `guideloop/types` → `src/rsc-types.ts` (types + storage only).
+- Dev Tour Builder entry: `guideloop/builder` → `src/builder.ts` (not in main barrel).
 - `Portal` mounts after client effect; never touch `document` during SSR render.
 - Use `isBrowser()` from `utils/env` for DOM guards.
 
@@ -138,6 +140,7 @@ cd examples/<name> && npm install && npm run dev
 | `vite-react` | 3101 | Shapes / multi-spotlight / debug |
 | `remix` | 3102 | Multi-route resume |
 | `react-native-web` | 3103 | RN-Web; targets via `nativeID` |
+| `tour-builder` | 3104 | Visual Tour Builder MVP |
 
 ## Testing
 

@@ -10,6 +10,7 @@ Each example is a **standalone package** (not required to run the main library t
 | [`vite-react`](./vite-react) | Vite + React 18 | Shapes, multi-spotlight, Debug HUD |
 | [`remix`](./remix) | Remix (Vite) | Multi-route tour resume across pages |
 | [`react-native-web`](./react-native-web) | Vite + React Native Web | DOM tour over RN-Web primitives |
+| [`tour-builder`](./tour-builder) | Vite + React | **Visual Tour Builder** MVP (pick → edit → export) |
 
 ## Prerequisites
 

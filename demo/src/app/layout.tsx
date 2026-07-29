@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import { Lora, JetBrains_Mono } from "next/font/google";
 import "../../../tokens.css";
 import "./globals.css";
+import { DevTourBuilder } from "../components/DevTourBuilder";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -50,6 +51,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${lora.variable} ${jetbrainsMono.variable} antialiased`}
       >
         {children}
+        <DevTourBuilder />
       </body>
     </html>
   );
