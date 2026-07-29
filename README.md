@@ -44,6 +44,35 @@ GuideLoop depends on `@popperjs/core` (installed automatically). The library kee
 
 **React 16.8 → 19** is supported (`peerDependencies: react/react-dom >=16.8.0`).
 
+### In-app Tour Builder (development)
+
+While your real app is running locally, mount the builder once near the root:
+
+```tsx
+// app/layout.tsx or App.tsx
+import { TourBuilder } from 'guideloop/builder';
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        {children}
+        {/* Floating "GL" button — auto-hides when NODE_ENV === 'production' */}
+        <TourBuilder />
+      </body>
+    </html>
+  );
+}
+```
+
+1. Run your app (`npm run dev`).
+2. Click the floating **GL** button (bottom-left).
+3. **Pick element** → click real UI controls on the page.
+4. Edit titles/content, reorder, preview the tour on the live DOM.
+5. **Copy** JSON or TypeScript and paste into your production `steps` array.
+
+`import 'guideloop/builder'` is a separate entry so production bundles that never import it do not ship the builder UI.
+
 ### Next.js App Router / React Server Components
 
 Interactive exports (`GuideLoop`, `OnboardingChecklist`, …) are marked with `"use client"` so you can import them from Client Components without extra wrappers.

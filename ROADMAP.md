@@ -88,15 +88,9 @@ graph TD
 *Goal: Streamline the integration and debugging workflow for engineers.*
 
 ### 4.1 Visual Tour Builder ✅ Completed (MVP+)
-- **Web builder** at `examples/tour-builder` (Vite, port 3104):
-  - Canvas-scoped pick mode (`elementsFromPoint`, hover ring + selector chip)
-  - Step list: drag-reorder, ↑↓, duplicate, delete, live found/missing dots
-  - Editor: title/content/placement/shape/padding/trigger + **additionalTargets** multi-pick
-  - Selector validation badges (valid / missing / invalid / ambiguous)
-  - Live GuideLoop preview with spotlight
-  - Export JSON + TypeScript; import paste/file; `localStorage` draft auto-save
-  - Undo/redo + keyboard shortcuts (`P`, `Esc`, ⌘/Ctrl+Enter, ⌘/Ctrl+Z)
-- Unit tests (`npm test` in example) + Playwright smoke verified pick → edit → preview → import.
+- **In-app dev tool** — `import { TourBuilder } from 'guideloop/builder'`: floating **GL** button on your live local app, pick real DOM, edit/export/preview. Auto-hides unless `NODE_ENV === 'development'` (or `enabled`).
+- **Standalone lab** at `examples/tour-builder` (port 3104) for offline practice.
+- Shared capabilities: canvas/page pick (`elementsFromPoint`), selector validation, multi-spotlight extras, reorder, export JSON/TS, import, draft auto-save, preview with GuideLoop.
 - Future stretch: Chrome extension packaging / Storybook addon.
 
 ### 4.2 Interactive Debug HUD ✅ Completed
