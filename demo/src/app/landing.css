@@ -138,6 +138,26 @@
   color: var(--color-accent-ink, #ffffff);
   background: var(--color-accent, #6366f1);
   font-weight: 600;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 40%, transparent);
+}
+
+/* Ensure the page shell recolors with data-theme tokens (not only GuideLoop) */
+.site-main,
+.hero-section,
+.features-section,
+.quickstart-section,
+.site-footer {
+  color: var(--color-ink);
+}
+
+.site-header,
+.hero-section,
+.features-section,
+.quickstart-section {
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
 }
 
 .palette-trigger-btn {
