@@ -6,16 +6,23 @@ interface UseElementClickProps {
   scrollSmooth: boolean;
 }
 
+export interface ElementClickOptions {
+  /** CSS selector of the element to click (optional). */
+  elementSelector?: string;
+  delay?: number;
+  onClick?: () => void | Promise<void>;
+  nextStepIndex?: number;
+  /** Hide the tour before performing a DOM click (element path). */
+  hideTour?: () => void;
+  /**
+   * Immediate advance when there is no element path, or the element is missing.
+   * Should run enter lifecycle (beforeStep) for the target index.
+   */
+  onAdvance?: (stepIndex: number) => void | Promise<void>;
+}
+
 interface UseElementClickReturn {
-  handleElementClick: (
-    elementId: string | undefined,
-    delay: number | undefined,
-    onClick: (() => void) | undefined,
-    nextStepIndex: number | undefined,
-    setCurrentStep: ((step: number) => void) | undefined,
-    setCurrentStepIndex: ((step: number) => void) | undefined,
-    setTourVisible: ((visible: boolean) => void) | undefined,
-  ) => Promise<void>;
+  handleElementClick: (options: ElementClickOptions) => Promise<void>;
   processingRef: React.MutableRefObject<boolean>;
 }
 
@@ -40,15 +47,14 @@ export const useElementClick = ({
     });
   }, []);
 
-  const handleElementClick = useCallback(async (
-    elementId: string | undefined,
+  const handleElementClick = useCallback(async ({
+    elementSelector,
     delay = 0,
-    onClick?: () => void,
-    nextStepIndex?: number,
-    setCurrentStep?: (step: number) => void,
-    setCurrentStepIndex?: (step: number) => void,
-    setTourVisible?: (visible: boolean) => void,
-  ) => {
+    onClick,
+    nextStepIndex,
+    hideTour,
+    onAdvance,
+  }: ElementClickOptions) => {
     if (processingRef.current) return;
     processingRef.current = true;
 
@@ -57,13 +63,14 @@ export const useElementClick = ({
         await Promise.resolve(onClick());
       }
 
-      if (elementId && setCurrentStep && setCurrentStepIndex && setTourVisible) {
-        const element = document.querySelector(elementId);
+      if (elementSelector) {
+        const element = document.querySelector(elementSelector);
         if (!element) {
-          console.warn(`Element with id '${elementId}' not found, advancing to next step`);
+          console.warn(
+            `Element with selector '${elementSelector}' not found, advancing to next step`
+          );
           if (typeof nextStepIndex === 'number') {
-            setCurrentStepIndex(nextStepIndex);
-            setCurrentStep(nextStepIndex);
+            await onAdvance?.(nextStepIndex);
           }
           return;
         }
@@ -72,7 +79,7 @@ export const useElementClick = ({
           await scrollIntoView(element, { behavior: 'smooth' });
         }
 
-        setTourVisible(false);
+        hideTour?.();
         await triggerElementClick(element);
 
         if (delay > 0) {
@@ -80,17 +87,16 @@ export const useElementClick = ({
         }
 
         if (typeof nextStepIndex === 'number') {
+          // Resume after DOM settle — GuideLoop listens and calls enterStep.
           document.dispatchEvent(createRestartEvent(nextStepIndex));
         }
-      } else if (typeof nextStepIndex === 'number' && setCurrentStep && setCurrentStepIndex) {
-        setCurrentStepIndex(nextStepIndex);
-        setCurrentStep(nextStepIndex);
+      } else if (typeof nextStepIndex === 'number') {
+        await onAdvance?.(nextStepIndex);
       }
     } catch (error) {
       console.error('Error during element click:', error);
-      if (typeof nextStepIndex === 'number' && setCurrentStep && setCurrentStepIndex) {
-        setCurrentStepIndex(nextStepIndex);
-        setCurrentStep(nextStepIndex);
+      if (typeof nextStepIndex === 'number') {
+        await onAdvance?.(nextStepIndex);
       }
     } finally {
       processingRef.current = false;

@@ -26,12 +26,13 @@ src/
 │   ├── Progress/             # Step progress indicator (also exported standalone)
 │   └── OnboardingChecklist/  # Non-linear task list
 ├── hooks/
-│   ├── useSteps.ts           # Step navigation + branching + lifecycle
+│   ├── useSteps.ts           # Single-source step index + branching + lifecycle
 │   ├── useSpotlight.ts       # Target element position tracking
 │   ├── usePopper.ts          # Popper.js positioning
 │   ├── useKeyboard.ts        # Arrow / Escape key handling
+│   ├── useFocusTrap.ts       # Focus trap + restore opener
 │   ├── useElementTrigger.ts  # Auto-advance on DOM events
-│   ├── useElementClick.ts    # Programmatic click + delay
+│   ├── useElementClick.ts    # Programmatic click + delay + resume
 │   ├── useWaitForTarget.ts   # MutationObserver DOM wait
 │   ├── useTheme.ts           # Theme resolution (structuredClone merge)
 │   └── useViewportSize.ts    # Viewport resize tracking
@@ -74,13 +75,15 @@ src/
 
 ### Step Data Flow
 1. `GuideLoop` receives `steps: Step[]` and `isOpen: boolean`
-2. `useSteps` manages the current step index and calls `beforeStep`/`afterStep` hooks
-3. `useSpotlight` tracks the target element's DOM rect
-4. `usePopper` positions the Tooltip relative to the target
-5. Elements that auto-click (e.g. `nextButtonClickElementId`) fire via `useElementClick`
-6. DOM event triggers (click/change/blur/hover/drag) fire via `useElementTrigger`
-7. `waitForTarget` polls/watches for the step's target to appear in the DOM
-8. Tour state persistence happens via `saveTourState` / `loadTourState`
+2. `useSteps` is the **single source of truth** for the step index (`currentStep`)
+3. Normal next/prev: `nextStep`/`prevStep` → `leaveStep` (afterStep) + `advanceTo` (beforeStep)
+4. Element-click paths: `leaveStep` → `useElementClick` (hide/click/delay) → restart event → `enterStep` (beforeStep)
+5. `useSpotlight` tracks the target element's DOM rect
+6. `usePopper` positions the Tooltip relative to the target
+7. `useFocusTrap` traps Tab focus in the tour dialog and restores the opener
+8. DOM event triggers (click/change/blur/hover/drag) fire via `useElementTrigger`
+9. `waitForTarget` polls/watches for the step's target to appear in the DOM
+10. Tour state persistence happens via `saveTourState` / `loadTourState`
 
 ### Theme System
 - `Theme` = `'tailwind' | 'material' | 'antd' | 'custom'`

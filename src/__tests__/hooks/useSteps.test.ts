@@ -88,8 +88,53 @@ describe('useSteps', () => {
   it('sets current step directly via setCurrentStep', () => {
     const { result } = renderHook(() => useSteps({ steps: mockSteps, initialStep: 0 }));
     act(() => { result.current.setCurrentStep(2); });
+    expect(result.current.currentStep).toBe(2);
     expect(result.current.currentStepData).toEqual(mockSteps[2]);
   });
+
+  it('exposes currentStep as the single source of truth', () => {
+    const { result } = renderHook(() => useSteps({ steps: mockSteps, initialStep: 1 }));
+    expect(result.current.currentStep).toBe(1);
+  });
+
+  it('leaveStep runs afterStep without changing the index', async () => {
+    const afterStep = jest.fn();
+    const stepsWithHooks = [{ ...mockSteps[0], afterStep }, ...mockSteps.slice(1)];
+    const { result } = renderHook(() => useSteps({ steps: stepsWithHooks, initialStep: 0 }));
+
+    await act(async () => { await result.current.leaveStep(); });
+
+    expect(afterStep).toHaveBeenCalledTimes(1);
+    expect(result.current.currentStep).toBe(0);
+  });
+
+  it('enterStep runs beforeStep and updates the index', async () => {
+    const beforeStep = jest.fn();
+    const onStepChange = jest.fn();
+    const stepsWithHooks = [mockSteps[0], { ...mockSteps[1], beforeStep }];
+    const { result } = renderHook(() =>
+      useSteps({ steps: stepsWithHooks, initialStep: 0, onStepChange })
+    );
+
+    await act(async () => { await result.current.enterStep(1); });
+
+    expect(beforeStep).toHaveBeenCalledTimes(1);
+    expect(result.current.currentStep).toBe(1);
+    expect(onStepChange).toHaveBeenCalledWith(1);
+  });
+
+  it('enterStep is a no-op for out-of-range targets', async () => {
+    const onStepChange = jest.fn();
+    const { result } = renderHook(() =>
+      useSteps({ steps: mockSteps, initialStep: 0, onStepChange })
+    );
+
+    await act(async () => { await result.current.enterStep(99); });
+
+    expect(result.current.currentStep).toBe(0);
+    expect(onStepChange).not.toHaveBeenCalled();
+  });
+
 
   it('calls afterStep during nextStep transition', async () => {
     const afterStep = jest.fn();

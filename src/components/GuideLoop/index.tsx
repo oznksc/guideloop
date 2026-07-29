@@ -4,6 +4,7 @@ import { Spotlight } from '../Spotlight';
 import { Progress } from '../Progress';
 import { useSteps } from '../../hooks/useSteps';
 import { useKeyboard } from '../../hooks/useKeyboard';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { injectKeyframes } from '../../utils/animation';
 import {
   saveTourState,
@@ -40,12 +41,9 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
   defaultButtonLabels,
   persist,
 }) => {
-  const [currentStepIndex, setCurrentStepIndex] = useState(initialStep);
   const [tourVisible, setTourVisible] = useState(isOpen);
-  const [targetElement, setTargetElement] = useState<string>('');
   const autoRestoredRef = useRef(false);
   const dialogRef = useRef<HTMLDivElement>(null);
-  const openerRef = useRef<HTMLElement | null>(null);
 
   const handleComplete = useCallback(() => {
     if (persist) {
@@ -54,22 +52,12 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
     onComplete?.();
   }, [persist, onComplete]);
 
-  const handleClosePersistence = useCallback(() => {
-    autoRestoredRef.current = false;
-    if (persist) {
-      saveTourState(persist.key, { currentStepIndex, isActive: false }, persist.type);
-    }
-    onClose();
-  }, [persist, currentStepIndex, onClose]);
-
-  const syncedOnStepChange = useCallback((step: number) => {
-    setCurrentStepIndex(step);
-    onStepChange?.(step);
-  }, [onStepChange]);
-
   const {
+    currentStep,
     nextStep: goToNextStep,
     prevStep: goToPrevStep,
+    leaveStep,
+    enterStep,
     isFirstStep,
     isLastStep,
     totalSteps,
@@ -77,40 +65,62 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
     setCurrentStep,
   } = useSteps({
     steps,
-    initialStep: currentStepIndex,
-    onStepChange: syncedOnStepChange,
+    initialStep,
+    onStepChange,
     onComplete: handleComplete,
   });
 
-  // Güvenli bir şekilde target elementini güncelle
-  const updateTargetElement = useCallback((stepData?: typeof currentStepData) => {
-    if (stepData?.target) {
-      setTargetElement(stepData.target);
+  const handleClosePersistence = useCallback(() => {
+    autoRestoredRef.current = false;
+    if (persist) {
+      saveTourState(
+        persist.key,
+        { currentStepIndex: currentStep, isActive: false },
+        persist.type
+      );
     }
-  }, []);
+    onClose();
+  }, [persist, currentStep, onClose]);
 
-  const spotlightPosition = useSpotlight(targetElement || 'body', spotlightPadding);
+  const targetSelector = currentStepData?.target ?? '';
+  const spotlightPosition = useSpotlight(
+    targetSelector || 'body',
+    currentStepData?.spotlightPadding ?? spotlightPadding
+  );
 
   const { handleElementClick, processingRef } = useElementClick({
     scrollSmooth,
   });
 
+  // Auto-restore multi-page tour state once on mount
   useEffect(() => {
-    updateTargetElement(currentStepData);
-  }, [currentStepData, updateTargetElement]);
+    if (!persist?.autoRestore) return;
 
-  useEffect(() => {
-    if (persist?.autoRestore) {
-      const saved = loadTourState(persist.key, persist.type);
-      if (saved?.isActive && typeof saved.currentStepIndex === 'number') {
-        autoRestoredRef.current = true;
-        injectKeyframes();
-        setTourVisible(true);
-        setCurrentStepIndex(saved.currentStepIndex);
-        setCurrentStep(saved.currentStepIndex);
-      }
+    const saved = loadTourState(persist.key, persist.type);
+    if (saved?.isActive && typeof saved.currentStepIndex === 'number') {
+      autoRestoredRef.current = true;
+      injectKeyframes();
+      setTourVisible(true);
+      setCurrentStep(saved.currentStepIndex);
     }
   }, []);
+
+  const runElementAction = useCallback(
+    async (options: {
+      elementSelector?: string;
+      delay?: number;
+      onClick?: () => void;
+      nextStepIndex?: number;
+    }) => {
+      await leaveStep();
+      await handleElementClick({
+        ...options,
+        hideTour: () => setTourVisible(false),
+        onAdvance: (stepIndex) => enterStep(stepIndex),
+      });
+    },
+    [leaveStep, handleElementClick, enterStep]
+  );
 
   const handleNext = useCallback(async () => {
     if (!currentStepData || processingRef.current) return;
@@ -122,73 +132,91 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
     }
 
     try {
-      const hasElementAction = currentStepData?.nextButtonClickElementId || currentStepData?.nextButtonOnClick;
+      const hasElementAction =
+        currentStepData.nextButtonClickElementId ||
+        currentStepData.nextButtonOnClick;
+
       if (hasElementAction) {
-        const nextStepIndex = currentStepIndex + 1;
-        if (nextStepIndex >= steps.length) {
+        const nextStepIndex = currentStep + 1;
+        if (nextStepIndex >= totalSteps) {
           handleComplete();
           onClose();
           return;
         }
-        await handleElementClick(
-          currentStepData.nextButtonClickElementId,
-          currentStepData.nextDelay,
-          currentStepData.nextButtonOnClick,
+        await runElementAction({
+          elementSelector: currentStepData.nextButtonClickElementId,
+          delay: currentStepData.nextDelay,
+          onClick: currentStepData.nextButtonOnClick,
           nextStepIndex,
-          setCurrentStep,
-          syncedOnStepChange,
-          setTourVisible
-        );
+        });
       } else {
-        if (currentStepData?.nextDelay) {
-          await new Promise((resolve) => setTimeout(resolve, currentStepData.nextDelay));
+        if (currentStepData.nextDelay) {
+          await new Promise((resolve) =>
+            setTimeout(resolve, currentStepData.nextDelay)
+          );
         }
         await goToNextStep();
       }
     } catch (error) {
       console.error('Error during next step:', error);
     }
-  }, [currentStepData, isLastStep, handleComplete, onClose, currentStepIndex, steps.length, goToNextStep, handleElementClick, setCurrentStep, syncedOnStepChange, setTourVisible]);
+  }, [
+    currentStepData,
+    isLastStep,
+    handleComplete,
+    onClose,
+    currentStep,
+    totalSteps,
+    goToNextStep,
+    runElementAction,
+    processingRef,
+  ]);
 
   const handlePrev = useCallback(async () => {
     if (!currentStepData || processingRef.current) return;
-    
-    const prevStepIndex = currentStepIndex - 1;
+
+    const prevStepIndex = currentStep - 1;
     if (prevStepIndex < 0) return;
-    
+
     try {
-      if (currentStepData?.prevButtonClickElementId || currentStepData?.prevButtonOnClick) {
-        await handleElementClick(
-          currentStepData.prevButtonClickElementId,
-          currentStepData.prevDelay,
-          currentStepData.prevButtonOnClick,
-          prevStepIndex,
-          setCurrentStep,
-          syncedOnStepChange,
-          setTourVisible
-        );
+      if (
+        currentStepData.prevButtonClickElementId ||
+        currentStepData.prevButtonOnClick
+      ) {
+        await runElementAction({
+          elementSelector: currentStepData.prevButtonClickElementId,
+          delay: currentStepData.prevDelay,
+          onClick: currentStepData.prevButtonOnClick,
+          nextStepIndex: prevStepIndex,
+        });
       } else {
         await goToPrevStep();
       }
     } catch (error) {
       console.error('Error during previous step:', error);
     }
-  }, [currentStepIndex, currentStepData, goToPrevStep, handleElementClick, setCurrentStep, syncedOnStepChange, setTourVisible]);
+  }, [
+    currentStep,
+    currentStepData,
+    goToPrevStep,
+    runElementAction,
+    processingRef,
+  ]);
 
   const handleSkip = useCallback(async () => {
     if (!currentStepData || processingRef.current) return;
-    
+
     try {
-      if (currentStepData?.skipButtonClickElementId || currentStepData?.skipButtonOnClick) {
-        await handleElementClick(
-          currentStepData.skipButtonClickElementId,
-          currentStepData.skipDelay,
-          currentStepData.skipButtonOnClick,
-          undefined,
-          setCurrentStep,
-          syncedOnStepChange,
-          setTourVisible
-        );
+      if (
+        currentStepData.skipButtonClickElementId ||
+        currentStepData.skipButtonOnClick
+      ) {
+        await handleElementClick({
+          elementSelector: currentStepData.skipButtonClickElementId,
+          delay: currentStepData.skipDelay,
+          onClick: currentStepData.skipButtonOnClick,
+          hideTour: () => setTourVisible(false),
+        });
       }
       if (isLastStep) {
         handleComplete();
@@ -207,17 +235,27 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
         handleClosePersistence();
       }
     }
-  }, [currentStepData, isLastStep, onSkip, handleComplete, handleClosePersistence, handleElementClick, onClose, setCurrentStep, syncedOnStepChange]);
+  }, [
+    currentStepData,
+    isLastStep,
+    onSkip,
+    handleComplete,
+    handleClosePersistence,
+    handleElementClick,
+    onClose,
+    processingRef,
+  ]);
 
+  // Resume after hide+click element actions (single step source: enterStep)
   useEffect(() => {
     const handleRestart = (event: Event) => {
-      const { detail: { nextStep } } = event as CustomEvent<{ nextStep: number }>;
-      
+      const {
+        detail: { nextStep: nextStepIndex },
+      } = event as CustomEvent<{ nextStep: number }>;
+
       setTimeout(() => {
         setTourVisible(true);
-        setCurrentStepIndex(nextStep);
-        setCurrentStep(nextStep);
-        updateTargetElement(steps[nextStep]);
+        void enterStep(nextStepIndex);
       }, RESTART_DELAY);
     };
 
@@ -225,29 +263,30 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
     return () => {
       document.removeEventListener(GUIDE_RESTART_EVENT, handleRestart);
     };
-  }, [setCurrentStep, steps, updateTargetElement]);
+  }, [enterStep]);
 
+  // Sync open/close with controlled isOpen prop
   useEffect(() => {
     if (isOpen && !autoRestoredRef.current) {
       injectKeyframes();
-      setCurrentStepIndex(initialStep);
       setCurrentStep(initialStep);
-      const stepData = steps[initialStep];
-      if (stepData?.target) {
-        setTargetElement(stepData.target);
-      }
       setTourVisible(true);
     } else if (!isOpen) {
       setTourVisible(false);
     }
-  }, [isOpen, initialStep, steps, setCurrentStep]);
+  }, [isOpen, initialStep, setCurrentStep]);
 
+  // Persist active tour progress
   useEffect(() => {
     if (!persist) return;
-    if (tourVisible && currentStepIndex >= 0) {
-      saveTourState(persist.key, { currentStepIndex, isActive: true }, persist.type);
+    if (tourVisible && currentStep >= 0) {
+      saveTourState(
+        persist.key,
+        { currentStepIndex: currentStep, isActive: true },
+        persist.type
+      );
     }
-  }, [persist, tourVisible, currentStepIndex]);
+  }, [persist, tourVisible, currentStep]);
 
   useElementTrigger({
     enabled: tourVisible && !!currentStepData?.trigger,
@@ -263,7 +302,12 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
   });
 
   useEffect(() => {
-    if (!tourVisible || !targetReady || !scrollSmooth || !currentStepData?.target) {
+    if (
+      !tourVisible ||
+      !targetReady ||
+      !scrollSmooth ||
+      !currentStepData?.target
+    ) {
       return;
     }
 
@@ -288,84 +332,11 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
     (isOpen || autoRestoredRef.current) && tourVisible && currentStepData
   );
 
-  useEffect(() => {
-    if (!canShow) return;
-
-    const activeElement = document.activeElement;
-    openerRef.current =
-      activeElement instanceof HTMLElement && activeElement !== document.body
-        ? activeElement
-        : null;
-
-    return () => {
-      const opener = openerRef.current;
-      openerRef.current = null;
-      if (!opener?.isConnected) return;
-
-      window.setTimeout(() => {
-        opener.focus({ preventScroll: true });
-      }, 0);
-    };
-  }, [canShow]);
-
-  useEffect(() => {
-    if (!canShow) return;
-
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-
-    const focusableSelector = [
-      'button:not([disabled])',
-      'a[href]',
-      'input:not([disabled])',
-      'select:not([disabled])',
-      'textarea:not([disabled])',
-      '[tabindex]:not([tabindex="-1"])',
-    ].join(',');
-
-    const focusInitialControl = () => {
-      const preferredControl =
-        dialog.querySelector<HTMLElement>('[data-guideloop-action="next"]') ??
-        dialog.querySelector<HTMLElement>('[data-guideloop-action="close"]') ??
-        dialog;
-      preferredControl.focus({ preventScroll: true });
-    };
-
-    const focusTimer = window.setTimeout(focusInitialControl, 0);
-    const trapFocus = (event: KeyboardEvent) => {
-      if (event.key !== 'Tab') return;
-
-      const focusable = Array.from(
-        dialog.querySelectorAll<HTMLElement>(focusableSelector)
-      );
-      if (!focusable.length) {
-        event.preventDefault();
-        dialog.focus({ preventScroll: true });
-        return;
-      }
-
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      const activeElement = document.activeElement;
-
-      if (!dialog.contains(activeElement)) {
-        event.preventDefault();
-        (event.shiftKey ? last : first).focus({ preventScroll: true });
-      } else if (event.shiftKey && activeElement === first) {
-        event.preventDefault();
-        last.focus({ preventScroll: true });
-      } else if (!event.shiftKey && activeElement === last) {
-        event.preventDefault();
-        first.focus({ preventScroll: true });
-      }
-    };
-
-    document.addEventListener('keydown', trapFocus, true);
-    return () => {
-      window.clearTimeout(focusTimer);
-      document.removeEventListener('keydown', trapFocus, true);
-    };
-  }, [canShow, targetReady, targetWaiting]);
+  useFocusTrap({
+    enabled: canShow,
+    containerRef: dialogRef,
+    focusKey: `${targetReady}-${targetWaiting}-${currentStep}`,
+  });
 
   if (!canShow) {
     return null;
@@ -409,12 +380,15 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
     return null;
   }
 
+  const stepSpotlightPadding =
+    currentStepData.spotlightPadding ?? spotlightPadding;
+
   return (
     <Portal>
       <div
         ref={dialogRef}
-        className="guideloop-container" 
-        style={{ 
+        className="guideloop-container"
+        style={{
           position: 'fixed',
           inset: 0,
           zIndex,
@@ -426,9 +400,9 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
         tabIndex={-1}
       >
         {overlay && (
-          <MaskedOverlay 
+          <MaskedOverlay
             targetRect={spotlightPosition}
-            padding={spotlightPadding}
+            padding={stepSpotlightPadding}
             theme={theme}
             customTheme={customTheme}
             onClick={handleSkip}
@@ -441,9 +415,9 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
           />
         )}
 
-        <Spotlight 
+        <Spotlight
           position={spotlightPosition}
-          padding={spotlightPadding}
+          padding={stepSpotlightPadding}
           theme={theme}
           customTheme={customTheme}
           animation={animations?.spotlight}
@@ -462,7 +436,7 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
           onClose={handleSkip}
           isFirst={isFirstStep}
           isLast={isLastStep}
-          currentStep={currentStepIndex}
+          currentStep={currentStep}
           totalSteps={totalSteps}
           animation={animations?.tooltip}
           defaultButtonLabels={defaultButtonLabels}
@@ -472,8 +446,8 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
           }}
         />
 
-        <Progress 
-          current={currentStepIndex + 1}
+        <Progress
+          current={currentStep + 1}
           total={totalSteps}
           theme={theme}
           style={{

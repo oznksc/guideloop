@@ -27,45 +27,50 @@ describe('useElementClick', () => {
 
   it('clicks an HTMLElement and dispatches restart event', async () => {
     createTarget('btn');
-    const setCurrentStep = jest.fn();
-    const setCurrentStepIndex = jest.fn();
-    const setTourVisible = jest.fn();
+    const hideTour = jest.fn();
+    const onAdvance = jest.fn();
     const dispatchSpy = jest.spyOn(document, 'dispatchEvent');
 
     const { result } = renderHook(() => useElementClick({ scrollSmooth: false }));
 
     await act(async () => {
-      await result.current.handleElementClick(
-        '#btn', 0, undefined, 1, setCurrentStep, setCurrentStepIndex, setTourVisible
-      );
+      await result.current.handleElementClick({
+        elementSelector: '#btn',
+        delay: 0,
+        nextStepIndex: 1,
+        hideTour,
+        onAdvance,
+      });
       await flushMicrotasks();
     });
 
-    expect(setTourVisible).toHaveBeenCalledWith(false);
+    expect(hideTour).toHaveBeenCalledWith();
     expect(dispatchSpy).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'guideRestart', detail: { nextStep: 1 } })
     );
+    expect(onAdvance).not.toHaveBeenCalled();
     dispatchSpy.mockRestore();
   });
 
   it('warns and advances when element is not found', async () => {
     const warn = jest.spyOn(console, 'warn').mockImplementation();
-    const setCurrentStep = jest.fn();
-    const setCurrentStepIndex = jest.fn();
-    const setTourVisible = jest.fn();
+    const onAdvance = jest.fn();
+    const hideTour = jest.fn();
 
     const { result } = renderHook(() => useElementClick({ scrollSmooth: false }));
 
     await act(async () => {
-      await result.current.handleElementClick(
-        '#nonexistent', 0, undefined, 1, setCurrentStep, setCurrentStepIndex, setTourVisible
-      );
+      await result.current.handleElementClick({
+        elementSelector: '#nonexistent',
+        nextStepIndex: 1,
+        hideTour,
+        onAdvance,
+      });
     });
 
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('not found'));
-    expect(setCurrentStep).toHaveBeenCalledWith(1);
-    expect(setCurrentStepIndex).toHaveBeenCalledWith(1);
-    expect(setTourVisible).not.toHaveBeenCalled();
+    expect(onAdvance).toHaveBeenCalledWith(1);
+    expect(hideTour).not.toHaveBeenCalled();
     warn.mockRestore();
   });
 
@@ -73,14 +78,16 @@ describe('useElementClick', () => {
     const { result } = renderHook(() => useElementClick({ scrollSmooth: false }));
     result.current.processingRef.current = true;
 
-    const handler = jest.fn();
+    const onClick = jest.fn();
     await act(async () => {
-      await result.current.handleElementClick(
-        undefined, 0, handler, 0, jest.fn(), jest.fn(), jest.fn()
-      );
+      await result.current.handleElementClick({
+        onClick,
+        nextStepIndex: 0,
+        onAdvance: jest.fn(),
+      });
     });
 
-    expect(handler).not.toHaveBeenCalled();
+    expect(onClick).not.toHaveBeenCalled();
   });
 
   it('calls onClick callback when provided', async () => {
@@ -88,46 +95,46 @@ describe('useElementClick', () => {
     const { result } = renderHook(() => useElementClick({ scrollSmooth: false }));
 
     await act(async () => {
-      await result.current.handleElementClick(
-        undefined, 0, onClick, undefined, undefined, undefined, undefined
-      );
+      await result.current.handleElementClick({ onClick });
     });
 
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
-  it('advances step index without elementId', async () => {
-    const setCurrentStep = jest.fn();
-    const setCurrentStepIndex = jest.fn();
+  it('advances step index without elementSelector', async () => {
+    const onAdvance = jest.fn();
 
     const { result } = renderHook(() => useElementClick({ scrollSmooth: false }));
 
     await act(async () => {
-      await result.current.handleElementClick(
-        undefined, 0, undefined, 2, setCurrentStep, setCurrentStepIndex, jest.fn()
-      );
+      await result.current.handleElementClick({
+        nextStepIndex: 2,
+        onAdvance,
+      });
     });
 
-    expect(setCurrentStep).toHaveBeenCalledWith(2);
-    expect(setCurrentStepIndex).toHaveBeenCalledWith(2);
+    expect(onAdvance).toHaveBeenCalledWith(2);
   });
 
   it('handles errors gracefully and advances step', async () => {
-    const onClick = jest.fn(() => { throw new Error('Click error'); });
-    const setCurrentStep = jest.fn();
-    const setCurrentStepIndex = jest.fn();
+    const onClick = jest.fn(() => {
+      throw new Error('Click error');
+    });
+    const onAdvance = jest.fn();
     const errorSpy = jest.spyOn(console, 'error').mockImplementation();
 
     const { result } = renderHook(() => useElementClick({ scrollSmooth: false }));
 
     await act(async () => {
-      await result.current.handleElementClick(
-        undefined, 0, onClick, 3, setCurrentStep, setCurrentStepIndex, jest.fn()
-      );
+      await result.current.handleElementClick({
+        onClick,
+        nextStepIndex: 3,
+        onAdvance,
+      });
     });
 
     expect(errorSpy).toHaveBeenCalledWith('Error during element click:', expect.any(Error));
-    expect(setCurrentStep).toHaveBeenCalledWith(3);
+    expect(onAdvance).toHaveBeenCalledWith(3);
     errorSpy.mockRestore();
   });
 
@@ -140,9 +147,12 @@ describe('useElementClick', () => {
     const { result } = renderHook(() => useElementClick({ scrollSmooth: false }));
 
     await act(async () => {
-      await result.current.handleElementClick(
-        '#svg-element', 0, undefined, 1, jest.fn(), jest.fn(), jest.fn()
-      );
+      await result.current.handleElementClick({
+        elementSelector: '#svg-element',
+        nextStepIndex: 1,
+        hideTour: jest.fn(),
+        onAdvance: jest.fn(),
+      });
       await flushMicrotasks();
     });
 
@@ -154,9 +164,10 @@ describe('useElementClick', () => {
     const { result } = renderHook(() => useElementClick({ scrollSmooth: false }));
 
     await act(async () => {
-      await result.current.handleElementClick(
-        undefined, 0, undefined, 0, jest.fn(), jest.fn(), jest.fn()
-      );
+      await result.current.handleElementClick({
+        nextStepIndex: 0,
+        onAdvance: jest.fn(),
+      });
     });
 
     expect(result.current.processingRef.current).toBe(false);
@@ -168,17 +179,24 @@ describe('useElementClick', () => {
     HTMLElement.prototype.scrollIntoView = scrollIntoViewMock;
 
     const origObserver = window.IntersectionObserver;
-    (window as any).IntersectionObserver = undefined;
+    // @ts-expect-error intentional for fallback path
+    window.IntersectionObserver = undefined;
     const { result } = renderHook(() => useElementClick({ scrollSmooth: true }));
 
-    const promise = result.current.handleElementClick(
-      '#smooth-target', 0, undefined, 1, jest.fn(), jest.fn(), jest.fn()
-    );
-    await act(async () => { await promise; await flushMicrotasks(); });
+    const promise = result.current.handleElementClick({
+      elementSelector: '#smooth-target',
+      nextStepIndex: 1,
+      hideTour: jest.fn(),
+      onAdvance: jest.fn(),
+    });
+    await act(async () => {
+      await promise;
+      await flushMicrotasks();
+    });
 
     expect(scrollIntoViewMock).toHaveBeenCalledWith(
       expect.objectContaining({ behavior: 'smooth' })
     );
-    (window as any).IntersectionObserver = origObserver;
+    window.IntersectionObserver = origObserver;
   });
 });
