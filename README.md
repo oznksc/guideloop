@@ -40,6 +40,60 @@ yarn add guideloop
 pnpm add guideloop
 ```
 
+GuideLoop depends on `@popperjs/core` (installed automatically). The library keeps Popper **external** and loads it with a dynamic import so your bundler can code-split the positioning engine.
+
+**React 16.8 → 19** is supported (`peerDependencies: react/react-dom >=16.8.0`).
+
+### Next.js App Router / React Server Components
+
+Interactive exports (`GuideLoop`, `OnboardingChecklist`, …) are marked with `"use client"` so you can import them from Client Components without extra wrappers.
+
+For **Server Components** (or shared modules) that only need types / storage helpers:
+
+```ts
+// app/tour-steps.ts  — safe in RSC
+import type { Step } from 'guideloop/types';
+
+export const steps: Step[] = [
+  { target: '#cta', title: 'Welcome', content: '…' },
+];
+```
+
+```tsx
+// app/tour-button.tsx
+'use client';
+
+import { GuideLoop } from 'guideloop';
+import { steps } from './tour-steps';
+// …
+```
+
+### Bundle size
+
+After `npm run build`:
+
+```bash
+npm run size
+```
+
+Typical published ESM graph (library code only, Popper external): ~18 kB gzip for the full module set. Importing only `GuideLoop` lets modern bundlers drop unused modules such as `OnboardingChecklist` and `DebugHUD` (`sideEffects: false` + `preserveModules`).
+
+## Examples
+
+Copy-paste ready apps live in [`examples/`](./examples):
+
+| Example | Stack | Focus |
+| --- | --- | --- |
+| [`nextjs-app-router`](./examples/nextjs-app-router) | Next.js 14 App Router | Multi-page `persist` + client island |
+| [`vite-react`](./examples/vite-react) | Vite + React | Shapes, multi-spotlight, Debug HUD |
+| [`remix`](./examples/remix) | Remix (Vite) | Multi-route tour resume |
+| [`react-native-web`](./examples/react-native-web) | RN Web | DOM tour over RN primitives |
+
+```bash
+npm run build
+cd examples/vite-react && npm install && npm run dev
+```
+
 ## Quick Start
 
 ```tsx
@@ -302,6 +356,7 @@ clearOnboardingState // Clear persisted onboarding progress
 | `onSkip` | `() => void` | `undefined` | Tour skip callback |
 | `zIndex` | `number` | `2000` | Base z-index for the tour |
 | `defaultButtonLabels` | `ButtonLabels` | `undefined` | Default button labels |
+| `debug` | `boolean \| 'auto'` | `'auto'` | Debug HUD: `true` always, `false` never, `auto` only when `NODE_ENV === 'development'` |
 
 ### OnboardingChecklist Props
 
@@ -329,6 +384,8 @@ interface Step {
   content: string | ReactNode;              // Step content
   placement?: Placement;                    // Tooltip placement (Popper.js)
   spotlightPadding?: number;               // Custom padding for this step
+  spotlightShape?: SpotlightShape;         // 'rect' | 'circle' | 'ellipse' | polygon
+  additionalTargets?: Array<string | AdditionalSpotlightTarget>; // multi-spotlight
   beforeStep?: () => Promise<void> | void; // Hook before showing step
   afterStep?: () => Promise<void> | void;  // Hook after showing step
   condition?: () => boolean;               // Conditional step
@@ -349,6 +406,59 @@ interface Step {
 ```
 
 ## Advanced Usage
+
+### Debug HUD
+
+```tsx
+// Force on (any environment)
+<GuideLoop steps={steps} isOpen={open} onClose={close} debug />
+
+// Force off (even in development)
+<GuideLoop steps={steps} isOpen={open} onClose={close} debug={false} />
+
+// Default: only when process.env.NODE_ENV === 'development'
+<GuideLoop steps={steps} isOpen={open} onClose={close} />
+```
+
+The floating panel shows step index/status, time-on-step, primary + additional target found/missing status, trigger/`waitForTarget` config, persist key, and a rolling event history (next/prev/skip/trigger/step-change/errors).
+
+### Spotlight shapes & multi-target
+
+```tsx
+const steps = [
+  {
+    target: '#avatar',
+    title: 'Your profile',
+    content: 'Avatar is highlighted as a circle.',
+    spotlightShape: 'circle',
+  },
+  {
+    target: '#save-btn',
+    title: 'Related actions',
+    content: 'Primary target plus two helpers at once.',
+    additionalTargets: [
+      '#cancel-btn',
+      { selector: '#help-icon', shape: 'circle', padding: 4 },
+    ],
+  },
+  {
+    target: '#badge',
+    title: 'Custom cutout',
+    content: 'Polygon points are normalized 0–1 to the padded box.',
+    spotlightShape: {
+      type: 'polygon',
+      points: [
+        [0.5, 0],
+        [1, 0.5],
+        [0.5, 1],
+        [0, 0.5],
+      ],
+    },
+  },
+];
+```
+
+Tooltip placement, scroll-into-view, triggers, and `waitForTarget` always use the primary `target`. Extra selectors only affect the overlay cutouts and spotlight rings.
 
 ### Custom Animations
 

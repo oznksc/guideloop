@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useRef, useEffect, useState } from 'react';
 import { usePopper } from '../../hooks/usePopper';
 import { getAnimationStyle } from '../../utils/animation';

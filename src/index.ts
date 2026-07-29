@@ -8,6 +8,11 @@ export type {
   ShowButtons,
   ImageContent,
   WaitForTargetConfig,
+  SpotlightShape,
+  SpotlightShapeName,
+  SpotlightPolygonShape,
+  AdditionalSpotlightTarget,
+  SpotlightHole,
 } from './components/GuideLoop/types';
 
 export { OnboardingChecklist } from './components/OnboardingChecklist';
@@ -27,6 +32,15 @@ export type {
 
 export { Spotlight } from './components/Spotlight';
 export type { SpotlightProps } from './components/Spotlight/types';
+
+export { DebugHUD } from './components/DebugHUD';
+export type {
+  DebugHUDProps,
+  DebugSnapshot,
+  DebugEvent,
+  DebugEventType,
+  TargetDebugInfo,
+} from './components/DebugHUD/types';
 
 export { Progress } from './components/Progress';
 export type { ProgressProps } from './components/Progress/types';

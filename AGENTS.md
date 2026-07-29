@@ -24,16 +24,18 @@ src/
 │   ├── Spotlight/            # Target highlight ring (also exported standalone)
 │   ├── MaskedOverlay/        # Full-page dim overlay with SVG cutout
 │   ├── Progress/             # Step progress indicator (also exported standalone)
+│   ├── DebugHUD/             # Dev-only tour debug overlay (also exported)
 │   └── OnboardingChecklist/  # Non-linear task list
 ├── hooks/
 │   ├── useSteps.ts           # Single-source step index + branching + lifecycle
-│   ├── useSpotlight.ts       # Target element position tracking
+│   ├── useSpotlight.ts       # Target rect tracking (+ useSpotlights multi/shape)
 │   ├── usePopper.ts          # Popper.js positioning
 │   ├── useKeyboard.ts        # Arrow / Escape key handling
 │   ├── useFocusTrap.ts       # Focus trap + restore opener
 │   ├── useElementTrigger.ts  # Auto-advance on DOM events
 │   ├── useElementClick.ts    # Programmatic click + delay + resume
 │   ├── useWaitForTarget.ts   # MutationObserver DOM wait
+│   ├── useDebugLog.ts        # Debug HUD event ring-buffer + resolveDebugEnabled
 │   ├── useTheme.ts           # Theme resolution (structuredClone merge)
 │   └── useViewportSize.ts    # Viewport resize tracking
 ├── utils/
@@ -78,12 +80,13 @@ src/
 2. `useSteps` is the **single source of truth** for the step index (`currentStep`)
 3. Normal next/prev: `nextStep`/`prevStep` → `leaveStep` (afterStep) + `advanceTo` (beforeStep)
 4. Element-click paths: `leaveStep` → `useElementClick` (hide/click/delay) → restart event → `enterStep` (beforeStep)
-5. `useSpotlight` tracks the target element's DOM rect
-6. `usePopper` positions the Tooltip relative to the target
-7. `useFocusTrap` traps Tab focus in the tour dialog and restores the opener
-8. DOM event triggers (click/change/blur/hover/drag) fire via `useElementTrigger`
-9. `waitForTarget` polls/watches for the step's target to appear in the DOM
-10. Tour state persistence happens via `saveTourState` / `loadTourState`
+5. `useSpotlights` tracks primary `target` + `additionalTargets` (padded holes + `spotlightShape`)
+6. `MaskedOverlay` / `Spotlight` render multi-cutouts from those holes (`rect` / `circle` / `ellipse` / polygon)
+7. `usePopper` positions the Tooltip relative to the **primary** target only
+8. `useFocusTrap` traps Tab focus in the tour dialog and restores the opener
+9. DOM event triggers (click/change/blur/hover/drag) fire via `useElementTrigger` on the primary target
+10. `waitForTarget` polls/watches for the step's primary target to appear in the DOM
+11. Tour state persistence happens via `saveTourState` / `loadTourState`
 
 ### Theme System
 - `Theme` = `'tailwind' | 'material' | 'antd' | 'custom'`
@@ -101,13 +104,40 @@ src/
 ## Commands
 
 ```bash
-npm run build        # Rollup -> dist/
+npm run build        # Rollup -> dist/ (ESM+CJS preserveModules)
+npm run size         # raw/gzip report for dist/esm (after build)
 npm run dev          # Watch mode
 npm test             # Jest unit/component tests
 npm run lint         # ESLint check
 npm run lint:fix     # ESLint auto-fix
 npm run test:e2e     # Playwright e2e (requires demo running)
 ```
+
+### Bundle notes
+- `@popperjs/core` is **external** (not inlined); `usePopper` uses dynamic `import()`.
+- Output is a module graph under `dist/esm` and `dist/cjs` for consumer tree-shaking.
+- Compile target is **ES2019** (not ES5).
+
+### React 19 / RSC
+- Client components start with `'use client'` (preserved in dist by Rollup).
+- RSC-safe entry: `guideloop/types` → `src/rsc-types.ts` (types + storage only).
+- `Portal` mounts after client effect; never touch `document` during SSR render.
+- Use `isBrowser()` from `utils/env` for DOM guards.
+
+## Examples (`examples/`)
+
+Standalone integration apps (not part of the unit test graph). Build the library first (`npm run build`), then:
+
+```bash
+cd examples/<name> && npm install && npm run dev
+```
+
+| Folder | Port | Notes |
+| --- | --- | --- |
+| `nextjs-app-router` | 3100 | App Router + multi-page persist |
+| `vite-react` | 3101 | Shapes / multi-spotlight / debug |
+| `remix` | 3102 | Multi-route resume |
+| `react-native-web` | 3103 | RN-Web; targets via `nativeID` |
 
 ## Testing
 

@@ -89,4 +89,72 @@ describe('Spotlight', () => {
     expect(div.style.border).toContain('2px solid');
     expect(div.style.borderColor).toBe('#2563eb');
   });
+
+  it('renders a circular ring when shape is circle', () => {
+    const { container } = render(
+      <Spotlight
+        position={{ top: 100, left: 100, width: 80, height: 40 }}
+        padding={0}
+        shape="circle"
+      />
+    );
+    const div = container.firstChild as HTMLElement;
+    expect(div.style.borderRadius).toBe('50%');
+    // diameter = max(80, 40) = 80, centered in the bbox
+    expect(div.style.width).toBe('80px');
+    expect(div.style.height).toBe('80px');
+  });
+
+  it('renders pre-padded targets without re-applying padding', () => {
+    const { container } = render(
+      <Spotlight
+        targets={[{ top: 10, left: 20, width: 100, height: 50, shape: 'rect' }]}
+        padding={99}
+      />
+    );
+    const div = container.firstChild as HTMLElement;
+    expect(div.style.top).toBe('10px');
+    expect(div.style.left).toBe('20px');
+    expect(div.style.width).toBe('100px');
+    expect(div.style.height).toBe('50px');
+  });
+
+  it('renders multi-target rings as SVG', () => {
+    const { container } = render(
+      <Spotlight
+        targets={[
+          { top: 10, left: 10, width: 40, height: 40, shape: 'rect' },
+          { top: 100, left: 100, width: 50, height: 50, shape: 'circle' },
+        ]}
+      />
+    );
+    const svg = container.querySelector('svg.guideloop-spotlight');
+    expect(svg).toBeInTheDocument();
+    expect(container.querySelectorAll('rect, circle, ellipse, polygon').length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('renders polygon spotlight as SVG stroke', () => {
+    const { container } = render(
+      <Spotlight
+        targets={[
+          {
+            top: 0,
+            left: 0,
+            width: 100,
+            height: 100,
+            shape: {
+              type: 'polygon',
+              points: [
+                [0.5, 0],
+                [1, 1],
+                [0, 1],
+              ],
+            },
+          },
+        ]}
+      />
+    );
+    expect(container.querySelector('svg.guideloop-spotlight')).toBeInTheDocument();
+    expect(container.querySelector('polygon')).toBeInTheDocument();
+  });
 });

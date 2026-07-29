@@ -15,6 +15,7 @@ export interface PersistConfig {
 }
 
 function getStorage(type: StorageType): Storage | null {
+  if (typeof window === 'undefined') return null;
   try {
     return type === 'localStorage' ? window.localStorage : window.sessionStorage;
   } catch {

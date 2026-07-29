@@ -27,6 +27,14 @@ Desktop.ini
 coverage/
 *.tsbuildinfo
 
+# Examples (each example installs its own deps / build output)
+examples/**/node_modules/
+examples/**/dist/
+examples/**/.next/
+examples/**/build/
+examples/**/.remix/
+examples/**/.cache/
+
 # Test results
 test-results/
 demo/test-results/

@@ -43,13 +43,27 @@ npm run clean
 
 ### Demo App
 
-The `/demo` directory contains a Next.js app for testing. To run it:
+The `/demo` directory contains a Next.js marketing/demo app for testing. To run it:
 
 ```bash
 cd demo
 npm install
 npm run dev
 ```
+
+### Examples Library
+
+Minimal integration starters live under `/examples` (Next.js App Router, Vite, Remix, React Native Web). Build the library first, then run any example:
+
+```bash
+npm run build
+cd examples/vite-react
+npm install
+npm run dev
+```
+
+See [`examples/README.md`](./examples/README.md) for the full matrix.
+
 
 ## Pull Request Process
 

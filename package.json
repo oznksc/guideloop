@@ -17,9 +17,14 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/cjs/index.js"
+    },
+    "./types": {
+      "types": "./dist/rsc-types.d.ts",
+      "import": "./dist/esm/rsc-types.js",
+      "require": "./dist/cjs/rsc-types.js"
     }
   },
   "scripts": {
@@ -31,6 +36,7 @@
     "test": "jest --passWithNoTests",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "size": "node scripts/size.mjs",
     "prepare": "npm run build",
     "preversion": "npm run lint",
     "postversion": "git push && git push --tags"
@@ -53,6 +59,14 @@
   "peerDependencies": {
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": false
+    },
+    "react-dom": {
+      "optional": false
+    }
   },
   "devDependencies": {
     "@babel/core": "^7.22.0",
