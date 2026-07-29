@@ -324,17 +324,27 @@ export default function Home() {
     setCliLogs((prev) => [...prev.slice(-12), { id, time, level, msg }]);
   }, []);
 
+  const applyThemeToDocument = useCallback((themeId: DemoThemeId) => {
+    if (typeof document === "undefined") return;
+    const root = document.documentElement;
+    root.setAttribute("data-theme", themeId);
+    // Keep <meta name="color-scheme"> / form controls in sync with palette
+    const scheme =
+      themeId === "editorial" || themeId === "nordic" ? "light" : "dark";
+    root.style.colorScheme = scheme;
+  }, []);
+
   const changeTheme = useCallback((themeId: DemoThemeId) => {
     setCurrentTheme(themeId);
-    document.documentElement.setAttribute("data-theme", themeId);
+    applyThemeToDocument(themeId);
     const themeName = DEMO_THEMES[themeId].name;
     setExperienceStatus(`Style set to ${themeName}.`);
     pushCliLog("THEME", `Switched theme preset to ${themeName.toUpperCase()}`);
-  }, [pushCliLog]);
+  }, [applyThemeToDocument, pushCliLog]);
 
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", currentTheme);
-  }, [currentTheme]);
+    applyThemeToDocument(currentTheme);
+  }, [currentTheme, applyThemeToDocument]);
 
   const copyInstallCommand = useCallback(async () => {
     try {

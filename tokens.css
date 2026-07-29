@@ -1,42 +1,43 @@
-/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 · genre: modern-minimal · macrostructure: Workbench · theme: Cobalt · enrichment: none · contrast: pass (40–41) · nav: N13 · footer: Ft5 · slop: pass (42–45) · honest: pass (46) · chrome: pass (47) · tokens: pass (48) · responsive: pass (49) · icons: pass (30) · mobile: pass (34, 49, 50–57) */
+/* GuideLoop demo design tokens + style switch presets (data-theme). */
 
-:root {
-  color-scheme: light;
+:root,
+html[data-theme="slate"] {
+  color-scheme: dark;
 
   --color-transparent: transparent;
-  --color-canvas: oklch(0.982 0.004 255);
-  --color-canvas-glass: oklch(0.982 0.004 255 / 0.88);
-  --color-surface: oklch(0.995 0.002 255);
-  --color-surface-subtle: oklch(0.962 0.007 255);
-  --color-surface-strong: oklch(0.922 0.012 255);
-  --color-ink: oklch(0.205 0.018 255);
-  --color-ink-muted: oklch(0.455 0.018 255);
-  --color-ink-faint: oklch(0.52 0.016 255);
-  --color-line: oklch(0.885 0.012 255);
-  --color-line-strong: oklch(0.755 0.018 255);
-  --color-accent: oklch(0.52 0.205 257);
-  --color-accent-hover: oklch(0.46 0.195 257);
-  --color-accent-soft: oklch(0.935 0.035 257);
-  --color-accent-ink: oklch(0.985 0.004 255);
+  --color-canvas: #090d16;
+  --color-canvas-glass: rgba(9, 13, 22, 0.88);
+  --color-surface: #111726;
+  --color-surface-subtle: #182238;
+  --color-surface-strong: #1e293b;
+  --color-ink: #f1f5f9;
+  --color-ink-muted: #94a3b8;
+  --color-ink-faint: #64748b;
+  --color-line: rgba(255, 255, 255, 0.1);
+  --color-line-strong: rgba(255, 255, 255, 0.18);
+  --color-accent: #6366f1;
+  --color-accent-hover: #4f46e5;
+  --color-accent-soft: rgba(99, 102, 241, 0.18);
+  --color-accent-ink: #ffffff;
   --color-accent-text: var(--color-accent-ink);
-  --color-success: oklch(0.55 0.135 155);
-  --color-success-soft: oklch(0.94 0.03 155);
-  --color-warning: oklch(0.64 0.13 75);
-  --color-danger: oklch(0.54 0.18 25);
-  --color-graphite: oklch(0.19 0.018 255);
-  --color-graphite-surface: oklch(0.235 0.019 255);
-  --color-graphite-raised: oklch(0.275 0.02 255);
-  --color-graphite-line: oklch(0.345 0.018 255);
-  --color-graphite-text: oklch(0.955 0.006 255);
-  --color-graphite-muted: oklch(0.72 0.014 255);
-  --color-scrim: oklch(0.14 0.018 255 / 0.58);
-  --color-shadow-soft: oklch(0.19 0.018 255 / 0.08);
-  --color-shadow-medium: oklch(0.19 0.018 255 / 0.14);
-  --color-shadow-strong: oklch(0.14 0.018 255 / 0.22);
+  --color-success: #10b981;
+  --color-success-soft: rgba(16, 185, 129, 0.15);
+  --color-warning: #f59e0b;
+  --color-danger: #f87171;
+  --color-graphite: #0b1220;
+  --color-graphite-surface: #111726;
+  --color-graphite-raised: #182238;
+  --color-graphite-line: #334155;
+  --color-graphite-text: #f1f5f9;
+  --color-graphite-muted: #94a3b8;
+  --color-scrim: rgba(6, 9, 17, 0.7);
+  --color-shadow-soft: rgba(0, 0, 0, 0.25);
+  --color-shadow-medium: rgba(0, 0, 0, 0.4);
+  --color-shadow-strong: rgba(0, 0, 0, 0.55);
 
   --font-display: var(--font-geist-sans), system-ui, sans-serif;
   --font-body: var(--font-geist-sans), system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-mono: var(--font-jetbrains-mono), var(--font-geist-mono), ui-monospace, monospace;
 
   --text-display: clamp(3.5rem, 8vw, 7.5rem);
   --text-h1-mobile: 3.5rem;
@@ -90,4 +91,132 @@
   --z-product-popover: 80;
   --z-command: 4000;
   --z-tour: 5000;
+}
+
+/* Editorial Craft — warm parchment */
+html[data-theme="editorial"] {
+  color-scheme: light;
+
+  --color-canvas: #f6f1e8;
+  --color-canvas-glass: rgba(246, 241, 232, 0.9);
+  --color-surface: #fffdf8;
+  --color-surface-subtle: #f4efe6;
+  --color-surface-strong: #e8dfd0;
+  --color-ink: #1c1917;
+  --color-ink-muted: #57534e;
+  --color-ink-faint: #78716c;
+  --color-line: rgba(28, 25, 23, 0.12);
+  --color-line-strong: rgba(28, 25, 23, 0.22);
+  --color-accent: #9a3412;
+  --color-accent-hover: #7c2d12;
+  --color-accent-soft: rgba(154, 52, 18, 0.14);
+  --color-accent-ink: #fff7ed;
+  --color-accent-text: var(--color-accent-ink);
+  --color-success: #15803d;
+  --color-success-soft: rgba(21, 128, 61, 0.12);
+  --color-warning: #b45309;
+  --color-danger: #b91c1c;
+  --color-graphite: #292524;
+  --color-graphite-surface: #1c1917;
+  --color-graphite-raised: #44403c;
+  --color-graphite-line: #57534e;
+  --color-graphite-text: #fafaf9;
+  --color-graphite-muted: #a8a29e;
+  --color-scrim: rgba(41, 37, 36, 0.52);
+  --color-shadow-soft: rgba(28, 25, 23, 0.08);
+  --color-shadow-medium: rgba(28, 25, 23, 0.14);
+  --color-shadow-strong: rgba(28, 25, 23, 0.22);
+
+  --font-display: var(--font-newsreader), Georgia, serif;
+  --font-body: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Terminal CLI — phosphor on midnight */
+html[data-theme="terminal"] {
+  color-scheme: dark;
+
+  --color-canvas: #050b07;
+  --color-canvas-glass: rgba(5, 11, 7, 0.9);
+  --color-surface: #0b140e;
+  --color-surface-subtle: #122117;
+  --color-surface-strong: #1a2e20;
+  --color-ink: #ecfdf5;
+  --color-ink-muted: #6ee7b7;
+  --color-ink-faint: #34d399;
+  --color-line: rgba(16, 185, 129, 0.18);
+  --color-line-strong: rgba(16, 185, 129, 0.32);
+  --color-accent: #10b981;
+  --color-accent-hover: #059669;
+  --color-accent-soft: rgba(16, 185, 129, 0.16);
+  --color-accent-ink: #022c22;
+  --color-accent-text: var(--color-accent-ink);
+  --color-success: #34d399;
+  --color-success-soft: rgba(52, 211, 153, 0.14);
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+  --color-graphite: #03140a;
+  --color-graphite-surface: #0b140e;
+  --color-graphite-raised: #122117;
+  --color-graphite-line: #1a2e20;
+  --color-graphite-text: #ecfdf5;
+  --color-graphite-muted: #6ee7b7;
+  --color-scrim: rgba(3, 20, 10, 0.78);
+  --color-shadow-soft: rgba(0, 0, 0, 0.35);
+  --color-shadow-medium: rgba(0, 0, 0, 0.5);
+  --color-shadow-strong: rgba(0, 0, 0, 0.7);
+
+  --font-display: var(--font-jetbrains-mono), var(--font-geist-mono), ui-monospace, monospace;
+  --font-body: var(--font-jetbrains-mono), var(--font-geist-mono), ui-monospace, monospace;
+  --font-mono: var(--font-jetbrains-mono), var(--font-geist-mono), ui-monospace, monospace;
+}
+
+/* Nordic Frost — arctic light */
+html[data-theme="nordic"] {
+  color-scheme: light;
+
+  --color-canvas: #f0f9ff;
+  --color-canvas-glass: rgba(240, 249, 255, 0.9);
+  --color-surface: #ffffff;
+  --color-surface-subtle: #e2e8f0;
+  --color-surface-strong: #cbd5e1;
+  --color-ink: #0f172a;
+  --color-ink-muted: #334155;
+  --color-ink-faint: #64748b;
+  --color-line: rgba(15, 23, 42, 0.1);
+  --color-line-strong: rgba(15, 23, 42, 0.18);
+  --color-accent: #0284c7;
+  --color-accent-hover: #0369a1;
+  --color-accent-soft: rgba(2, 132, 199, 0.14);
+  --color-accent-ink: #f0f9ff;
+  --color-accent-text: var(--color-accent-ink);
+  --color-success: #059669;
+  --color-success-soft: rgba(5, 150, 105, 0.12);
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+  --color-graphite: #1e293b;
+  --color-graphite-surface: #0f172a;
+  --color-graphite-raised: #334155;
+  --color-graphite-line: #475569;
+  --color-graphite-text: #f8fafc;
+  --color-graphite-muted: #94a3b8;
+  --color-scrim: rgba(30, 41, 59, 0.5);
+  --color-shadow-soft: rgba(15, 23, 42, 0.08);
+  --color-shadow-medium: rgba(15, 23, 42, 0.14);
+  --color-shadow-strong: rgba(15, 23, 42, 0.22);
+
+  --font-display: var(--font-geist-sans), system-ui, sans-serif;
+  --font-body: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Smooth palette switches across the landing shell */
+html {
+  transition:
+    color 180ms ease,
+    background-color 180ms ease;
+}
+
+body {
+  transition:
+    color 180ms ease,
+    background-color 180ms ease;
 }
