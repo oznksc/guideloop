@@ -1,13 +1,13 @@
 /**
  * RSC-safe entry: types and pure helpers only.
  *
- * Server Components may import from `guideloop/types` without pulling client
- * components or creating a client boundary. Do not add React components here.
+ * Server Components may import from `@guideloop/react/types` without pulling
+ * client components or creating a client boundary. Do not add React components here.
  *
  * @example
  * ```ts
  * // app/tour-steps.ts  (Server Component / shared module)
- * import type { Step } from 'guideloop/types';
+ * import type { Step } from '@guideloop/react/types';
  *
  * export const steps: Step[] = [
  *   { target: '#cta', title: 'Hello', content: '…' },

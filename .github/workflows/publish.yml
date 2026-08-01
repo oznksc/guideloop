@@ -7,6 +7,10 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
     steps:
       - uses: actions/checkout@v6
 
@@ -21,15 +25,28 @@ jobs:
         run: npm ci
 
       - name: Type check
-        run: npx tsc --noEmit
+        run: |
+          npx tsc --noEmit -p packages/core/tsconfig.json
+          npx tsc --noEmit -p packages/react/tsconfig.json
 
       - name: Build
         run: npm run build
 
-      - name: Verify release tag matches package version
-        run: test "v$(node -p 'require("./package.json").version')" = "$GITHUB_REF_NAME"
+      - name: Verify release tag matches package versions
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          CORE_V="v$(node -p 'require("./packages/core/package.json").version')"
+          REACT_V="v$(node -p 'require("./packages/react/package.json").version')"
+          test "$CORE_V" = "$TAG"
+          test "$REACT_V" = "$TAG"
+          echo "Tag $TAG matches @guideloop/core@$CORE_V and @guideloop/react@$REACT_V"
 
-      - name: Publish to npm
-        run: npm publish --access public
+      - name: Publish @guideloop/core
+        run: npm publish -w @guideloop/core --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish @guideloop/react
+        run: npm publish -w @guideloop/react --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

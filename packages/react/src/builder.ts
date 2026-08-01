@@ -1,5 +1,5 @@
 /**
- * Development Tour Builder entry — import from `guideloop/builder`.
+ * Development Tour Builder entry — import from `@guideloop/react/builder`.
  */
 
 export { TourBuilder } from './components/TourBuilder';

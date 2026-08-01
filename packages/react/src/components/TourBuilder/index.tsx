@@ -89,7 +89,7 @@ function Status({ selector }: { selector: string }) {
  * // Next.js Server Component gate (no production chunk)
  * async function DevTourBuilderSlot() {
  *   if (process.env.NODE_ENV !== 'development') return null;
- *   const { TourBuilder } = await import('guideloop/builder');
+ *   const { TourBuilder } = await import('@guideloop/react/builder');
  *   return <TourBuilder enabled />;
  * }
  *

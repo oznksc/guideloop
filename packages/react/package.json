@@ -1,6 +1,6 @@
 {
   "name": "@guideloop/react",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "React guided tour library powered by @guideloop/core",
   "author": "Ozan Kesici",
   "license": "MIT",
@@ -18,11 +18,17 @@
       "import": "./dist/esm/index.js",
       "require": "./dist/cjs/index.js"
     },
+    "./builder": {
+      "types": "./dist/builder.d.ts",
+      "import": "./dist/esm/builder.js",
+      "require": "./dist/cjs/builder.js"
+    },
     "./types": {
       "types": "./dist/rsc-types.d.ts",
       "import": "./dist/esm/rsc-types.js",
       "require": "./dist/cjs/rsc-types.js"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "dist",
@@ -59,7 +65,7 @@
     }
   },
   "dependencies": {
-    "@guideloop/core": "*"
+    "@guideloop/core": "^2.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.22.0",
