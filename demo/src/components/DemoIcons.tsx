@@ -1,4 +1,5 @@
 import type { ReactNode, SVGProps } from "react";
+import { withBasePath } from "../utils/asset";
 
 type IconProps = SVGProps<SVGSVGElement>;
 
@@ -25,7 +26,7 @@ function IconFrame({
 export function GuideLoopLogo({ className = "h-7 w-auto" }: { className?: string }) {
   return (
     <img
-      src="/guideloop-logo.svg"
+      src={withBasePath("/guideloop-logo.svg")}
       alt="GuideLoop Logo"
       className={className}
       style={{ display: "block" }}
