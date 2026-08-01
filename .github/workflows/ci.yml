@@ -26,8 +26,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build
+        run: npm run build
+
       - name: Type check
-        run: npx tsc --noEmit
+        run: npx tsc --noEmit -p packages/core/tsconfig.json && npx tsc --noEmit -p packages/react/tsconfig.json
 
       - name: Lint
         run: npm run lint
@@ -36,16 +39,13 @@ jobs:
         run: npm audit --audit-level=high || true
 
       - name: Test with Coverage
-        run: npx jest --coverage
+        run: npm test
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-${{ matrix.node-version }}
           path: coverage/
-
-      - name: Build
-        run: npm run build
 
   e2e:
     runs-on: ubuntu-latest
