@@ -29,32 +29,21 @@ const DEMO_THEMES: Record<DemoThemeId, DemoThemePreset> = {
 };
 
 const integrationCode = `import { useState } from "react";
-import {
-  GuideLoop,
-  OnboardingChecklist,
-  type Step
-} from "guideloop";
+import { GuideLoop, type Step } from "guideloop";
 
 const steps: Step[] = [{
   target: "#search-bar",
-  title: "DOM Element Anchoring",
-  content: "Binds to target element via CSS selector."
+  title: "Search",
+  content: "Bind any CSS selector."
 }];
 
-export function ProductOnboarding() {
-  const [tourOpen, setTourOpen] = useState(false);
-
+export function App() {
+  const [open, setOpen] = useState(false);
   return (
-    <section>
-      <button onClick={() => setTourOpen(true)}>
-        Start tour
-      </button>
-      <GuideLoop
-        steps={steps}
-        isOpen={tourOpen}
-        onClose={() => setTourOpen(false)}
-      />
-    </section>
+    <>
+      <button onClick={() => setOpen(true)}>Start</button>
+      <GuideLoop steps={steps} isOpen={open} onClose={() => setOpen(false)} />
+    </>
   );
 }`;
 
@@ -214,8 +203,10 @@ export default function Home() {
           <section id="top" className="hero-section">
             <div className="hero-container">
               <h1 className="hero-title">
-                Contextual Product Tours &amp;{" "}
-                <span className="hero-gradient-text">Onboarding for React</span>
+                <span className="hero-title-line">Contextual Product Tours &amp;</span>
+                <span className="hero-title-line hero-gradient-text">
+                  Onboarding for React
+                </span>
               </h1>
 
               <p className="hero-subtitle">
@@ -240,24 +231,24 @@ export default function Home() {
                     )}
                   </button>
                 </div>
-              </div>
 
-              <div className="hero-stats">
-                <span className="hero-stat">
-                  <span className="hero-stat-symbol">&lt;</span>8kB gzipped
-                </span>
-                <span className="hero-stat-divider" />
-                <span className="hero-stat">
-                  <span className="hero-stat-symbol">~</span> MIT License
-                </span>
-                <span className="hero-stat-divider" />
-                <span className="hero-stat">
-                  <span className="hero-stat-symbol">^</span> React 16+
-                </span>
-                <span className="hero-stat-divider" />
-                <span className="hero-stat">
-                  <span className="hero-stat-symbol">@</span> Popper.js v2
-                </span>
+                <div className="hero-stats">
+                  <span className="hero-stat">
+                    <span className="hero-stat-symbol">&lt;</span>8kB gzipped
+                  </span>
+                  <span className="hero-stat-divider" />
+                  <span className="hero-stat">
+                    <span className="hero-stat-symbol">~</span> MIT License
+                  </span>
+                  <span className="hero-stat-divider" />
+                  <span className="hero-stat">
+                    <span className="hero-stat-symbol">^</span> React 16+
+                  </span>
+                  <span className="hero-stat-divider" />
+                  <span className="hero-stat">
+                    <span className="hero-stat-symbol">@</span> Popper.js v2
+                  </span>
+                </div>
               </div>
             </div>
           </section>
@@ -268,111 +259,35 @@ export default function Home() {
                 <span className="section-kicker">GETTING STARTED</span>
                 <h2>Type-Safe React API</h2>
                 <p>
-                  Import <code>GuideLoop</code> and start building contextual
-                  tours in minutes.
+                  Import <code>GuideLoop</code> — tours in a few lines.
                 </p>
               </div>
 
-              <div className="quickstart-grid">
-                <div className="code-window">
-                  <div className="code-header">
-                    <div className="code-dots">
-                      <span className="dot dot--red" />
-                      <span className="dot dot--yellow" />
-                      <span className="dot dot--green" />
-                    </div>
-                    <span className="code-filename">App.tsx</span>
-                    <button
-                      type="button"
-                      className="code-copy-btn"
-                      onClick={() => void copyIntegrationCode()}
-                      aria-label="Copy GuideLoop integration example"
-                    >
-                      {integrationCopied ? (
-                        <Check className="w-4 h-4" />
-                      ) : (
-                        <Copy className="w-4 h-4" />
-                      )}
-                      <span>{integrationCopied ? "Copied" : "Copy"}</span>
-                    </button>
+              <div className="code-window">
+                <div className="code-header">
+                  <div className="code-dots">
+                    <span className="dot dot--red" />
+                    <span className="dot dot--yellow" />
+                    <span className="dot dot--green" />
                   </div>
-                  <pre tabIndex={0} aria-label="GuideLoop integration example">
-                    <code>{integrationCode}</code>
-                  </pre>
+                  <span className="code-filename">App.tsx</span>
+                  <button
+                    type="button"
+                    className="code-copy-btn"
+                    onClick={() => void copyIntegrationCode()}
+                    aria-label="Copy GuideLoop integration example"
+                  >
+                    {integrationCopied ? (
+                      <Check className="w-4 h-4" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
+                    <span>{integrationCopied ? "Copied" : "Copy"}</span>
+                  </button>
                 </div>
-
-                <div className="api-reference">
-                  <div className="api-group">
-                    <span className="api-group-label">Components</span>
-                    <div className="api-item">
-                      <span className="api-item-symbol">&gt;</span>
-                      <div className="api-item-content">
-                        <span className="api-item-name">GuideLoop</span>
-                        <span className="api-item-desc">
-                          Main tour orchestrator. Accepts steps[], isOpen,
-                          theme, keyboard.
-                        </span>
-                      </div>
-                    </div>
-                    <div className="api-item">
-                      <span className="api-item-symbol">&gt;</span>
-                      <div className="api-item-content">
-                        <span className="api-item-name">OnboardingChecklist</span>
-                        <span className="api-item-desc">
-                          Persisted task list with tour, modal, link, and custom
-                          actions.
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="api-group">
-                    <span className="api-group-label">Types</span>
-                    <div className="api-item">
-                      <span className="api-item-symbol">:</span>
-                      <div className="api-item-content">
-                        <span className="api-item-name">Step</span>
-                        <span className="api-item-desc">
-                          target, title, content, placement, onBeforeStep,
-                          onAfterStep
-                        </span>
-                      </div>
-                    </div>
-                    <div className="api-item">
-                      <span className="api-item-symbol">:</span>
-                      <div className="api-item-content">
-                        <span className="api-item-name">ThemeConfig</span>
-                        <span className="api-item-desc">
-                          tooltip, overlay, spotlight, buttons — full visual
-                          control.
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="api-group">
-                    <span className="api-group-label">Features</span>
-                    <div className="api-item">
-                      <span className="api-item-symbol">*</span>
-                      <div className="api-item-content">
-                        <span className="api-item-name">Spotlight &amp; Overlay</span>
-                        <span className="api-item-desc">
-                          Popper.js positioning, SVG mask, focus trap, scroll
-                          alignment.
-                        </span>
-                      </div>
-                    </div>
-                    <div className="api-item">
-                      <span className="api-item-symbol">*</span>
-                      <div className="api-item-content">
-                        <span className="api-item-name">Persistence</span>
-                        <span className="api-item-desc">
-                          localStorage-backed completion state with custom keys.
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <pre tabIndex={0} aria-label="GuideLoop integration example">
+                  <code>{integrationCode}</code>
+                </pre>
               </div>
             </div>
           </section>
