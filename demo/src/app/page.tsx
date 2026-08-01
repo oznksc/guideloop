@@ -7,6 +7,7 @@ import {
   GuideLoopLogo,
 } from "../components/DemoIcons";
 import { AsciiLogoShader } from "../components/AsciiLogoShader";
+import { HeroSpotlightDemo } from "../components/HeroSpotlightDemo";
 import "./landing.css";
 
 const GITHUB_URL = "https://github.com/oznksc/guideloop";
@@ -201,22 +202,28 @@ export default function Home() {
 
         <div id="content" tabIndex={-1}>
           <section id="top" className="hero-section">
+            <HeroSpotlightDemo />
             <div className="hero-container">
-              <h1 className="hero-title">
-                <span className="hero-title-line">Contextual Product Tours &amp;</span>
-                <span className="hero-title-line hero-gradient-text">
-                  Onboarding for React
-                </span>
-              </h1>
+              <div className="hero-intro" data-hero-spot="intro">
+                <h1 className="hero-title">
+                  <span className="hero-title-line">Contextual Product Tours &amp;</span>
+                  <span className="hero-title-line hero-gradient-text">
+                    Onboarding for React
+                  </span>
+                </h1>
 
-              <p className="hero-subtitle">
-                Lightweight React components for element spotlight tours and
-                persisted onboarding checklists. Popper.js positioning, keyboard
-                focus traps, CSS custom property themes.
-              </p>
+                <p className="hero-subtitle">
+                  Lightweight React components for element spotlight tours and
+                  persisted onboarding checklists. Popper.js positioning, keyboard
+                  focus traps, CSS custom property themes.
+                </p>
+              </div>
 
               <div className="hero-cta-group">
-                <div className="install-command-pill">
+                <div
+                  className="install-command-pill"
+                  data-hero-spot="install"
+                >
                   <code>$ npm i guideloop</code>
                   <button
                     type="button"
@@ -232,7 +239,7 @@ export default function Home() {
                   </button>
                 </div>
 
-                <div className="hero-stats">
+                <div className="hero-stats" data-hero-spot="stats">
                   <span className="hero-stat">
                     <span className="hero-stat-symbol">&lt;</span>8kB gzipped
                   </span>
