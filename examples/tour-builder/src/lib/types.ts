@@ -1,5 +1,5 @@
 import type { Placement } from '@popperjs/core';
-import type { SpotlightShapeName, StepTrigger } from 'guideloop';
+import type { SpotlightShapeName, StepTrigger } from '@guideloop/core';
 
 /** Serializable step used by the Visual Tour Builder (export-friendly). */
 export interface BuilderStep {

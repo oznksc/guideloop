@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { GuideLoop, type Step } from 'guideloop';
+import { GuideLoop, type Step } from '@guideloop/react';
 import { TOUR_KEY } from '../tour';
 
 type Props = {

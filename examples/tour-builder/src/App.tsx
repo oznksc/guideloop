@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { GuideLoop, type Step } from 'guideloop';
+import { GuideLoop, type Step } from '@guideloop/react';
 import { DemoCanvas } from './components/DemoCanvas';
 import { ExportPanel } from './components/ExportPanel';
 import { PickerOverlay } from './components/PickerOverlay';

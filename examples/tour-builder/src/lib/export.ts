@@ -38,7 +38,7 @@ export function exportAsJson(steps: BuilderStep[]): string {
 
 export function exportAsTypeScript(steps: BuilderStep[]): string {
   const body = exportAsJson(steps);
-  return `import type { Step } from 'guideloop';
+  return `import type { Step } from '@guideloop/react';
 
 export const steps: Step[] = ${body};
 `;

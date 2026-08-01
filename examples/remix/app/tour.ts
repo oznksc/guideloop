@@ -1,4 +1,4 @@
-import type { Step } from 'guideloop';
+import type { Step } from '@guideloop/react';
 
 export const TOUR_KEY = 'guideloop-example-remix';
 

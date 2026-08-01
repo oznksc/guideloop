@@ -6,7 +6,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { GuideLoop, type Step } from 'guideloop';
+import { GuideLoop, type Step } from '@guideloop/react';
 
 /**
  * GuideLoop highlights real DOM nodes. With react-native-web, set `nativeID`

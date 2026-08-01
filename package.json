@@ -1,111 +1,19 @@
 {
-  "name": "guideloop",
-  "version": "1.5.0",
-  "description": "Smart and flexible guided tour library for React applications",
-  "author": "Ozan Kesici",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/oznksc/guideloop.git"
-  },
-  "bugs": {
-    "url": "https://github.com/oznksc/guideloop/issues"
-  },
-  "homepage": "https://oznksc.github.io/guideloop/",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js"
-    },
-    "./types": {
-      "types": "./dist/rsc-types.d.ts",
-      "import": "./dist/esm/rsc-types.js",
-      "require": "./dist/cjs/rsc-types.js"
-    },
-    "./builder": {
-      "types": "./dist/builder.d.ts",
-      "import": "./dist/esm/builder.js",
-      "require": "./dist/cjs/builder.js"
-    }
-  },
+  "name": "guideloop-monorepo",
+  "private": true,
+  "packageManager": "npm@11.16.0",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "build": "npm run clean && rollup -c",
-    "dev": "rollup -c -w",
-    "clean": "rimraf dist",
-    "lint": "eslint 'src/**/*.{ts,tsx}'",
-    "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix",
-    "test": "jest --passWithNoTests",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
-    "size": "node scripts/size.mjs",
-    "prepare": "npm run build",
-    "preversion": "npm run lint",
-    "postversion": "git push && git push --tags"
-  },
-  "files": [
-    "dist",
-    "README.md"
-  ],
-  "keywords": [
-    "react",
-    "guide",
-    "tour",
-    "walkthrough",
-    "onboarding",
-    "tutorial",
-    "product-tour",
-    "user-guide",
-    "feature-tour"
-  ],
-  "peerDependencies": {
-    "react": ">=16.8.0",
-    "react-dom": ">=16.8.0"
-  },
-  "peerDependenciesMeta": {
-    "react": {
-      "optional": false
-    },
-    "react-dom": {
-      "optional": false
-    }
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "dev": "turbo run dev",
+    "clean": "turbo run clean"
   },
   "devDependencies": {
-    "@babel/core": "^7.22.0",
-    "@playwright/test": "^1.61.1",
-    "@rollup/plugin-commonjs": "^21.1.0",
-    "@rollup/plugin-node-resolve": "^13.3.0",
-    "@rollup/plugin-typescript": "^8.5.0",
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^14.3.1",
-    "@types/jest": "^29.5.14",
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.0.0",
-    "@typescript-eslint/parser": "^5.0.0",
-    "eslint": "^8.0.0",
-    "identity-obj-proxy": "^3.0.0",
-    "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0",
-    "postcss": "^8.4.0",
-    "rimraf": "^5.0.0",
-    "rollup": "^2.79.2",
-    "rollup-plugin-dts": "^4.2.3",
-    "rollup-plugin-peer-deps-external": "^2.2.4",
-    "rollup-plugin-postcss": "^4.0.2",
-    "rollup-plugin-terser": "^7.0.2",
-    "ts-jest": "^29.2.5",
-    "tslib": "^2.8.1",
+    "turbo": "^2.0.0",
     "typescript": "^4.9.5"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "sideEffects": false,
-  "dependencies": {
-    "@popperjs/core": "^2.11.8"
   }
 }
