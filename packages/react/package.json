@@ -1,6 +1,6 @@
 {
   "name": "@guideloop/react",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "React guided tour library powered by @guideloop/core",
   "author": "Ozan Kesici",
   "license": "MIT",
@@ -65,7 +65,7 @@
     }
   },
   "dependencies": {
-    "@guideloop/core": "^2.0.1"
+    "@guideloop/core": "^2.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.22.0",
