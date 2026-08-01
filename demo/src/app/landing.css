@@ -17,7 +17,10 @@
   --radius-panel: 0.55rem;
   --radius-card: 0.45rem;
   --density-section-y: 2.25rem;
-  --density-pad-x: 1.15rem;
+  /* Fluid gutters — work from ~320px up without horizontal scroll */
+  --density-pad-x: clamp(0.85rem, 3.6vw, 1.15rem);
+  --safe-pad-x: max(var(--density-pad-x), env(safe-area-inset-left, 0px));
+  --safe-pad-r: max(var(--density-pad-x), env(safe-area-inset-right, 0px));
 }
 
 .skip-link {
@@ -45,8 +48,11 @@
 .landing-wrapper {
   position: relative;
   min-height: 100vh;
+  min-height: 100dvh;
   max-width: var(--page-max);
   margin: 0 auto;
+  width: 100%;
+  overflow-x: clip;
 }
 
 /* Tour path line — blue-tinted guide rail */
@@ -94,6 +100,9 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: 100dvh;
+  min-width: 0;
+  width: 100%;
 }
 
 /* ==========================================================================
@@ -109,9 +118,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.65rem var(--density-pad-x);
+  gap: 0.5rem 0.75rem;
+  padding: 0.65rem var(--safe-pad-x) 0.65rem var(--density-pad-x);
+  padding-right: var(--safe-pad-r);
   min-height: 3.25rem;
+  min-width: 0;
 }
 
 .site-brand {
@@ -120,14 +131,17 @@
   gap: 0.55rem;
   text-decoration: none;
   color: var(--color-ink, #eef4fb);
-  flex-shrink: 0;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .brand-logo {
   height: 1.55rem;
   width: auto;
+  max-width: min(9.5rem, 42vw);
   object-fit: contain;
   display: block;
+  flex-shrink: 1;
 }
 
 .brand-badge {
@@ -182,7 +196,8 @@
   top: calc(100% + 0.35rem);
   right: 0;
   z-index: 200;
-  min-width: 11rem;
+  min-width: min(11rem, calc(100vw - 2rem));
+  max-width: calc(100vw - 1.5rem);
   margin: 0;
   padding: 0.28rem;
   list-style: none;
@@ -227,7 +242,9 @@
    ========================================================================== */
 .hero-section {
   position: relative;
-  padding: 1.75rem var(--density-pad-x) 1.5rem;
+  padding: clamp(1.15rem, 3.5vw, 1.75rem) var(--density-pad-x) clamp(1rem, 2.5vw, 1.5rem);
+  padding-left: var(--density-pad-x);
+  padding-right: var(--safe-pad-r);
   overflow: hidden;
   transition: background-color 180ms ease;
 }
@@ -237,9 +254,11 @@
   /* Below spotlight layer so scrim/ring/HUD paint on top */
   z-index: 1;
   max-width: 100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  min-width: 0;
 }
 
 /* —— GuideLoop-style ambient tour in the hero —— */
@@ -297,7 +316,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  max-width: min(90%, 18rem);
+  max-width: min(92vw, 18rem);
   padding: 0.22rem 0.5rem;
   border-radius: var(--radius-bubble);
   background: color-mix(in srgb, var(--color-surface, #0e1522) 96%, transparent);
@@ -351,19 +370,22 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  max-width: 540px;
+  max-width: min(540px, 100%);
+  width: 100%;
+  min-width: 0;
 }
 
 .hero-title {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  font-size: clamp(1.55rem, 3.2vw, 2.35rem);
+  font-size: clamp(1.35rem, 4.2vw, 2.35rem);
   font-weight: 750;
   letter-spacing: -0.028em;
   line-height: 1.12;
   color: var(--color-ink, #eef4fb);
   margin: 0 0 0.7rem;
+  max-width: 100%;
 }
 
 .hero-title-line {
@@ -383,10 +405,10 @@
 }
 
 .hero-subtitle {
-  font-size: 0.875rem;
+  font-size: clamp(0.8rem, 2.4vw, 0.875rem);
   line-height: 1.55;
   color: var(--color-ink-muted, #8fa3b8);
-  max-width: 480px;
+  max-width: min(480px, 100%);
   margin: 0;
 }
 
@@ -402,6 +424,9 @@
   gap: 0.5rem;
   flex-wrap: wrap;
   margin-bottom: 0.25rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 /* Stats Bar — pill next to install command */
@@ -412,10 +437,12 @@
   gap: 0.15rem 0.7rem;
   flex-wrap: nowrap;
   height: 2.15rem;
+  max-width: 100%;
   padding: 0 0.85rem;
   background: var(--color-surface, #0e1522);
   border: 1px solid var(--color-line, rgba(148, 190, 230, 0.1));
   border-radius: var(--radius-bubble);
+  box-sizing: border-box;
 }
 
 .hero-stat {
@@ -502,6 +529,7 @@
   justify-content: center;
   gap: 0.5rem;
   height: 2.15rem;
+  max-width: 100%;
   padding: 0 0.55rem 0 0.85rem;
   background: var(--color-surface, #0e1522);
   border: 1px solid var(--color-line-strong, rgba(148, 190, 230, 0.18));
@@ -510,11 +538,14 @@
   font-size: 0.78rem;
   color: var(--color-ink, #eef4fb);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 8%, transparent);
+  box-sizing: border-box;
 }
 
 .install-command-pill code {
-  font-family: inherit;
-  font-size: inherit;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .install-command-pill button {
@@ -523,11 +554,15 @@
   color: var(--color-accent);
   cursor: pointer;
   padding: 0.28rem;
+  min-width: 1.75rem;
+  min-height: 1.75rem;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   transition: color 0.12s ease, background 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .install-command-pill button:hover {
@@ -539,12 +574,14 @@
    QUICKSTART + API SECTION — dense
    ========================================================================== */
 .quickstart-section {
-  padding: 1.25rem var(--density-pad-x) 1.75rem;
+  padding: clamp(1rem, 2.8vw, 1.25rem) var(--density-pad-x) clamp(1.25rem, 3vw, 1.75rem);
+  padding-right: var(--safe-pad-r);
   transition: background-color 180ms ease;
 }
 
 .quickstart-container {
   max-width: 100%;
+  min-width: 0;
 }
 
 .section-kicker {
@@ -604,7 +641,8 @@
 
 /* Code Window — dense chrome */
 .code-window {
-  max-width: 40rem;
+  max-width: min(40rem, 100%);
+  width: 100%;
   background: var(--color-canvas, #070c14);
   border: 1px solid var(--color-line-strong, rgba(148, 190, 230, 0.16));
   border-radius: var(--radius-panel);
@@ -612,15 +650,18 @@
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--color-accent) 6%, transparent),
     0 8px 20px rgba(0, 8, 20, 0.28);
+  min-width: 0;
 }
 
 .code-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.5rem;
   padding: 0.3rem 0.55rem;
   background: var(--color-surface, #0e1522);
   border-bottom: 1px solid var(--color-line, rgba(148, 190, 230, 0.08));
+  min-width: 0;
 }
 
 .code-dots {
@@ -641,13 +682,19 @@
   font-family: var(--font-mono);
   font-size: 0.65rem;
   color: var(--color-ink-muted, #8fa3b8);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .code-copy-btn {
   display: flex;
   align-items: center;
   gap: 0.22rem;
-  padding: 0.15rem 0.45rem;
+  flex-shrink: 0;
+  padding: 0.25rem 0.5rem;
+  min-height: 1.75rem;
   font-size: 0.62rem;
   font-weight: 500;
   font-family: var(--font-mono);
@@ -657,6 +704,7 @@
   border-radius: var(--radius-bubble);
   cursor: pointer;
   transition: color 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .code-copy-btn:hover {
@@ -670,10 +718,11 @@
   padding: 0.55rem 0.7rem;
   overflow: visible;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: clamp(0.62rem, 2.1vw, 0.68rem);
   line-height: 1.45;
   color: var(--color-ink, #eef4fb);
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
   word-break: break-word;
 }
 
@@ -684,8 +733,9 @@
   position: relative;
   margin-top: auto;
   /* Tall enough that ~half the giant logo peeks above the bottom clip */
-  min-height: clamp(11rem, 28vw, 18rem);
-  padding: 1rem var(--density-pad-x) 1.15rem;
+  min-height: clamp(9.5rem, 28vw, 18rem);
+  padding: 1rem var(--density-pad-x) max(1.15rem, env(safe-area-inset-bottom, 0px));
+  padding-right: var(--safe-pad-r);
   overflow: hidden;
   border-top: 1px solid var(--color-line, rgba(148, 190, 230, 0.08));
   isolation: isolate;
@@ -731,29 +781,31 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.65rem 1rem;
   flex-wrap: wrap;
   flex-shrink: 0;
   margin-bottom: 0.35rem;
   padding: 0 0 0.5rem;
+  min-width: 0;
 }
 
 .footer-tagline {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: clamp(0.62rem, 2vw, 0.68rem);
   color: var(--color-ink-muted, #8fa3b8);
-  max-width: 28rem;
+  max-width: min(28rem, 100%);
   line-height: 1.4;
+  min-width: 0;
 }
 
 .footer-nav {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
+  gap: 0.65rem 0.85rem;
   flex-wrap: wrap;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: clamp(0.62rem, 2vw, 0.68rem);
   color: var(--color-ink-faint, #5c7390);
 }
 
@@ -780,7 +832,10 @@ html[data-theme="nordic"] .footer-ascii-shader {
 
 /* ==========================================================================
    RESPONSIVE
+   Breakpoints: 900 (tablet, drop rail) · 720 · 520 · 380
    ========================================================================== */
+
+/* —— ≤900px: drop rail, full-bleed content —— */
 @media (max-width: 900px) {
   :root {
     --rail-left: 0px;
@@ -788,6 +843,14 @@ html[data-theme="nordic"] .footer-ascii-shader {
 
   .landing-wrapper::before {
     display: none;
+  }
+
+  /* Wash no longer “exits” a rail — soft left edge, no hard clip */
+  .landing-wrapper::after {
+    left: 0;
+    width: min(36rem, 100vw);
+    clip-path: none;
+    opacity: 0.9;
   }
 
   .content-column {
@@ -798,34 +861,249 @@ html[data-theme="nordic"] .footer-ascii-shader {
     display: none;
   }
 
+  .theme-dropdown-trigger {
+    padding-left: 0.55rem;
+    padding-right: 0.55rem;
+  }
+
   .footer-ascii-shader {
     height: clamp(9rem, 32vw, 14rem);
     transform: translateY(40%);
   }
-}
 
-@media (max-width: 720px) {
-  .hero-stats {
-    flex-wrap: wrap;
-    height: auto;
-    min-height: 2.15rem;
-    padding: 0.4rem 0.75rem;
-    row-gap: 0.25rem;
+  .code-window {
+    max-width: 100%;
   }
 }
 
+/* —— ≤720px: stack hero chips, denser type —— */
+@media (max-width: 720px) {
+  .header-inner {
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
+    min-height: 2.85rem;
+  }
+
+  .brand-logo {
+    height: 1.35rem;
+  }
+
+  .hero-section {
+    padding-top: 1.1rem;
+    padding-bottom: 1rem;
+  }
+
+  .hero-intro + .hero-cta-group,
+  .hero-container > .hero-cta-group {
+    margin-top: 1rem;
+  }
+
+  .hero-cta-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.45rem;
+  }
+
+  .install-command-pill {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .hero-stats {
+    width: 100%;
+    height: auto;
+    min-height: 2.15rem;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    padding: 0.45rem 0.75rem;
+    row-gap: 0.3rem;
+    column-gap: 0.55rem;
+  }
+
+  .hero-stat {
+    font-size: 0.65rem;
+  }
+
+  .hero-spotlight-hud {
+    font-size: 0.58rem;
+    max-width: min(88vw, 15rem);
+    padding: 0.18rem 0.42rem;
+  }
+
+  .section-header h2 {
+    font-size: 0.95rem;
+  }
+
+  .code-header {
+    padding: 0.35rem 0.5rem;
+  }
+
+  .code-dots {
+    display: none; /* reclaim space on narrow chrome bars */
+  }
+
+  .code-window pre {
+    padding: 0.5rem 0.6rem;
+  }
+
+  .site-footer {
+    min-height: clamp(8.5rem, 34vw, 12rem);
+  }
+
+  .footer-ascii-shader {
+    height: clamp(8rem, 36vw, 12rem);
+    transform: translateY(38%);
+  }
+}
+
+/* —— ≤520px: phone —— */
 @media (max-width: 520px) {
+  .brand-badge {
+    font-size: 0.55rem;
+    padding: 0.1rem 0.32rem;
+  }
+
+  .btn--ghost {
+    height: 1.85rem;
+    padding: 0 0.55rem;
+    font-size: 0.7rem;
+  }
+
+  .hero-title {
+    font-size: clamp(1.28rem, 6.2vw, 1.65rem);
+    letter-spacing: -0.03em;
+  }
+
+  .hero-subtitle {
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+
   .hero-stat-divider {
     display: none;
+  }
+
+  .hero-stats {
+    gap: 0.35rem 0.65rem;
+  }
+
+  .hero-spotlight-ring {
+    border-width: 1.25px;
+  }
+
+  .quickstart-section {
+    padding-top: 0.85rem;
+    padding-bottom: 1.15rem;
+  }
+
+  .section-header {
+    margin-bottom: 0.6rem;
+    gap: 0.22rem;
+  }
+
+  .section-kicker {
+    font-size: 0.55rem;
   }
 
   .footer-bar {
     flex-direction: column;
     align-items: flex-start;
+    gap: 0.45rem;
+  }
+
+  .footer-nav {
+    gap: 0.55rem 0.75rem;
   }
 
   .site-footer {
-    min-height: 10rem;
+    min-height: 8.5rem;
+    padding-top: 0.85rem;
+  }
+
+  .footer-ascii-shader {
+    height: 9.5rem;
+    transform: translateY(42%);
+    opacity: 0.88;
+  }
+}
+
+/* —— ≤380px: compact phone —— */
+@media (max-width: 380px) {
+  .brand-badge {
+    display: none;
+  }
+
+  .header-actions {
+    gap: 0.28rem;
+  }
+
+  .theme-dropdown-caret {
+    display: none;
+  }
+
+  .btn--ghost {
+    padding: 0 0.48rem;
+    font-size: 0.65rem;
+  }
+
+  .hero-stat {
+    font-size: 0.6rem;
+  }
+
+  .install-command-pill {
+    font-size: 0.72rem;
+    height: 2rem;
+  }
+
+  .footer-tagline {
+    font-size: 0.6rem;
+  }
+}
+
+/* Touch: slightly larger interactive targets where hover is absent */
+@media (hover: none) and (pointer: coarse) {
+  .theme-dropdown-item {
+    padding: 0.55rem 0.65rem;
+    min-height: 2.5rem;
+  }
+
+  .code-copy-btn {
+    min-height: 2rem;
+    padding: 0.35rem 0.65rem;
+  }
+
+  .install-command-pill button {
+    min-width: 2rem;
+    min-height: 2rem;
+  }
+
+  .btn--ghost {
+    min-height: 2.25rem;
+  }
+}
+
+/* Landscape phones: keep hero from dominating vertical space */
+@media (max-height: 480px) and (orientation: landscape) {
+  .hero-section {
+    padding-top: 0.75rem;
+    padding-bottom: 0.65rem;
+  }
+
+  .hero-intro + .hero-cta-group {
+    margin-top: 0.75rem;
+  }
+
+  .hero-spotlight {
+    /* Less visual noise in short viewports */
+    opacity: 0.85;
+  }
+
+  .site-footer {
+    min-height: 7rem;
+  }
+
+  .footer-ascii-shader {
+    height: 7.5rem;
   }
 }
 
@@ -833,4 +1111,11 @@ html[data-theme="nordic"] .footer-ascii-shader {
 html[data-theme="editorial"] .landing-wrapper::after,
 html[data-theme="nordic"] .landing-wrapper::after {
   opacity: 0.35;
+}
+
+@media (max-width: 900px) {
+  html[data-theme="editorial"] .landing-wrapper::after,
+  html[data-theme="nordic"] .landing-wrapper::after {
+    opacity: 0.28;
+  }
 }

@@ -41,9 +41,16 @@ const TARGETS: SpotTarget[] = [
   },
 ];
 
-const PAD = 10;
 const STEP_MS = 3200;
 const LERP = 0.1;
+
+function spotlightPad(): number {
+  if (typeof window === "undefined") return 10;
+  const w = window.innerWidth;
+  if (w <= 380) return 6;
+  if (w <= 520) return 8;
+  return 10;
+}
 
 function prefersReducedMotion(): boolean {
   if (typeof window === "undefined") return false;
@@ -54,6 +61,7 @@ function measure(
   el: Element,
   host: DOMRect,
 ): SpotRect {
+  const pad = spotlightPad();
   const r = el.getBoundingClientRect();
   const cs = getComputedStyle(el);
   const radius =
@@ -61,11 +69,11 @@ function measure(
     (cs.borderRadius.includes("%") ? Math.min(r.width, r.height) / 2 : 8);
 
   return {
-    x: r.left - host.left - PAD,
-    y: r.top - host.top - PAD,
-    w: r.width + PAD * 2,
-    h: r.height + PAD * 2,
-    r: Math.min(radius + 4, Math.min(r.width, r.height) / 2 + PAD),
+    x: r.left - host.left - pad,
+    y: r.top - host.top - pad,
+    w: r.width + pad * 2,
+    h: r.height + pad * 2,
+    r: Math.min(radius + 4, Math.min(r.width, r.height) / 2 + pad),
   };
 }
 
@@ -139,13 +147,17 @@ export function HeroSpotlightDemo() {
       Object.assign(glow.style, style);
 
       if (hud) {
-        // Keep HUD just outside the ring when possible
+        // Keep HUD just outside the ring; clamp to host bounds on narrow screens
         const hostH = host.clientHeight;
         const hostW = host.clientWidth;
+        const hudW = Math.min(hud.offsetWidth || 160, hostW - 8);
+        const hudH = hud.offsetHeight || 24;
         let hx = rect.x;
         let hy = rect.y + rect.h + 8;
-        if (hy + 28 > hostH) hy = Math.max(4, rect.y - 28);
-        if (hx + 180 > hostW) hx = Math.max(4, hostW - 184);
+        if (hy + hudH > hostH - 4) hy = Math.max(4, rect.y - hudH - 6);
+        if (hx + hudW > hostW - 4) hx = Math.max(4, hostW - hudW - 4);
+        if (hx < 4) hx = 4;
+        if (hy < 4) hy = 4;
         hud.style.transform = `translate3d(${hx}px, ${hy}px, 0)`;
         hud.dataset.step = String(index + 1);
       }
