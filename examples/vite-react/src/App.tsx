@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { GuideLoop, type Step } from 'guideloop';
+import { GuideLoop, type Step } from '@guideloop/react';
 
 export default function App() {
   const [open, setOpen] = useState(false);

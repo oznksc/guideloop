@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
-import { GuideLoop, type Step } from 'guideloop';
+import { GuideLoop, type Step } from '@guideloop/react';
 import { TOUR_PERSIST_KEY } from '../lib/tour';
 
 type Props = {

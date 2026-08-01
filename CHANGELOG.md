@@ -7,12 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-08-01
+
 ### Added
-- **`GuideLoop` error boundary:** render failures are isolated; new `onError` and `fallback` props. Missing targets wait; invalid selectors still warn without throwing.
-- **Cross-browser E2E:** Playwright projects for Chromium, Firefox, and WebKit; CI installs all three.
+- **`@guideloop/core`** — framework-agnostic core package (`packages/core`). Contains all non-React logic: types, state management, themes, geometry, DOM utilities, animation, debug helpers, tour/onboarding persistence.
+- **`@guideloop/react`** — React bindings package (`packages/react`). Components and hooks wrap `@guideloop/core` with React-specific rendering, portals, and focus trapping.
+- Turborepo monorepo: `turbo run build` / `turbo run test` orchestrates both packages.
 
 ### Changed
-- Jest enforces core library coverage thresholds (≥90% lines); Tour Builder remains a separate entry with its own unit suite.
+- **BREAKING:** Import path changed from `guideloop` to `@guideloop/react`.
+- **BREAKING:** RSC-safe types import changed from `guideloop/types` to `@guideloop/react/types`.
+- **BREAKING:** Tour Builder import changed from `guideloop/builder` to `@guideloop/react/builder`.
+- `@guideloop/core` is a dependency of `@guideloop/react` (installed automatically).
+- All unit/component tests moved from root `src/` to `packages/react/src/__tests__/` and `packages/core/src/__tests__/`.
+
+### Removed
+- Root `src/` directory (code now lives in `packages/`).
+- Root `rollup.config.js` (packages have their own).
+- Root `jest.config.js` (packages have their own).
 
 ## [1.5.0] - 2026-08-01
 

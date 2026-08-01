@@ -10,7 +10,8 @@
     "test": "tsx src/lib/run-tests.mjs"
   },
   "dependencies": {
-    "guideloop": "file:../..",
+    "@guideloop/core": "file:../../packages/core",
+    "@guideloop/react": "file:../../packages/react",
     "react": "^18.3.0",
     "react-dom": "^18.3.0"
   },

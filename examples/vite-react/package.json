@@ -9,7 +9,8 @@
     "preview": "vite preview --port 3101"
   },
   "dependencies": {
-    "guideloop": "file:../..",
+    "@guideloop/core": "file:../../packages/core",
+    "@guideloop/react": "file:../../packages/react",
     "react": "^18.3.0",
     "react-dom": "^18.3.0"
   },

@@ -3,17 +3,28 @@
   <img alt="GuideLoop" src="./guideloop-logo.svg" width="600">
 </picture>
 
-A modern, flexible, and powerful guided tour library for React applications. GuideLoop helps you create engaging product tours, feature introductions, and onboarding experiences with minimal effort.
+A modern, flexible, and powerful guided tour library. GuideLoop helps you create engaging product tours, feature introductions, and onboarding experiences with minimal effort.
 
 [**Explore the live GuideLoop experience →**](https://oznksc.github.io/guideloop/)
 
-[![npm version](https://img.shields.io/npm/v/guideloop.svg)](https://www.npmjs.com/package/guideloop)
-[![npm downloads](https://img.shields.io/npm/dm/guideloop.svg)](https://www.npmjs.com/package/guideloop)
+[![npm version](https://img.shields.io/npm/v/@guideloop/react.svg)](https://www.npmjs.com/package/@guideloop/react)
+[![npm downloads](https://img.shields.io/npm/dm/@guideloop/react.svg)](https://www.npmjs.com/package/@guideloop/react)
 [![CI](https://github.com/oznksc/guideloop/actions/workflows/ci.yml/badge.svg)](https://github.com/oznksc/guideloop/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/oznksc/guideloop/blob/main/CONTRIBUTING.md)
 [![AI Ready](https://img.shields.io/badge/AI-Ready-blueviolet)](AGENTS.md)
 [![OpenCode](https://img.shields.io/badge/OpenCode-Skill-8A2BE2)](.opencode/skills/guideloop/SKILL.md)
+
+## Packages
+
+| Package | Description | Install |
+|---------|-------------|---------|
+| `@guideloop/core` | Framework-agnostic core logic | `npm i @guideloop/core` |
+| `@guideloop/react` | React bindings (components + hooks) | `npm i @guideloop/react` |
+
+`@guideloop/react` depends on `@guideloop/core` automatically. Both packages depend on `@popperjs/core` (kept external for code-splitting).
+
+**React 16.8 → 19** is supported (`peerDependencies: react/react-dom >=16.8.0`).
 
 ## Features
 
@@ -33,14 +44,14 @@ A modern, flexible, and powerful guided tour library for React applications. Gui
 ## Installation
 
 ```bash
-npm install guideloop
+npm install @guideloop/react
 # or
-yarn add guideloop
+yarn add @guideloop/react
 # or
-pnpm add guideloop
+pnpm add @guideloop/react
 ```
 
-GuideLoop depends on `@popperjs/core` (installed automatically). The library keeps Popper **external** and loads it with a dynamic import so your bundler can code-split the positioning engine.
+`@guideloop/core` is installed automatically as a dependency. GuideLoop also depends on `@popperjs/core` (kept external and loaded via dynamic import for code-splitting).
 
 **React 16.8 → 19** is supported (`peerDependencies: react/react-dom >=16.8.0`).
 
@@ -66,7 +77,7 @@ export default function RootLayout({ children }) {
 /** Production builds return null before importing — no builder chunk. */
 async function DevTourBuilderSlot() {
   if (process.env.NODE_ENV !== 'development') return null;
-  const { TourBuilder } = await import('guideloop/builder');
+  const { TourBuilder } = await import('@guideloop/react/builder');
   return <TourBuilder enabled />;
 }
 ```
@@ -74,7 +85,7 @@ async function DevTourBuilderSlot() {
 Vite / CRA style (static import is fine if gated; auto mode also hides the UI):
 
 ```tsx
-import { TourBuilder } from 'guideloop/builder';
+import { TourBuilder } from '@guideloop/react/builder';
 
 export function App() {
   return (
@@ -93,7 +104,7 @@ export function App() {
 4. Edit titles/content, reorder, preview the tour on the live DOM.
 5. **Copy** JSON or TypeScript and paste into your production `steps` array.
 
-`guideloop/builder` is a **separate package entry** (not in the main barrel). Combined with a
+`@guideloop/react/builder` is a **separate package entry** (not in the main barrel). Combined with a
 development-only import gate, production bundles never include the builder UI.
 
 ### Next.js App Router / React Server Components
@@ -104,7 +115,7 @@ For **Server Components** (or shared modules) that only need types / storage hel
 
 ```ts
 // app/tour-steps.ts  — safe in RSC
-import type { Step } from 'guideloop/types';
+import type { Step } from '@guideloop/react/types';
 
 export const steps: Step[] = [
   { target: '#cta', title: 'Welcome', content: '…' },
@@ -115,7 +126,7 @@ export const steps: Step[] = [
 // app/tour-button.tsx
 'use client';
 
-import { GuideLoop } from 'guideloop';
+import { GuideLoop } from '@guideloop/react';
 import { steps } from './tour-steps';
 // …
 ```
@@ -151,7 +162,7 @@ cd examples/vite-react && npm install && npm run dev
 ## Quick Start
 
 ```tsx
-import { GuideLoop } from 'guideloop';
+import { GuideLoop } from '@guideloop/react';
 import { useState } from 'react';
 
 function App() {
@@ -193,7 +204,7 @@ than one linear tour. Each task can start a GuideLoop tour, open an accessible
 modal, navigate to a link, or run application code.
 
 ```tsx
-import { OnboardingChecklist, OnboardingItem } from 'guideloop';
+import { OnboardingChecklist, OnboardingItem } from '@guideloop/react';
 
 const onboardingItems: OnboardingItem[] = [
   {
@@ -311,7 +322,7 @@ GuideLoop exports several components for standalone use outside of a tour:
 Highlight an element independently:
 
 ```tsx
-import { Spotlight } from 'guideloop';
+import { Spotlight } from '@guideloop/react';
 
 function Demo() {
   const rect = document.getElementById('my-element')?.getBoundingClientRect();
@@ -332,7 +343,7 @@ function Demo() {
 Render a step progress indicator outside of the tooltip:
 
 ```tsx
-import { Progress } from 'guideloop';
+import { Progress } from '@guideloop/react';
 
 <Progress current={2} total={5} theme="tailwind" />
 ```
