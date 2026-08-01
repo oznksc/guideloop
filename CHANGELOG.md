@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`GuideLoop` error boundary:** render failures are isolated; new `onError` and `fallback` props. Missing targets wait; invalid selectors still warn without throwing.
+- **Cross-browser E2E:** Playwright projects for Chromium, Firefox, and WebKit; CI installs all three.
+
+### Changed
+- Jest enforces core library coverage thresholds (≥90% lines); Tour Builder remains a separate entry with its own unit suite.
+
 ## [1.5.0] - 2026-08-01
 
 ### Added

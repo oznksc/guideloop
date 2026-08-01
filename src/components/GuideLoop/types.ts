@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, type ErrorInfo } from 'react';
 import { Theme, ThemeConfig } from '../../themes/types';
 import { AnimationConfig } from '../../utils/animation';
 import { PersistConfig } from '../../utils/tourState';
@@ -129,4 +129,14 @@ export interface GuideLoopProps {
    * - `'auto'` / omitted — show only when `process.env.NODE_ENV === 'development'`
    */
   debug?: boolean | 'auto';
+  /**
+   * Called if a render error escapes the tour tree (isolated by ErrorBoundary).
+   * Missing targets and invalid selectors do not throw — they wait / warn instead.
+   */
+  onError?: (error: Error, info: ErrorInfo) => void;
+  /**
+   * Optional UI when the tour error boundary trips. Defaults to `null`
+   * so the host app keeps running without a white-screen crash.
+   */
+  fallback?: ReactNode;
 }

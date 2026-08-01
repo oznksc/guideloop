@@ -72,11 +72,15 @@ jobs:
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          # Include browser set so chromium-only caches are not reused after multi-browser rollout
+          key: playwright-${{ runner.os }}-cfw-${{ hashFiles('package-lock.json') }}
 
-      - name: Install Playwright
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install chromium
+      - name: Install Playwright system deps
+        run: npx playwright install-deps chromium firefox webkit
+
+      - name: Install Playwright browsers
+        # Always run: fills missing browsers even when an older cache hit only has chromium
+        run: npx playwright install chromium firefox webkit
 
       - name: Build library
         run: npm run build

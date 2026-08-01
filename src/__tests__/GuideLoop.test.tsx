@@ -525,6 +525,62 @@ describe('GuideLoop', () => {
     expect(screen.getByText('SKIP')).toBeInTheDocument();
   });
 
+  it('shows waiting state for missing target with waitForTarget', async () => {
+    render(
+      <GuideLoop
+        steps={[
+          {
+            target: '#does-not-exist-yet',
+            title: 'Pending',
+            content: 'Waiting…',
+            waitForTarget: { timeout: 50 },
+          },
+        ]}
+        isOpen={true}
+        onClose={jest.fn()}
+      />
+    );
+
+    expect(await screen.findByText(/Waiting for target element/i)).toBeInTheDocument();
+  });
+
+  it('does not crash with invalid selector target', () => {
+    expect(() => {
+      render(
+        <GuideLoop
+          steps={[{ target: '???bad', title: 'Bad', content: 'x' }]}
+          isOpen={true}
+          onClose={jest.fn()}
+        />
+      );
+    }).not.toThrow();
+  });
+
+  it('highlights additionalTargets alongside primary target', () => {
+    document.body.innerHTML = `
+      <button id="step1">Primary</button>
+      <button id="extra">Extra</button>
+      <div id="guideloop-portal"></div>
+    `;
+    render(
+      <GuideLoop
+        steps={[
+          {
+            target: '#step1',
+            title: 'Multi',
+            content: 'Both',
+            additionalTargets: ['#extra'],
+            spotlightShape: 'circle',
+          },
+        ]}
+        isOpen={true}
+        onClose={jest.fn()}
+      />
+    );
+    expect(screen.getByText('Multi')).toBeInTheDocument();
+    expect(document.querySelectorAll('.guideloop-spotlight').length).toBeGreaterThan(0);
+  });
+
   it('disables keyboard when keyboard is false', () => {
     const onClose = jest.fn();
     render(

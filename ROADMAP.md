@@ -18,20 +18,21 @@ graph TD
 
 ---
 
-## 📌 Phase 1: Stabilization and Test Coverage (Q3 2026)
+## 📌 Phase 1: Stabilization and Test Coverage ✅ Completed
 *Goal: Increase codebase stability, minimize bugs, and drive test coverage above 90%.*
 
-### 1.1 Unit & Component Test Expansion
-- **Custom Hooks:** Write detailed unit tests for `useSteps`, `useSpotlight`, `useKeyboard`, `usePopper`, `useTheme`, and other hooks.
-- **Component Integrity:** Ensure components like `Tooltip`, `MaskedOverlay`, `Spotlight`, and `Progress` render correctly under various combinations of props.
-- **Robust Error Handling (Error Boundaries):** Ensure the library runs fallback behaviors without crashing when target elements are missing or invalid selectors are passed.
+### 1.1 Unit & Component Test Expansion ✅
+- **Custom Hooks:** Unit tests for `useSteps`, `useSpotlight`/`useSpotlights`, `useKeyboard`, `usePopper`, `useTheme`, `useElementClick`, `useElementTrigger`, `useWaitForTarget`, `useFocusTrap`, `useDebugLog`, etc.
+- **Component Integrity:** `Tooltip`, `MaskedOverlay`, `Spotlight`, `Progress`, `Portal`, `DebugHUD`, `OnboardingChecklist`, `TourBuilder` suites.
+- **Robust Error Handling (Error Boundaries):** ✅ `GuideLoopErrorBoundary` wraps `<GuideLoop>` — render failures call `onError` and render optional `fallback` (default `null`) so the host app never white-screens. Missing targets wait; invalid selectors warn without throwing.
+- **Coverage gate:** Core library `collectCoverageFrom` enforces ≥90% lines (Tour Builder excluded as separate entry; still fully unit-tested).
 
-### 1.2 Integration and E2E Testing Infrastructure
-- **Playwright / Cypress Integration:** Test step transitions, click triggers (`nextButtonClickElementId`, etc.), keyboard navigation (Esc, Arrow keys), and viewport resize behaviors in real browser environments.
-- **Cross-Browser Testing:** Validate compatibility across Chrome, Firefox, Safari, and Edge.
+### 1.2 Integration and E2E Testing Infrastructure ✅
+- **Playwright:** Step transitions, triggers, keyboard nav, spotlight accuracy against the Next.js demo.
+- **Cross-Browser Testing:** ✅ Chromium, Firefox, and WebKit projects in `playwright.config.ts`; CI installs all three.
 
-### 1.3 Continuous Integration (CI/CD)
-- **GitHub Actions:** Automatically run test suites, execute ESLint checks, and verify build outputs on every Pull Request and commit to the main branch.
+### 1.3 Continuous Integration (CI/CD) ✅
+- **GitHub Actions:** Lint, `tsc --noEmit`, Jest + coverage thresholds, multi-browser Playwright e2e, build, audit, Pages deploy, npm publish on release.
 
 ---
 
@@ -132,8 +133,10 @@ graph TD
 
 | Feature / Goal | Priority | Complexity | Est. Effort | Status |
 | :--- | :---: | :---: | :---: | :---: |
-| **Unit Test Coverage (90%+)** | 🔴 Critical | Medium | 2 Weeks | ✅ Done |
+| **Unit Test Coverage (90%+)** | 🔴 Critical | Medium | 2 Weeks | ✅ Done (core ≥90% lines; threshold enforced) |
 | **Playwright E2E Setup** | 🔴 Critical | Medium | 1 Week | ✅ Done |
+| **Error Boundaries (`onError` / `fallback`)** | 🔴 Critical | Low | 0.5 Week | ✅ Done |
+| **Cross-Browser E2E (Chromium/Firefox/WebKit)** | 🔴 Critical | Medium | 1 Week | ✅ Done |
 | **Multi-Route Support** | 🟡 High | High | 3 Weeks | ✅ Done |
 | **Branching Tours** | 🟡 High | Medium | 2 Weeks | ✅ Done |
 | **Advanced Event Triggers** | 🟡 High | Medium | 1 Week | ✅ Done |
@@ -149,3 +152,17 @@ graph TD
 | **Examples Library** | 🟢 Medium | Medium | 3 Weeks | ✅ Done |
 | **Bundle / tree-shaking (Popper external)** | 🟡 High | Medium | 1 Week | ✅ Done |
 | **React 19 / RSC support** | 🟡 High | Medium | 2 Weeks | ✅ Done |
+
+---
+
+## 🔭 Next (stretch / Phase 6 candidates)
+
+Phases 1–5 are complete for the current roadmap. Natural follow-ups:
+
+| Idea | Notes |
+| :--- | :--- |
+| **Storybook addon** | Phase 4.1 stretch — design/story-driven tour authoring |
+| **Chrome extension packaging** | Phase 4.1 stretch — inject Tour Builder into any site |
+| **OnboardingModal coverage** | Raise modal-specific branch coverage further |
+| **Edge-only browser project** | Optional; Chromium project already covers Blink |
+| **Accessibility audit** | axe/Playwright a11y checks on tooltip/dialog/checklist |
