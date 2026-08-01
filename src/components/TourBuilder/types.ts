@@ -1,5 +1,6 @@
 import type { Placement } from '@popperjs/core';
 import type { SpotlightShapeName, StepTrigger } from '../GuideLoop/types';
+import { isDevelopmentEnv } from '../../utils/env';
 
 export interface BuilderStep {
   id: string;
@@ -93,11 +94,6 @@ export function resolveBuilderEnabled(
 ): boolean {
   if (enabled === true) return true;
   if (enabled === false) return false;
-  try {
-    return (
-      typeof process !== 'undefined' && process.env?.NODE_ENV === 'development'
-    );
-  } catch {
-    return false;
-  }
+  // 'auto' / omitted — development only (never production or test)
+  return isDevelopmentEnv();
 }

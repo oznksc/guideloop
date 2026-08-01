@@ -46,21 +46,43 @@ GuideLoop depends on `@popperjs/core` (installed automatically). The library kee
 
 ### In-app Tour Builder (development)
 
-While your real app is running locally, mount the builder once near the root:
+While your real app is running locally, mount the builder once near the root.
+**It must not appear in production builds** — prefer a development-only import so the
+builder chunk is never shipped:
 
 ```tsx
-// app/layout.tsx or App.tsx
-import { TourBuilder } from 'guideloop/builder';
-
+// app/layout.tsx (Server Component) — recommended for Next.js
 export default function RootLayout({ children }) {
   return (
     <html>
       <body>
         {children}
-        {/* Floating "GL" button — auto-hides when NODE_ENV === 'production' */}
-        <TourBuilder />
+        <DevTourBuilderSlot />
       </body>
     </html>
+  );
+}
+
+/** Production builds return null before importing — no builder chunk. */
+async function DevTourBuilderSlot() {
+  if (process.env.NODE_ENV !== 'development') return null;
+  const { TourBuilder } = await import('guideloop/builder');
+  return <TourBuilder enabled />;
+}
+```
+
+Vite / CRA style (static import is fine if gated; auto mode also hides the UI):
+
+```tsx
+import { TourBuilder } from 'guideloop/builder';
+
+export function App() {
+  return (
+    <>
+      <YourApp />
+      {/* Floating "GL" button — auto-hides when NODE_ENV !== 'development' */}
+      {process.env.NODE_ENV === 'development' ? <TourBuilder /> : null}
+    </>
   );
 }
 ```
@@ -71,7 +93,8 @@ export default function RootLayout({ children }) {
 4. Edit titles/content, reorder, preview the tour on the live DOM.
 5. **Copy** JSON or TypeScript and paste into your production `steps` array.
 
-`import 'guideloop/builder'` is a separate entry so production bundles that never import it do not ship the builder UI.
+`guideloop/builder` is a **separate package entry** (not in the main barrel). Combined with a
+development-only import gate, production bundles never include the builder UI.
 
 ### Next.js App Router / React Server Components
 
