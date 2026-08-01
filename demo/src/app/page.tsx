@@ -1,41 +1,32 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   GuideLoop,
-  OnboardingChecklist,
-  type OnboardingItem,
   type Step,
   type ThemeConfig,
-  clearOnboardingState,
-  loadOnboardingState,
-  saveOnboardingState,
 } from "guideloop";
 import {
   ArrowRight,
   Check,
-  CodeIcon,
   Copy,
   GuideLoopLogo,
-  Layers,
-  Shield,
+  Search,
   Sparkles,
+  Timeline,
+  Bell,
 } from "../components/DemoIcons";
-import { InteractivePlayground } from "../components/InteractivePlayground";
 import "./landing.css";
 
 const GITHUB_URL = "https://github.com/oznksc/guideloop";
 const NPM_URL = "https://www.npmjs.com/package/guideloop";
 const INSTALL_COMMAND = "npm install guideloop";
-const CHECKLIST_KEY = "guideloop-demo-getting-started-v4";
 
 type DemoThemeId = "slate" | "editorial" | "terminal" | "nordic";
 
 interface DemoThemePreset {
   id: DemoThemeId;
   name: string;
-  badge: string;
-  description: string;
   icon: string;
   config: ThemeConfig;
 }
@@ -44,9 +35,7 @@ const DEMO_THEMES: Record<DemoThemeId, DemoThemePreset> = {
   slate: {
     id: "slate",
     name: "Developer Slate",
-    badge: "Dark Indigo",
-    description: "High-density dark slate with electric indigo & cyan indicators",
-    icon: "⚡",
+    icon: "\u26A1",
     config: {
       tooltip: {
         background: "#111726",
@@ -55,10 +44,7 @@ const DEMO_THEMES: Record<DemoThemeId, DemoThemePreset> = {
         padding: "1.25rem",
         boxShadow: "0 1rem 3rem rgba(0, 0, 0, 0.6)",
       },
-      overlay: {
-        background: "#060911",
-        opacity: 0.7,
-      },
+      overlay: { background: "#060911", opacity: 0.7 },
       spotlight: {
         borderColor: "#6366f1",
         borderWidth: "2px",
@@ -84,9 +70,7 @@ const DEMO_THEMES: Record<DemoThemeId, DemoThemePreset> = {
   editorial: {
     id: "editorial",
     name: "Editorial Craft",
-    badge: "Warm Paper",
-    description: "Warm parchment paper with Newsreader serif headings & terracotta accent",
-    icon: "📜",
+    icon: "\uD83D\uDCDC",
     config: {
       tooltip: {
         background: "#ffffff",
@@ -95,10 +79,7 @@ const DEMO_THEMES: Record<DemoThemeId, DemoThemePreset> = {
         padding: "1.25rem",
         boxShadow: "0 1rem 2.5rem rgba(28, 25, 23, 0.16)",
       },
-      overlay: {
-        background: "#292524",
-        opacity: 0.52,
-      },
+      overlay: { background: "#292524", opacity: 0.52 },
       spotlight: {
         borderColor: "#9a3412",
         borderWidth: "2px",
@@ -124,9 +105,7 @@ const DEMO_THEMES: Record<DemoThemeId, DemoThemePreset> = {
   terminal: {
     id: "terminal",
     name: "Terminal CLI",
-    badge: "Phosphor Emerald",
-    description: "Obsidian matrix midnight with glowing phosphor green prompts",
-    icon: "📟",
+    icon: "\uD83D\uDCDF",
     config: {
       tooltip: {
         background: "#0b140e",
@@ -135,10 +114,7 @@ const DEMO_THEMES: Record<DemoThemeId, DemoThemePreset> = {
         padding: "1.15rem",
         boxShadow: "0 1rem 3rem rgba(0, 0, 0, 0.85)",
       },
-      overlay: {
-        background: "#03140a",
-        opacity: 0.78,
-      },
+      overlay: { background: "#03140a", opacity: 0.78 },
       spotlight: {
         borderColor: "#10b981",
         borderWidth: "2px",
@@ -164,9 +140,7 @@ const DEMO_THEMES: Record<DemoThemeId, DemoThemePreset> = {
   nordic: {
     id: "nordic",
     name: "Nordic Frost",
-    badge: "Arctic Azure",
-    description: "Frost blue canvas with azure spotlights & crisp white cards",
-    icon: "💎",
+    icon: "\uD83D\uDC8E",
     config: {
       tooltip: {
         background: "#ffffff",
@@ -175,10 +149,7 @@ const DEMO_THEMES: Record<DemoThemeId, DemoThemePreset> = {
         padding: "1.2rem",
         boxShadow: "0 1rem 2.5rem rgba(15, 23, 42, 0.14)",
       },
-      overlay: {
-        background: "#1e293b",
-        opacity: 0.5,
-      },
+      overlay: { background: "#1e293b", opacity: 0.5 },
       spotlight: {
         borderColor: "#0284c7",
         borderWidth: "2px",
@@ -205,39 +176,25 @@ const DEMO_THEMES: Record<DemoThemeId, DemoThemePreset> = {
 
 const tourSteps: Step[] = [
   {
-    target: "#test-search",
+    target: "#demo-search",
     title: "DOM Element Anchoring",
     content:
-      "Binds directly to any CSS selector (#test-search). Calculates target bounds dynamically on window resize or scroll.",
+      "Binds directly to any CSS selector. Calculates target bounds dynamically on window resize or scroll.",
     placement: "bottom",
   },
   {
-    target: "#test-filter-tabs",
-    title: "Filter & Tab Placement",
-    content:
-      "Configurable tooltip placement ('bottom', 'right', 'top', 'left') with automatic boundary detection.",
-    placement: "bottom",
-  },
-  {
-    target: "#test-metrics",
+    target: "#demo-metrics",
     title: "Real-Time Metric Spotlights",
     content:
       "Spotlights metrics, latency indicators, and readiness status at the exact moment clarification is needed.",
     placement: "bottom",
   },
   {
-    target: "#test-notifications",
+    target: "#demo-notifications",
     title: "Overlay Mask & Focus Trap",
     content:
       "Renders SVG overlay over non-active UI elements while enforcing keyboard tab focus loops.",
     placement: "bottom",
-  },
-  {
-    target: "#test-action-form",
-    title: "Action & Form Integration",
-    content:
-      "Embeds into onboarding tasks to trigger multi-step guides and form completion workflows.",
-    placement: "top",
   },
 ];
 
@@ -245,7 +202,6 @@ const integrationCode = `import { useState } from "react";
 import {
   GuideLoop,
   OnboardingChecklist,
-  type OnboardingItem,
   type Step
 } from "guideloop";
 
@@ -253,12 +209,6 @@ const steps: Step[] = [{
   target: "#search-bar",
   title: "DOM Element Anchoring",
   content: "Binds to target element via CSS selector."
-}];
-
-const items: OnboardingItem[] = [{
-  id: "tour",
-  title: "Run product walkthrough",
-  action: { type: "tour", steps }
 }];
 
 export function ProductOnboarding() {
@@ -274,20 +224,9 @@ export function ProductOnboarding() {
         isOpen={tourOpen}
         onClose={() => setTourOpen(false)}
       />
-      <OnboardingChecklist
-        items={items}
-        persist={{ key: "getting-started" }}
-      />
     </section>
   );
 }`;
-
-function scrollToSection(id: string) {
-  const target = document.getElementById(id);
-  if (!target) return;
-  target.scrollIntoView({ behavior: "smooth", block: "start" });
-  window.setTimeout(() => target.focus({ preventScroll: true }), 420);
-}
 
 interface CliLogEntry {
   id: string;
@@ -307,13 +246,11 @@ export default function Home() {
   const [tourOpen, setTourOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [integrationCopied, setIntegrationCopied] = useState(false);
-  const [checklistInstance, setChecklistInstance] = useState(0);
-  const [dockFloating, setDockFloating] = useState(true);
   const [cliLogs, setCliLogs] = useState<CliLogEntry[]>(initialLogs);
   const [showConsole, setShowConsole] = useState(false);
-  const [experienceStatus, setExperienceStatus] = useState(
-    "Interactive GuideLoop sandbox active.",
-  );
+  const [demoStatus, setDemoStatus] = useState("Spotlight sandbox active.");
+  const [demoQuery, setDemoQuery] = useState("");
+  const [showActivity, setShowActivity] = useState(false);
 
   const activeThemePreset = DEMO_THEMES[currentTheme];
   const activeThemeConfig = activeThemePreset.config;
@@ -328,7 +265,6 @@ export default function Home() {
     if (typeof document === "undefined") return;
     const root = document.documentElement;
     root.setAttribute("data-theme", themeId);
-    // Keep <meta name="color-scheme"> / form controls in sync with palette
     const scheme =
       themeId === "editorial" || themeId === "nordic" ? "light" : "dark";
     root.style.colorScheme = scheme;
@@ -337,9 +273,8 @@ export default function Home() {
   const changeTheme = useCallback((themeId: DemoThemeId) => {
     setCurrentTheme(themeId);
     applyThemeToDocument(themeId);
-    const themeName = DEMO_THEMES[themeId].name;
-    setExperienceStatus(`Style set to ${themeName}.`);
-    pushCliLog("THEME", `Switched theme preset to ${themeName.toUpperCase()}`);
+    setDemoStatus(`Style set to ${DEMO_THEMES[themeId].name}.`);
+    pushCliLog("THEME", `Switched theme preset to ${DEMO_THEMES[themeId].name.toUpperCase()}`);
   }, [applyThemeToDocument, pushCliLog]);
 
   useEffect(() => {
@@ -368,38 +303,25 @@ export default function Home() {
     }
   }, [pushCliLog]);
 
-  const completePersistedItem = useCallback((itemId: string) => {
-    const current =
-      loadOnboardingState(CHECKLIST_KEY)?.completedIds ?? ["workspace"];
-    saveOnboardingState(
-      CHECKLIST_KEY,
-      Array.from(new Set([...current, itemId])),
-    );
-    setChecklistInstance((instance) => instance + 1);
-    pushCliLog("ACTION", `Checklist task completed: "${itemId}"`);
-  }, [pushCliLog]);
-
   const startTour = useCallback(() => {
     setInitialStepIndex(0);
-    setExperienceStatus("Tour active — Step 1 Spotlight focused.");
+    setDemoStatus("Tour active \u2014 Step 1 Spotlight focused.");
     setTourOpen(true);
-    pushCliLog("TOUR", "Contextual tour started. Step 1/5 focused.");
+    pushCliLog("TOUR", "Contextual tour started. Step 1/3 focused.");
   }, [pushCliLog]);
 
   const triggerTarget = useCallback((selector: string) => {
     const idx = tourSteps.findIndex((s) => s.target === selector);
     setInitialStepIndex(idx >= 0 ? idx : 0);
-    setExperienceStatus(`Target spotlight active: ${selector}`);
+    setDemoStatus(`Target spotlight active: ${selector}`);
     setTourOpen(true);
     pushCliLog("TOUR", `Triggered target spotlight: ${selector}`);
   }, [pushCliLog]);
 
   const resetExperience = useCallback(() => {
-    clearOnboardingState(CHECKLIST_KEY);
     setTourOpen(false);
-    setChecklistInstance((instance) => instance + 1);
-    setExperienceStatus("Demo state reset.");
-    pushCliLog("SYS", "Onboarding state cleared.");
+    setDemoStatus("Demo state reset.");
+    pushCliLog("SYS", "Demo state cleared.");
   }, [pushCliLog]);
 
   useEffect(() => {
@@ -426,8 +348,6 @@ export default function Home() {
         startTour();
       } else if (event.key.toLowerCase() === "r" && !event.metaKey && !event.ctrlKey) {
         resetExperience();
-      } else if (event.key.toLowerCase() === "d" && !event.metaKey && !event.ctrlKey) {
-        setDockFloating((prev) => !prev);
       }
     };
 
@@ -435,388 +355,397 @@ export default function Home() {
     return () => document.removeEventListener("keydown", handleShortcut);
   }, [changeTheme, resetExperience, startTour]);
 
-  const onboardingItems = useMemo<OnboardingItem[]>(
-    () => [
-      {
-        id: "workspace",
-        title: "Inspect DOM workspace",
-        description: "Embedded sample React application.",
-      },
-      {
-        id: "tour",
-        title: "Execute step spotlight tour",
-        description: "Triggers 5 contextual step spotlights.",
-        action: {
-          type: "tour",
-          steps: tourSteps,
-          guideProps: {
-            theme: "custom",
-            customTheme: activeThemeConfig,
-            keyboard: true,
-            scrollSmooth: true,
-            spotlightPadding: 10,
-            zIndex: 5000,
-            defaultButtonLabels: {
-              next: "Next Step",
-              prev: "Previous",
-              skip: "Skip Tour",
-              finish: "Finish",
-            },
-          },
-          onComplete: () => {
-            setExperienceStatus("Tour completed successfully.");
-            pushCliLog("TOUR", "Tour finished successfully.");
-          },
-        },
-      },
-      {
-        id: "milestone",
-        title: "Trigger modal action",
-        description: "Executes custom React modal workflow.",
-        action: {
-          type: "modal",
-          title: "Create a milestone",
-          content: (
-            <div className="onboarding-form">
-              <p>
-                Add a milestone to this sample launch. Saved in browser storage.
-              </p>
-              <label htmlFor="onboarding-milestone">Milestone name</label>
-              <input
-                id="onboarding-milestone"
-                name="milestone"
-                placeholder="Release candidate"
-                autoComplete="off"
-              />
-              <label htmlFor="onboarding-date">Target date</label>
-              <input id="onboarding-date" name="date" type="date" />
-            </div>
-          ),
-          primaryLabel: "Add milestone",
-          secondaryLabel: "Not now",
-          onPrimary: () => {
-            const input = document.getElementById(
-              "onboarding-milestone",
-            ) as HTMLInputElement | null;
-            if (!input?.value.trim()) {
-              throw new Error("A milestone name is required.");
-            }
-            const val = input.value.trim();
-            setExperienceStatus(`Milestone “${val}” created.`);
-            pushCliLog("ACTION", `Milestone committed: "${val}"`);
-          },
-        },
-      },
-      {
-        id: "integration",
-        title: "Review component code",
-        description: "Examine React integration snippet.",
-        action: {
-          type: "link",
-          href: "#integration",
-          onNavigate: () =>
-            window.setTimeout(() => scrollToSection("integration"), 0),
-        },
-      },
-    ],
-    [activeThemeConfig, pushCliLog],
-  );
-
   return (
     <main className="landing-wrapper">
       <a className="skip-link" href="#content">
         Skip to main content
       </a>
 
-      {/* TOP HEADER NAV */}
-      <header className="site-header">
-        <div className="header-inner">
-          <a className="site-brand" href="#top" aria-label="GuideLoop home">
-            <GuideLoopLogo className="brand-logo" />
-            <span className="brand-badge">v1.4.0</span>
-          </a>
-
-          <div className="theme-compact-selector" aria-label="Theme selector">
-            {(Object.keys(DEMO_THEMES) as DemoThemeId[]).map((id) => (
-              <button
-                key={id}
-                type="button"
-                className={`theme-pill-btn ${currentTheme === id ? "is-active" : ""}`}
-                onClick={() => changeTheme(id)}
-                title={`Switch style to ${DEMO_THEMES[id].name}`}
-              >
-                <span>{DEMO_THEMES[id].icon}</span>
-                <span className="theme-pill-name">{DEMO_THEMES[id].name.split(" ")[0]}</span>
-              </button>
-            ))}
-          </div>
-
-          <div className="header-actions">
-            <a
-              href={GITHUB_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="btn btn--ghost"
-            >
-              Star on GitHub
+      <div className="content-column">
+        {/* HEADER */}
+        <header className="site-header">
+          <div className="header-inner">
+            <a className="site-brand" href="#top" aria-label="GuideLoop home">
+              <GuideLoopLogo className="brand-logo" />
+              <span className="brand-badge">v1.4.0</span>
             </a>
-          </div>
-        </div>
-      </header>
 
-      <div id="content" tabIndex={-1}>
-        {/* HERO SECTION */}
-        <section id="top" className="hero-section">
-          <div className="hero-container">
-            <div className="hero-badge">
-              <Sparkles className="w-4 h-4 text-accent" />
-              <span>React Step Spotlight & Onboarding Checklist Library</span>
+            <div className="theme-compact-selector" aria-label="Theme selector">
+              {(Object.keys(DEMO_THEMES) as DemoThemeId[]).map((id) => (
+                <button
+                  key={id}
+                  type="button"
+                  className={`theme-pill-btn ${currentTheme === id ? "is-active" : ""}`}
+                  onClick={() => changeTheme(id)}
+                  title={`Switch style to ${DEMO_THEMES[id].name}`}
+                >
+                  <span>{DEMO_THEMES[id].icon}</span>
+                  <span className="theme-pill-name">{DEMO_THEMES[id].name.split(" ")[0]}</span>
+                </button>
+              ))}
             </div>
 
-            <h1 className="hero-title">
-              Contextual Product Tours &amp; <br />
-              <span className="hero-gradient-text">Onboarding Checklists for React</span>
-            </h1>
-
-            <p className="hero-subtitle">
-              Lightweight React components for element spotlight tours and persisted onboarding checklists. Powered by Popper.js positioning, keyboard focus traps, and CSS custom property themes.
-            </p>
-
-            <div className="hero-cta-group">
-              <button
-                type="button"
-                className="btn btn--primary btn--lg"
-                onClick={startTour}
+            <div className="header-actions">
+              <a
+                href={GITHUB_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn--ghost"
               >
-                <ArrowRight className="w-5 h-5" />
-                <span>Run Tour Sandbox [T]</span>
-              </button>
+                Star on GitHub
+              </a>
+            </div>
+          </div>
+        </header>
 
-              <div className="install-command-pill">
-                <code>$ npm i guideloop</code>
+        <div id="content" tabIndex={-1}>
+          {/* HERO */}
+          <section id="top" className="hero-section">
+            <div className="hero-container">
+              <h1 className="hero-title">
+                Contextual Product Tours &amp;{" "}
+                <span className="hero-gradient-text">Onboarding for React</span>
+              </h1>
+
+              <p className="hero-subtitle">
+                Lightweight React components for element spotlight tours and persisted onboarding checklists.
+                Powered by Popper.js, keyboard focus traps, and CSS custom property themes.
+              </p>
+
+              <div className="hero-cta-group">
                 <button
                   type="button"
-                  onClick={() => void copyInstallCommand()}
-                  title="Copy install command"
-                  aria-label="Copy install command"
+                  className="btn btn--primary"
+                  onClick={startTour}
                 >
-                  {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                  <ArrowRight className="w-5 h-5" />
+                  <span>Run Tour Sandbox [T]</span>
                 </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* WORKBENCH SECTION */}
-        <section id="live" className="workbench-section" tabIndex={-1}>
-          <div className="workbench-container">
-            <div className="workbench-frame">
-              {/* INTERACTIVE PLAYGROUND SANDBOX */}
-              <InteractivePlayground
-                onStartTour={startTour}
-                onResetState={resetExperience}
-                onTriggerTarget={triggerTarget}
-                statusMessage={experienceStatus}
-              />
-
-              {/* CONSOLE LOG DRAWER */}
-              <div className="console-drawer">
-                <button
-                  type="button"
-                  className="console-toggle"
-                  onClick={() => setShowConsole((prev) => !prev)}
-                >
-                  <span>❯ Event Stream Logs ({cliLogs.length})</span>
-                  <span>{showConsole ? "▼ Hide" : "▲ View Logs"}</span>
-                </button>
-                {showConsole && (
-                  <div className="console-body">
-                    {cliLogs.map((log) => (
-                      <div key={log.id} className="console-line">
-                        <span className="log-time">[{log.time}]</span>
-                        <span className={`log-tag log-tag--${log.level.toLowerCase()}`}>
-                          [{log.level}]
-                        </span>
-                        <span className="log-msg">{log.msg}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* ONBOARDING CHECKLIST DOCK */}
-              <div
-                className={`onboarding-dock ${
-                  dockFloating ? "onboarding-dock--floating" : "onboarding-dock--inline"
-                }`}
-              >
-                <OnboardingChecklist
-                  key={checklistInstance}
-                  items={onboardingItems}
-                  title="Getting Started Checklist"
-                  description="Try every onboarding task in real time."
-                  defaultCompletedIds={["workspace"]}
-                  persist={{ key: CHECKLIST_KEY }}
-                  theme="custom"
-                  customTheme={activeThemeConfig}
-                  className="product-checklist"
-                  ariaLabel="GuideLoop demo getting started checklist"
-                  zIndex={5000}
-                  labels={{
-                    progress: (completed, total) =>
-                      `${completed} of ${total} steps completed`,
-                    error: "Enter a milestone name to continue.",
-                  }}
-                  onProgressChange={(progress) => {
-                    setExperienceStatus(
-                      `${progress.completed}/${progress.total} onboarding tasks completed.`,
-                    );
-                  }}
-                  onComplete={() => {
-                    setExperienceStatus("All onboarding tasks finished!");
-                    pushCliLog("SYS", "All checklist tasks complete!");
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* FEATURES GRID SECTION */}
-        <section id="features" className="features-section">
-          <div className="features-container">
-            <div className="section-header">
-              <span className="section-kicker">TECHNICAL SPECIFICATION</span>
-              <h2>Core Architecture &amp; Features</h2>
-              <p>Type-safe components for contextual guides, DOM element spotlights, and stateful checklists.</p>
-            </div>
-
-            <div className="features-grid">
-              <div className="feature-card">
-                <div className="feature-icon-box">
-                  <Sparkles className="w-6 h-6 text-accent" />
-                </div>
-                <h3>Element Spotlight Anchoring</h3>
-                <p>Target DOM elements via CSS selectors with dynamic positioning, automatic scroll alignment, and overlay masks powered by Popper.js.</p>
-              </div>
-
-              <div className="feature-card">
-                <div className="feature-icon-box">
-                  <Layers className="w-6 h-6 text-accent" />
-                </div>
-                <h3>CSS Variable Theme Engine</h3>
-                <p>Customize tooltip card backgrounds, spotlight borders, and overlays using CSS custom properties or structured JSON ThemeConfig objects.</p>
-              </div>
-
-              <div className="feature-card">
-                <div className="feature-icon-box">
-                  <Shield className="w-6 h-6 text-accent" />
-                </div>
-                <h3>Persisted Onboarding State</h3>
-                <p>Render step progress bars with automatic localStorage persistence, completion callbacks, and custom modal action triggers.</p>
-              </div>
-
-              <div className="feature-card">
-                <div className="feature-icon-box">
-                  <CodeIcon className="w-6 h-6 text-accent" />
-                </div>
-                <h3>Accessible &amp; Keyboard-First</h3>
-                <p>Built-in focus traps, Esc key handling, keyboard shortcuts (Arrow keys, Enter), and fully compliant ARIA accessibility attributes.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* QUICKSTART SECTION */}
-        <section id="quickstart" className="quickstart-section" tabIndex={-1}>
-          <div className="quickstart-container">
-            <div className="quickstart-grid">
-              <div className="quickstart-copy">
-                <span className="section-kicker">DEVELOPER INTEGRATION</span>
-                <h2>Type-Safe React API</h2>
-                <p>
-                  Import <code>GuideLoop</code> and <code>OnboardingChecklist</code> directly into your React application with TypeScript types.
-                </p>
-                <div className="spec-cards">
-                  <div className="spec-card">
-                    <span className="spec-label">Package</span>
-                    <strong>npm install guideloop</strong>
-                  </div>
-                  <div className="spec-card">
-                    <span className="spec-label">Bundle Size</span>
-                    <strong>&lt; 8 kB gzipped</strong>
-                  </div>
-                  <div className="spec-card">
-                    <span className="spec-label">License</span>
-                    <strong>MIT Open Source</strong>
-                  </div>
-                </div>
-              </div>
-
-              <div className="code-window">
-                <div className="code-header">
-                  <div className="code-dots">
-                    <span className="dot dot--red" />
-                    <span className="dot dot--yellow" />
-                    <span className="dot dot--green" />
-                  </div>
-                  <span className="code-filename">App.tsx</span>
+                <div className="install-command-pill">
+                  <code>$ npm i guideloop</code>
                   <button
                     type="button"
-                    className="code-copy-btn"
-                    onClick={() => void copyIntegrationCode()}
-                    aria-label="Copy GuideLoop integration example"
+                    onClick={() => void copyInstallCommand()}
+                    title="Copy install command"
+                    aria-label="Copy install command"
                   >
-                    {integrationCopied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                    <span>{integrationCopied ? "Copied" : "Copy Code"}</span>
+                    {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   </button>
                 </div>
-                <pre tabIndex={0} aria-label="GuideLoop integration example">
-                  <code>{integrationCode}</code>
-                </pre>
+              </div>
+
+              <div className="hero-stats">
+                <span className="hero-stat">
+                  <span className="hero-stat-symbol">&lt;</span>8kB gzipped
+                </span>
+                <span className="hero-stat-divider" />
+                <span className="hero-stat">
+                  <span className="hero-stat-symbol">~</span> MIT License
+                </span>
+                <span className="hero-stat-divider" />
+                <span className="hero-stat">
+                  <span className="hero-stat-symbol">^</span> React 16+
+                </span>
+                <span className="hero-stat-divider" />
+                <span className="hero-stat">
+                  <span className="hero-stat-symbol">@</span> Popper.js v2
+                </span>
+              </div>
+            </div>
+          </section>
+
+          {/* QUICKSTART + API */}
+          <section id="quickstart" className="quickstart-section" tabIndex={-1}>
+            <div className="quickstart-container">
+              <div className="section-header">
+                <span className="section-kicker">GETTING STARTED</span>
+                <h2>Type-Safe React API</h2>
+                <p>
+                  Import <code>GuideLoop</code> and start building contextual tours in minutes.
+                </p>
+              </div>
+
+              <div className="quickstart-grid">
+                <div className="code-window">
+                  <div className="code-header">
+                    <div className="code-dots">
+                      <span className="dot dot--red" />
+                      <span className="dot dot--yellow" />
+                      <span className="dot dot--green" />
+                    </div>
+                    <span className="code-filename">App.tsx</span>
+                    <button
+                      type="button"
+                      className="code-copy-btn"
+                      onClick={() => void copyIntegrationCode()}
+                      aria-label="Copy GuideLoop integration example"
+                    >
+                      {integrationCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      <span>{integrationCopied ? "Copied" : "Copy"}</span>
+                    </button>
+                  </div>
+                  <pre tabIndex={0} aria-label="GuideLoop integration example">
+                    <code>{integrationCode}</code>
+                  </pre>
+                </div>
+
+                <div className="api-reference">
+                  <div className="api-group">
+                    <span className="api-group-label">Components</span>
+                    <div className="api-item">
+                      <span className="api-item-symbol">&gt;</span>
+                      <div className="api-item-content">
+                        <span className="api-item-name">GuideLoop</span>
+                        <span className="api-item-desc">Main tour orchestrator. Accepts steps[], isOpen, theme, keyboard.</span>
+                      </div>
+                    </div>
+                    <div className="api-item">
+                      <span className="api-item-symbol">&gt;</span>
+                      <div className="api-item-content">
+                        <span className="api-item-name">OnboardingChecklist</span>
+                        <span className="api-item-desc">Persisted task list with tour, modal, link, and custom actions.</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="api-group">
+                    <span className="api-group-label">Types</span>
+                    <div className="api-item">
+                      <span className="api-item-symbol">:</span>
+                      <div className="api-item-content">
+                        <span className="api-item-name">Step</span>
+                        <span className="api-item-desc">target, title, content, placement, onBeforeStep, onAfterStep</span>
+                      </div>
+                    </div>
+                    <div className="api-item">
+                      <span className="api-item-symbol">:</span>
+                      <div className="api-item-content">
+                        <span className="api-item-name">ThemeConfig</span>
+                        <span className="api-item-desc">tooltip, overlay, spotlight, buttons \u2014 full visual control.</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="api-group">
+                    <span className="api-group-label">Features</span>
+                    <div className="api-item">
+                      <span className="api-item-symbol">*</span>
+                      <div className="api-item-content">
+                        <span className="api-item-name">Spotlight &amp; Overlay</span>
+                        <span className="api-item-desc">Popper.js positioning, SVG mask, focus trap, scroll alignment.</span>
+                      </div>
+                    </div>
+                    <div className="api-item">
+                      <span className="api-item-symbol">*</span>
+                      <div className="api-item-content">
+                        <span className="api-item-name">Persistence</span>
+                        <span className="api-item-desc">localStorage-backed completion state with custom keys.</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* INLINE DEMO */}
+          <section id="demo" className="demo-section" tabIndex={-1}>
+            <div className="demo-container">
+              <div className="demo-window">
+                <div className="demo-topbar">
+                  <div className="demo-topbar-left">
+                    <GuideLoopLogo className="h-5 w-auto" />
+                    <span className="demo-topbar-title">Spotlight Sandbox</span>
+                    <span className="demo-topbar-badge">Live</span>
+                  </div>
+                  <div className="demo-topbar-right">
+                    <span className="demo-status-dot" />
+                    <span className="demo-status-text">{demoStatus}</span>
+                  </div>
+                </div>
+
+                <div className="demo-body">
+                  <div className="demo-row demo-row--full">
+                    <div className="demo-card demo-card--wide">
+                      <div className="demo-card-head">
+                        <span className="demo-card-label">
+                          <Search className="w-3.5 h-3.5" />
+                          Search &amp; Filters
+                        </span>
+                        <span className="demo-card-tag">target 1 &amp; 2</span>
+                      </div>
+                      <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", alignItems: "center" }}>
+                        <div id="demo-search" className="demo-search" style={{ flex: 1, minWidth: 200 }}>
+                          <Search className="w-3.5 h-3.5" style={{ opacity: 0.5, flexShrink: 0 }} />
+                          <input
+                            type="text"
+                            value={demoQuery}
+                            onChange={(e) => setDemoQuery(e.target.value)}
+                            placeholder="Search components..."
+                          />
+                          <kbd>\u2318K</kbd>
+                        </div>
+                        <div className="demo-filters">
+                          <button type="button" className="demo-filter is-active">All</button>
+                          <button type="button" className="demo-filter">Guides</button>
+                          <button type="button" className="demo-filter">Checklists</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="demo-row">
+                    <div className="demo-card">
+                      <div className="demo-card-head">
+                        <span className="demo-card-label">
+                          <Timeline className="w-3.5 h-3.5" />
+                          Metrics
+                        </span>
+                        <span className="demo-card-tag">target 3</span>
+                      </div>
+                      <div id="demo-metrics" className="demo-metrics">
+                        <div className="demo-metric">
+                          <span className="demo-metric-label">Readiness</span>
+                          <span className="demo-metric-value">88%</span>
+                          <div className="demo-metric-bar"><span style={{ width: "88%" }} /></div>
+                        </div>
+                        <div className="demo-metric">
+                          <span className="demo-metric-label">Latency</span>
+                          <span className="demo-metric-value">12ms</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="demo-card">
+                      <div className="demo-card-head">
+                        <span className="demo-card-label">
+                          <Bell className="w-3.5 h-3.5" />
+                          Activity
+                        </span>
+                        <span className="demo-card-tag">target 4</span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.65rem" }}>
+                        <button
+                          id="demo-notifications"
+                          type="button"
+                          className="demo-trigger"
+                          onClick={() => setShowActivity((p) => !p)}
+                          style={{ position: "relative" }}
+                        >
+                          <Bell className="w-3.5 h-3.5" />
+                          <span style={{ position: "absolute", top: -2, right: -2, width: 6, height: 6, borderRadius: "50%", background: "#f43f5e" }} />
+                        </button>
+                        <div>
+                          <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--color-ink, #fff)" }}>Notifications</div>
+                          <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--color-ink-muted, #94a3b8)" }}>Click bell to toggle</div>
+                        </div>
+                      </div>
+                      {showActivity && (
+                        <div style={{ marginTop: "0.65rem", padding: "0.65rem", background: "var(--color-canvas, #090d16)", border: "1px solid var(--color-line-strong, rgba(255,255,255,0.15))", borderRadius: "0.4rem", fontFamily: "var(--font-mono)", fontSize: "0.7rem" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.3rem", color: "var(--color-ink, #fff)" }}>
+                            <span>Recent Events</span><span style={{ color: "#10b981" }}>Live</span>
+                          </div>
+                          <div style={{ color: "var(--color-ink-muted, #94a3b8)", display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.2rem" }}>
+                            <span style={{ width: 4, height: 4, borderRadius: "50%", background: "#10b981", flexShrink: 0 }} />
+                            Spotlight bounds calculated.
+                          </div>
+                          <div style={{ color: "var(--color-ink-muted, #94a3b8)", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                            <span style={{ width: 4, height: 4, borderRadius: "50%", background: "#64748b", flexShrink: 0 }} />
+                            Focus trapped within dialog.
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="demo-controls">
+                    <button type="button" className="demo-trigger demo-trigger--primary" onClick={startTour}>
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Run Tour [T]
+                    </button>
+                    <button type="button" className="demo-trigger" onClick={() => triggerTarget("#demo-search")}>
+                      <Search className="w-3.5 h-3.5" />
+                      Target Search
+                    </button>
+                    <button type="button" className="demo-trigger" onClick={() => triggerTarget("#demo-metrics")}>
+                      <Timeline className="w-3.5 h-3.5" />
+                      Target Metrics
+                    </button>
+                    <button type="button" className="demo-trigger" onClick={() => triggerTarget("#demo-notifications")}>
+                      <Bell className="w-3.5 h-3.5" />
+                      Target Bell
+                    </button>
+                    <button type="button" className="demo-trigger" onClick={resetExperience} title="Reset [R]">
+                      Reset
+                    </button>
+                  </div>
+
+                  <div className="console-drawer">
+                    <button
+                      type="button"
+                      className="console-toggle"
+                      onClick={() => setShowConsole((p) => !p)}
+                    >
+                      <span>&gt; Event Stream ({cliLogs.length})</span>
+                      <span>{showConsole ? "\u25BC Hide" : "\u25B2 View"}</span>
+                    </button>
+                    {showConsole && (
+                      <div className="console-body">
+                        {cliLogs.map((log) => (
+                          <div key={log.id} className="console-line">
+                            <span className="log-time">[{log.time}]</span>
+                            <span className={`log-tag log-tag--${log.level.toLowerCase()}`}>
+                              [{log.level}]
+                            </span>
+                            <span className="log-msg">{log.msg}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* FOOTER */}
+        <footer className="site-footer">
+          <div className="footer-container">
+            <div className="footer-brand">
+              <GuideLoopLogo className="footer-logo" />
+              <p>Type-safe React components for contextual element guides, spotlights, and onboarding checklists.</p>
+            </div>
+            <div className="footer-links">
+              <div className="footer-col">
+                <strong>Resources</strong>
+                <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub Repository</a>
+                <a href={NPM_URL} target="_blank" rel="noreferrer">NPM Package</a>
+              </div>
+              <div className="footer-col">
+                <strong>License</strong>
+                <span>MIT License</span>
+                <span>Open Source</span>
               </div>
             </div>
           </div>
-        </section>
+          <div className="footer-bottom">
+            <div className="footer-bottom-container">
+              <span>&copy; 2026 GuideLoop</span>
+              <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a>
+            </div>
+          </div>
+        </footer>
       </div>
 
-      {/* FOOTER */}
-      <footer className="site-footer">
-        <div className="footer-container">
-          <div className="footer-brand">
-            <GuideLoopLogo className="footer-logo" />
-            <p>Type-safe React components for contextual element guides, spotlights, and onboarding checklists.</p>
-          </div>
-
-          <div className="footer-links">
-            <div className="footer-col">
-              <strong>Resources</strong>
-              <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub Repository</a>
-              <a href={NPM_URL} target="_blank" rel="noreferrer">NPM Package</a>
-            </div>
-            <div className="footer-col">
-              <strong>License</strong>
-              <span>MIT License</span>
-              <span>Open Source</span>
-            </div>
-          </div>
-        </div>
-        <div className="footer-bottom">
-          <div className="footer-bottom-container">
-            <span>© 2026 GuideLoop. All rights reserved.</span>
-            <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a>
-          </div>
-        </div>
-      </footer>
-
-      {/* GUIDELOOP COMPONENT INSTANCE */}
+      {/* GUIDELOOP INSTANCE */}
       <GuideLoop
         steps={tourSteps}
         isOpen={tourOpen}
         initialStep={initialStepIndex}
         onClose={() => {
           setTourOpen(false);
-          setExperienceStatus("Tour closed.");
+          setDemoStatus("Tour closed.");
           pushCliLog("TOUR", "Tour modal closed by user.");
         }}
         onStepChange={(stepIndex) => {
@@ -824,18 +753,17 @@ export default function Home() {
           if (step) {
             pushCliLog(
               "TOUR",
-              `Focused step ${stepIndex + 1}/5: ${step.target} ("${step.title}")`,
+              `Focused step ${stepIndex + 1}/3: ${step.target} ("${step.title}")`,
             );
           }
         }}
         onSkip={() => {
-          setExperienceStatus("Tour skipped.");
+          setDemoStatus("Tour skipped.");
           pushCliLog("TOUR", "Tour skipped by user.");
         }}
         onComplete={() => {
           setTourOpen(false);
-          completePersistedItem("tour");
-          setExperienceStatus("Tour finished.");
+          setDemoStatus("Tour finished.");
           pushCliLog("TOUR", "Tour completed successfully!");
         }}
         theme="custom"
