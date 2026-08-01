@@ -45,13 +45,20 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const isDev = process.env.NODE_ENV === "development";
+
   return (
     <html lang="en" data-theme="slate" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${lora.variable} ${jetbrainsMono.variable} antialiased`}
       >
         {children}
-        <DevTourBuilder />
+        {/*
+          Dev-only visual editor. Production builds:
+          1) skip rendering here (NODE_ENV gate)
+          2) resolve guideloop/builder → empty shim via next.config webpack alias
+        */}
+        {isDev ? <DevTourBuilder /> : null}
       </body>
     </html>
   );

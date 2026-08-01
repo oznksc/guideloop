@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import type { DebugEvent, DebugEventType } from '../components/DebugHUD/types';
+import { isDevelopmentEnv } from '../utils/env';
 
 const MAX_EVENTS = 50;
 
@@ -43,9 +44,5 @@ export function resolveDebugEnabled(debug: boolean | 'auto' | undefined): boolea
   if (debug === false) return false;
   // 'auto' or undefined → only when explicitly in development
   // (not 'test' / 'production', so Jest and prod builds stay clean)
-  try {
-    return typeof process !== 'undefined' && process.env?.NODE_ENV === 'development';
-  } catch {
-    return false;
-  }
+  return isDevelopmentEnv();
 }

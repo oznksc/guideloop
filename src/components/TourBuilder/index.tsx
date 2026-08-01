@@ -81,11 +81,18 @@ function Status({ selector }: { selector: string }) {
 /**
  * In-app development Tour Builder.
  *
- * Mount once near the root of your app in development:
+ * Prefer a development-only import so production builds never ship this UI:
  *
  * ```tsx
+ * // Next.js Server Component gate (no production chunk)
+ * async function DevTourBuilderSlot() {
+ *   if (process.env.NODE_ENV !== 'development') return null;
+ *   const { TourBuilder } = await import('guideloop/builder');
+ *   return <TourBuilder enabled />;
+ * }
+ *
+ * // Or gate the render — auto mode also returns null in production
  * {process.env.NODE_ENV === 'development' && <TourBuilder />}
- * // or simply <TourBuilder />  — auto-hides in production
  * ```
  *
  * Click the floating **GL** button, pick real page elements, edit steps,

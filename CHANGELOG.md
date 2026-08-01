@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-08-01
+
 ### Added
 - **In-app Tour Builder (dev):** `import { TourBuilder } from 'guideloop/builder'` — floating **GL** button over your running app; pick live DOM, edit steps, preview, export JSON/TS. Separate package entry (tree-shakeable). Auto-enabled in development only.
 - **Visual Tour Builder lab:** `examples/tour-builder` — standalone practice UI with the same pick/edit/export flow.
@@ -16,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Interactive Debug HUD:** `debug` prop on `<GuideLoop>` (`true` | `false` | `'auto'`). Dev overlay shows step stats, missing selectors, multi-target status, trigger/wait state, time-on-step, and event history. Also exports `DebugHUD` + `DebugSnapshot` types.
 
 ### Changed
+- **Tour Builder production safety:** shared `isDevelopmentEnv()` for auto-hide; demo production builds gate the mount and webpack-alias `guideloop/builder` to a no-op so the visual editor never ships in static exports.
 - **Portal** mounts only after client hydration (SSR/RSC-safe); focus trap waits for the portal container.
 - **`useViewportSize`** no longer reads `window` during SSR init.
 - **Bundle optimization:** `@popperjs/core` is no longer bundled into `dist` (external dependency). `usePopper` loads it via dynamic `import()` so apps can code-split positioning.

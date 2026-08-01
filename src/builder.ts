@@ -2,7 +2,10 @@
  * Development Tour Builder entry — import from `guideloop/builder`.
  *
  * Tree-shake friendly: production apps that never import this entry
- * never ship the builder UI.
+ * never ship the builder UI. Prefer a development-only import gate
+ * (dynamic import when `NODE_ENV === 'development'`) so production
+ * builds drop the chunk entirely. The component also returns null
+ * under auto mode outside development.
  */
 
 export { TourBuilder } from './components/TourBuilder';

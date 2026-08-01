@@ -106,6 +106,19 @@ describe('TourBuilder UI', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('does not render under auto mode outside development', () => {
+    const original = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'production';
+    try {
+      render(<TourBuilder />);
+      expect(
+        screen.queryByRole('button', { name: /Open GuideLoop Tour Builder/i })
+      ).not.toBeInTheDocument();
+    } finally {
+      process.env.NODE_ENV = original;
+    }
+  });
+
   it('adds a step when picking a live element', async () => {
     render(
       <>
