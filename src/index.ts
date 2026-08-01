@@ -1,4 +1,5 @@
-export { GuideLoop } from './components/GuideLoop';
+export { GuideLoop, GuideLoopErrorBoundary } from './components/GuideLoop';
+export type { GuideLoopErrorBoundaryProps } from './components/GuideLoop';
 export type {
   Step,
   GuideLoopProps,

@@ -22,6 +22,7 @@ import { useDebugLog, resolveDebugEnabled } from '../../hooks/useDebugLog';
 import { GUIDE_RESTART_EVENT, RESTART_DELAY } from '../../utils/events';
 import type { GuideLoopProps, AdditionalSpotlightTarget } from './types';
 import { Portal } from './Portal';
+import { GuideLoopErrorBoundary } from './ErrorBoundary';
 import { MaskedOverlay } from '../MaskedOverlay';
 import { useSpotlights, type SpotlightTargetInput } from '../../hooks/useSpotlight';
 import { scrollIntoView } from '../../utils/scroll';
@@ -37,7 +38,7 @@ function normalizeAdditionalTarget(
   return entry;
 }
 
-export const GuideLoop: React.FC<GuideLoopProps> = ({
+const GuideLoopInner: React.FC<GuideLoopProps> = ({
   steps,
   isOpen,
   onClose,
@@ -650,4 +651,18 @@ export const GuideLoop: React.FC<GuideLoopProps> = ({
   );
 };
 
+/**
+ * Guided tour orchestrator.
+ *
+ * Wrapped in an error boundary so a render failure in a step/tooltip/overlay
+ * cannot crash the host application. Use `onError` / `fallback` for custom handling.
+ */
+export const GuideLoop: React.FC<GuideLoopProps> = (props) => (
+  <GuideLoopErrorBoundary onError={props.onError} fallback={props.fallback}>
+    <GuideLoopInner {...props} />
+  </GuideLoopErrorBoundary>
+);
+
 export default GuideLoop;
+export { GuideLoopErrorBoundary } from './ErrorBoundary';
+export type { GuideLoopErrorBoundaryProps } from './ErrorBoundary';
