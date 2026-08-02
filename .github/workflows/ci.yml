@@ -45,10 +45,13 @@ jobs:
         run: npm test
 
       - name: Upload coverage artifact
+        if: always()
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: coverage-${{ matrix.node-version }}
           path: coverage/
+          if-no-files-found: ignore
 
   e2e:
     runs-on: ubuntu-latest
@@ -63,30 +66,41 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Install monorepo dependencies
         run: npm ci
+
+      - name: Build monorepo packages
+        run: npm run build
 
       - name: Install demo dependencies
         run: npm ci
         working-directory: ./demo
+
+      - name: Build demo (static export)
+        run: npm run build
+        working-directory: ./demo
+        env:
+          NEXT_PUBLIC_BASE_PATH: ''
 
       - name: Cache Playwright browsers
         uses: actions/cache@v4
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
-          # Include browser set so chromium-only caches are not reused after multi-browser rollout
-          key: playwright-${{ runner.os }}-cfw-${{ hashFiles('package-lock.json') }}
-
-      - name: Install Playwright system deps
-        run: npx playwright install-deps chromium firefox webkit
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       - name: Install Playwright browsers
-        # Always run: fills missing browsers even when an older cache hit only has chromium
-        run: npx playwright install chromium firefox webkit
-
-      - name: Build library
-        run: npm run build
+        run: npx playwright install --with-deps chromium firefox webkit
 
       - name: Run E2E tests
-        run: npx playwright test
+        run: npm run test:e2e
+        env:
+          CI: true
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          if-no-files-found: ignore

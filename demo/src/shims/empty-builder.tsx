@@ -1,5 +1,5 @@
 /**
- * Production stub for `guideloop/builder`.
+ * Production stub for `@guideloop/react/builder`.
  *
  * next.config aliases the real package entry to this module during
  * production builds so the Tour Builder UI is never shipped.

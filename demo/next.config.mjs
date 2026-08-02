@@ -20,7 +20,7 @@ const nextConfig = {
     if (!dev) {
       config.resolve.alias = {
         ...config.resolve.alias,
-        "guideloop/builder": path.resolve(
+        "@guideloop/react/builder": path.resolve(
           __dirname,
           "src/shims/empty-builder.tsx"
         ),

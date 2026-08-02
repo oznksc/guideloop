@@ -11,10 +11,10 @@ import { HeroSpotlightDemo } from "../components/HeroSpotlightDemo";
 import "./landing.css";
 
 const GITHUB_URL = "https://github.com/oznksc/guideloop";
-const NPM_URL = "https://www.npmjs.com/package/guideloop";
-const INSTALL_COMMAND = "npm install guideloop";
-
+const NPM_REACT = "https://www.npmjs.com/package/@guideloop/react";
+const NPM_VANILLA = "https://www.npmjs.com/package/@guideloop/vanilla";
 type DemoThemeId = "slate" | "editorial" | "terminal" | "nordic";
+type StackId = "react" | "vanilla" | "webcomponent";
 
 interface DemoThemePreset {
   id: DemoThemeId;
@@ -29,8 +29,24 @@ const DEMO_THEMES: Record<DemoThemeId, DemoThemePreset> = {
   nordic: { id: "nordic", name: "Nordic Frost", icon: "\uD83D\uDC8E" },
 };
 
-const integrationCode = `import { useState } from "react";
-import { GuideLoop, type Step } from "guideloop";
+const STACK_CARDS: {
+  id: StackId;
+  label: string;
+  packageName: string;
+  file: string;
+  install: string;
+  code: string;
+  npmUrl: string;
+}[] = [
+  {
+    id: "react",
+    label: "React",
+    packageName: "@guideloop/react",
+    file: "App.tsx",
+    install: "npm i @guideloop/react",
+    npmUrl: NPM_REACT,
+    code: `import { useState } from "react";
+import { GuideLoop, type Step } from "@guideloop/react";
 
 const steps: Step[] = [{
   target: "#search-bar",
@@ -43,17 +59,72 @@ export function App() {
   return (
     <>
       <button onClick={() => setOpen(true)}>Start</button>
-      <GuideLoop steps={steps} isOpen={open} onClose={() => setOpen(false)} />
+      <GuideLoop
+        steps={steps}
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        theme="tailwind"
+      />
     </>
   );
-}`;
+}`,
+  },
+  {
+    id: "vanilla",
+    label: "Vanilla JS",
+    packageName: "@guideloop/vanilla",
+    file: "tour.js",
+    install: "npm i @guideloop/vanilla",
+    npmUrl: NPM_VANILLA,
+    code: `import { GuideLoop } from "@guideloop/vanilla";
+
+const tour = new GuideLoop({
+  steps: [{
+    target: "#search-bar",
+    title: "Search",
+    content: "Bind any CSS selector.",
+    placement: "bottom",
+  }],
+  theme: "tailwind",
+  keyboard: true,
+  onComplete: () => console.log("done"),
+});
+
+await tour.start();
+// tour.next() · tour.prev() · tour.skip() · tour.close()`,
+  },
+  {
+    id: "webcomponent",
+    label: "Web Component",
+    packageName: "@guideloop/vanilla",
+    file: "index.html",
+    install: "npm i @guideloop/vanilla",
+    npmUrl: NPM_VANILLA,
+    code: `<script type="module">
+  import "@guideloop/vanilla/web-component";
+</script>
+
+<guide-loop
+  id="tour"
+  theme="tailwind"
+  steps='[
+    {"target":"#search-bar","title":"Search","content":"Any stack."}
+  ]'
+></guide-loop>
+
+<script>
+  document.getElementById("tour").open();
+</script>`,
+  },
+];
 
 export default function Home() {
   const [currentTheme, setCurrentTheme] = useState<DemoThemeId>("slate");
   const [themeMenuOpen, setThemeMenuOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [integrationCopied, setIntegrationCopied] = useState(false);
+  const [copiedCode, setCopiedCode] = useState<StackId | null>(null);
+  const [copiedHeroInstall, setCopiedHeroInstall] = useState(false);
   const themeMenuRef = useRef<HTMLDivElement>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
   const themeListId = useId();
 
   const applyThemeToDocument = useCallback((themeId: DemoThemeId) => {
@@ -89,9 +160,7 @@ export default function Home() {
     };
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setThemeMenuOpen(false);
-      }
+      if (event.key === "Escape") setThemeMenuOpen(false);
     };
 
     document.addEventListener("mousedown", onPointerDown);
@@ -102,24 +171,21 @@ export default function Home() {
     };
   }, [themeMenuOpen]);
 
-  const copyInstallCommand = useCallback(async () => {
+  const copyText = useCallback(async (text: string, onDone: () => void) => {
     try {
-      await navigator.clipboard.writeText(INSTALL_COMMAND);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1800);
+      await navigator.clipboard.writeText(text);
+      onDone();
     } catch {
-      setCopied(false);
+      /* ignore */
     }
   }, []);
 
-  const copyIntegrationCode = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(integrationCode);
-      setIntegrationCopied(true);
-      window.setTimeout(() => setIntegrationCopied(false), 1800);
-    } catch {
-      setIntegrationCopied(false);
-    }
+  const scrollCarousel = useCallback((dir: -1 | 1) => {
+    const el = carouselRef.current;
+    if (!el) return;
+    const card = el.querySelector<HTMLElement>(".stack-card");
+    const delta = (card?.offsetWidth ?? 320) + 12;
+    el.scrollBy({ left: dir * delta, behavior: "smooth" });
   }, []);
 
   const activeTheme = DEMO_THEMES[currentTheme];
@@ -135,7 +201,7 @@ export default function Home() {
           <div className="header-inner">
             <a className="site-brand" href="#top" aria-label="GuideLoop home">
               <GuideLoopLogo className="brand-logo" />
-              <span className="brand-badge">v1.4.0</span>
+              <span className="brand-badge">v2.0</span>
             </a>
 
             <div className="header-actions">
@@ -206,32 +272,38 @@ export default function Home() {
             <div className="hero-container">
               <div className="hero-intro" data-hero-spot="intro">
                 <h1 className="hero-title">
-                  <span className="hero-title-line">Contextual Product Tours &amp;</span>
+                  <span className="hero-title-line">
+                    Contextual Product Tours &amp;
+                  </span>
                   <span className="hero-title-line hero-gradient-text">
-                    Onboarding for React
+                    Onboarding for any stack
                   </span>
                 </h1>
 
                 <p className="hero-subtitle">
-                  Lightweight React components for element spotlight tours and
-                  persisted onboarding checklists. Popper.js positioning, keyboard
-                  focus traps, CSS custom property themes.
+                  Spotlight tours and onboarding checklists for{" "}
+                  <strong>React</strong> or plain <strong>Vanilla JS</strong> —
+                  same core, themes, keyboard traps, and multi-page persist. Use
+                  components, an imperative API, or{" "}
+                  <code className="hero-inline-code">&lt;guide-loop&gt;</code>.
                 </p>
               </div>
 
               <div className="hero-cta-group">
-                <div
-                  className="install-command-pill"
-                  data-hero-spot="install"
-                >
-                  <code>$ npm i guideloop</code>
+                <div className="install-command-pill" data-hero-spot="install">
+                  <code>$ npm i @guideloop/react</code>
                   <button
                     type="button"
-                    onClick={() => void copyInstallCommand()}
+                    onClick={() =>
+                      void copyText("npm i @guideloop/react", () => {
+                        setCopiedHeroInstall(true);
+                        window.setTimeout(() => setCopiedHeroInstall(false), 1600);
+                      })
+                    }
                     title="Copy install command"
-                    aria-label="Copy install command"
+                    aria-label="Copy React install command"
                   >
-                    {copied ? (
+                    {copiedHeroInstall ? (
                       <Check className="w-3.5 h-3.5" />
                     ) : (
                       <Copy className="w-3.5 h-3.5" />
@@ -241,15 +313,15 @@ export default function Home() {
 
                 <div className="hero-stats" data-hero-spot="stats">
                   <span className="hero-stat">
-                    <span className="hero-stat-symbol">&lt;</span>8kB gzipped
+                    <span className="hero-stat-symbol">&lt;</span>gzip friendly
                   </span>
                   <span className="hero-stat-divider" />
                   <span className="hero-stat">
-                    <span className="hero-stat-symbol">~</span> MIT License
+                    <span className="hero-stat-symbol">~</span> MIT
                   </span>
                   <span className="hero-stat-divider" />
                   <span className="hero-stat">
-                    <span className="hero-stat-symbol">^</span> React 16+
+                    <span className="hero-stat-symbol">^</span> React 16+ · JS
                   </span>
                   <span className="hero-stat-divider" />
                   <span className="hero-stat">
@@ -262,39 +334,86 @@ export default function Home() {
 
           <section id="quickstart" className="quickstart-section" tabIndex={-1}>
             <div className="quickstart-container">
-              <div className="section-header">
-                <span className="section-kicker">GETTING STARTED</span>
-                <h2>Type-Safe React API</h2>
-                <p>
-                  Import <code>GuideLoop</code> — tours in a few lines.
-                </p>
-              </div>
-
-              <div className="code-window">
-                <div className="code-header">
-                  <div className="code-dots">
-                    <span className="dot dot--red" />
-                    <span className="dot dot--yellow" />
-                    <span className="dot dot--green" />
-                  </div>
-                  <span className="code-filename">App.tsx</span>
+              <div className="section-header section-header--row">
+                <div>
+                  <span className="section-kicker">GETTING STARTED</span>
+                  <h2>Same tour model · three ways in</h2>
+                  <p>Pick your stack — scroll the carousel on smaller screens.</p>
+                </div>
+                <div className="carousel-nav" aria-label="Carousel controls">
                   <button
                     type="button"
-                    className="code-copy-btn"
-                    onClick={() => void copyIntegrationCode()}
-                    aria-label="Copy GuideLoop integration example"
+                    className="carousel-nav-btn"
+                    onClick={() => scrollCarousel(-1)}
+                    aria-label="Previous stack card"
                   >
-                    {integrationCopied ? (
-                      <Check className="w-4 h-4" />
-                    ) : (
-                      <Copy className="w-4 h-4" />
-                    )}
-                    <span>{integrationCopied ? "Copied" : "Copy"}</span>
+                    ‹
+                  </button>
+                  <button
+                    type="button"
+                    className="carousel-nav-btn"
+                    onClick={() => scrollCarousel(1)}
+                    aria-label="Next stack card"
+                  >
+                    ›
                   </button>
                 </div>
-                <pre tabIndex={0} aria-label="GuideLoop integration example">
-                  <code>{integrationCode}</code>
-                </pre>
+              </div>
+
+              <div
+                className="stack-carousel"
+                ref={carouselRef}
+                tabIndex={0}
+                aria-label="Stack quick starts"
+              >
+                {STACK_CARDS.map((card) => (
+                  <article key={card.id} className="stack-card">
+                    <a
+                      className="npm-badge stack-card-badge"
+                      href={card.npmUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      title={`${card.packageName} on npm`}
+                    >
+                      <span className="npm-badge-label">npm</span>
+                      <span className="npm-badge-value">{card.packageName}</span>
+                    </a>
+
+                    <div className="code-window stack-card-code">
+                      <div className="code-header">
+                        <div className="code-dots">
+                          <span className="dot dot--red" />
+                          <span className="dot dot--yellow" />
+                          <span className="dot dot--green" />
+                        </div>
+                        <span className="code-filename">{card.file}</span>
+                        <button
+                          type="button"
+                          className="code-copy-btn"
+                          onClick={() =>
+                            void copyText(card.code, () => {
+                              setCopiedCode(card.id);
+                              window.setTimeout(() => setCopiedCode(null), 1600);
+                            })
+                          }
+                          aria-label={`Copy ${card.label} example`}
+                        >
+                          {copiedCode === card.id ? (
+                            <Check className="w-4 h-4" />
+                          ) : (
+                            <Copy className="w-4 h-4" />
+                          )}
+                          <span>
+                            {copiedCode === card.id ? "Copied" : "Copy"}
+                          </span>
+                        </button>
+                      </div>
+                      <pre tabIndex={0} aria-label={`${card.label} example`}>
+                        <code>{card.code}</code>
+                      </pre>
+                    </div>
+                  </article>
+                ))}
               </div>
             </div>
           </section>
@@ -307,14 +426,17 @@ export default function Home() {
 
           <div className="footer-bar">
             <p className="footer-tagline">
-              Type-safe React tours, spotlights &amp; onboarding.
+              Tours for React, Vanilla JS &amp; Web Components.
             </p>
             <nav className="footer-nav" aria-label="Footer">
               <a href={GITHUB_URL} target="_blank" rel="noreferrer">
                 GitHub
               </a>
-              <a href={NPM_URL} target="_blank" rel="noreferrer">
-                npm
+              <a href={NPM_REACT} target="_blank" rel="noreferrer">
+                react
+              </a>
+              <a href={NPM_VANILLA} target="_blank" rel="noreferrer">
+                vanilla
               </a>
               <span>MIT</span>
               <span className="footer-copy">&copy; 2026</span>

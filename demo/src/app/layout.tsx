@@ -29,13 +29,13 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://oznksc.github.io/guideloop/"),
-  title: "GuideLoop — React tours and onboarding",
+  title: "GuideLoop — product tours for React & Vanilla JS",
   description:
-    "Build contextual product tours and persistent onboarding checklists for React.",
+    "Contextual product tours and onboarding for React, Vanilla JS, and Web Components.",
   openGraph: {
-    title: "GuideLoop — React tours and onboarding",
+    title: "GuideLoop — product tours for React & Vanilla JS",
     description:
-      "A live product onboarding experience built with GuideLoop for React.",
+      "Spotlight tours and checklists — React components, imperative API, or <guide-loop>.",
     type: "website",
   },
 };
@@ -56,7 +56,7 @@ export default function RootLayout({
         {/*
           Dev-only visual editor. Production builds:
           1) skip rendering here (NODE_ENV gate)
-          2) resolve guideloop/builder → empty shim via next.config webpack alias
+          2) resolve @guideloop/react/builder → empty shim via next.config webpack alias
         */}
         {isDev ? <DevTourBuilder /> : null}
       </body>

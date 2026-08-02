@@ -1,18 +1,34 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const port = process.env.PLAYWRIGHT_PORT ?? '3000';
-const baseURL = `http://localhost:${port}`;
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${port}`;
+const isCI = !!process.env.CI;
+
+/**
+ * Local: Next dev server (hot reload).
+ * CI: static export served from demo/out (stable, no HMR flakiness).
+ * CI must run monorepo build + `npm run build` in demo first.
+ */
+const webServerCommand = isCI
+  ? `npx --yes serve@14.2.4 out -l tcp://127.0.0.1:${port}`
+  : `npm run dev -- --hostname 127.0.0.1 --port ${port}`;
 
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
+  forbidOnly: isCI,
+  retries: isCI ? 2 : 0,
+  workers: isCI ? 1 : undefined,
+  reporter: isCI ? [['list'], ['html', { open: 'never' }]] : 'list',
+  timeout: 30_000,
+  expect: {
+    timeout: 10_000,
+  },
   use: {
     baseURL,
     trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'off',
   },
   projects: [
     {
@@ -29,9 +45,10 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `npm run dev -- --port ${port}`,
-    url: baseURL,
-    reuseExistingServer: !process.env.CI,
+    command: webServerCommand,
     cwd: './demo',
+    url: baseURL,
+    reuseExistingServer: !isCI,
+    timeout: 180_000,
   },
 });
