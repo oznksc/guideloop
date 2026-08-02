@@ -15,16 +15,6 @@
   --content-rail-gap: 24px;
   --content-inset-left: calc(var(--rail-left) + var(--content-rail-gap));
   --page-max: 1080px;
-  /*
-   * Horizontal placement of the shell when viewport > page-max.
-   * Centered would be 0.5 / 0.5. Shift left ~30% → left free 0.35, right free 0.65.
-   */
-  --layout-free-left: 0.35;
-  --layout-free-right: 0.65;
-  --layout-margin-left: max(
-    0px,
-    calc((100vw - min(100vw, var(--page-max))) * var(--layout-free-left))
-  );
   --radius-bubble: 9999px;
   --radius-panel: 0.55rem;
   --radius-card: 0.45rem;
@@ -63,8 +53,7 @@
   min-height: 100dvh;
   max-width: var(--page-max);
   width: 100%;
-  /* Not fully centered — ~30% closer to the left than auto margins */
-  margin-left: var(--layout-margin-left);
+  margin-left: auto;
   margin-right: auto;
   overflow-x: visible;
 }
@@ -180,31 +169,48 @@
   margin-left: auto;
 }
 
-/* Theme dropdown — sits next to GitHub */
+/* Theme dropdown — icon-only trigger + icon grid */
 .theme-dropdown {
   position: relative;
 }
 
 .theme-dropdown-trigger {
-  gap: 0.35rem;
-  font-family: var(--font-mono);
+  gap: 0.2rem;
+  padding-left: 0.5rem;
+  padding-right: 0.4rem;
+  min-width: 2rem;
 }
 
 .theme-dropdown-icon {
-  font-size: 0.7rem;
-  line-height: 1;
-}
-
-.theme-dropdown-label {
-  max-width: 5.5rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  display: block;
 }
 
 .theme-dropdown-caret {
-  font-size: 0.5rem;
-  opacity: 0.7;
-  margin-left: 0.05rem;
+  display: flex;
+  align-items: center;
+  opacity: 0.65;
+  line-height: 0;
+}
+
+.theme-dropdown-caret-svg {
+  width: 0.7rem;
+  height: 0.7rem;
+  display: block;
+}
+
+.btn--icon {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  min-width: 2rem;
+}
+
+.header-github-icon {
+  width: 1.05rem;
+  height: 1.05rem;
+  display: block;
 }
 
 .theme-dropdown-menu {
@@ -212,10 +218,12 @@
   top: calc(100% + 0.35rem);
   right: 0;
   z-index: 200;
-  min-width: min(11rem, calc(100vw - 2rem));
-  max-width: calc(100vw - 1.5rem);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.2rem;
+  min-width: 0;
   margin: 0;
-  padding: 0.28rem;
+  padding: 0.32rem;
   list-style: none;
   background: var(--color-surface, #0e1522);
   border: 1px solid var(--color-line-strong, rgba(148, 190, 230, 0.16));
@@ -228,19 +236,22 @@
 .theme-dropdown-item {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
-  width: 100%;
-  padding: 0.4rem 0.55rem;
+  justify-content: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  padding: 0;
   border: none;
   border-radius: var(--radius-card);
   background: transparent;
   color: var(--color-ink-muted, #8fa3b8);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 500;
-  text-align: left;
   cursor: pointer;
   transition: background 0.12s ease, color 0.12s ease;
+}
+
+.theme-dropdown-item-icon {
+  width: 1.05rem;
+  height: 1.05rem;
+  display: block;
 }
 
 .theme-dropdown-item:hover {
@@ -1356,21 +1367,39 @@
 .footer-nav {
   display: flex;
   align-items: center;
-  gap: 0.65rem 0.85rem;
+  gap: 0.45rem 0.55rem;
   flex-wrap: wrap;
   font-family: var(--font-mono);
   font-size: clamp(0.62rem, 2vw, 0.68rem);
   color: var(--color-ink-faint, #5c7390);
 }
 
-.footer-nav a {
+.footer-icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--radius-card, 0.4rem);
   color: var(--color-ink-muted, #8fa3b8);
   text-decoration: none;
-  transition: color 0.12s ease;
+  transition: color 0.12s ease, background 0.12s ease;
 }
 
-.footer-nav a:hover {
+.footer-icon-link:hover {
   color: var(--color-accent, #0377d9);
+  background: color-mix(in srgb, var(--color-accent, #0377d9) 10%, transparent);
+}
+
+.footer-icon {
+  width: 1.05rem;
+  height: 1.05rem;
+  display: block;
+}
+
+.footer-meta {
+  margin-left: 0.2rem;
+  color: var(--color-ink-faint, #5c7390);
 }
 
 .footer-copy {
@@ -1406,13 +1435,12 @@ html[data-theme="nordic"] .footer-ascii-shader {
   :root {
     --rail-left: 0px;
     --content-rail-gap: 0px;
-    --layout-margin-left: 0px;
   }
 
   .landing-wrapper {
     max-width: 100%;
-    margin-left: 0;
-    margin-right: 0;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .landing-wrapper::before {
@@ -1445,13 +1473,9 @@ html[data-theme="nordic"] .footer-ascii-shader {
     padding-left: var(--safe-pad-x);
   }
 
-  .theme-dropdown-label {
-    display: none;
-  }
-
   .theme-dropdown-trigger {
-    padding-left: 0.55rem;
-    padding-right: 0.55rem;
+    padding-left: 0.45rem;
+    padding-right: 0.35rem;
   }
 
   .stack-explorer {
@@ -1740,8 +1764,13 @@ html[data-theme="nordic"] .footer-ascii-shader {
 /* Touch: slightly larger interactive targets where hover is absent */
 @media (hover: none) and (pointer: coarse) {
   .theme-dropdown-item {
-    padding: 0.55rem 0.65rem;
-    min-height: 2.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .footer-icon-link {
+    width: 2.25rem;
+    height: 2.25rem;
   }
 
   .code-copy-btn {

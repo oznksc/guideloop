@@ -27,8 +27,8 @@
     "README.md"
   ],
   "scripts": {
-    "build": "npm run clean && rollup -c && node ./scripts/write-dts.mjs",
-    "dev": "rollup -c -w",
+    "build": "npm run clean && node ../../scripts/run-rollup.mjs -c && node ./scripts/write-dts.mjs",
+    "dev": "node ../../scripts/run-rollup.mjs -c -w",
     "clean": "rimraf dist",
     "test": "jest --passWithNoTests",
     "lint": "eslint 'src/**/*.{ts,tsx,vue}'"

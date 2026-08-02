@@ -15,28 +15,31 @@ test.describe('GuideLoop product landing', () => {
       /Onboarding for any stack|Product Tours/i
     );
 
-    // npm badges above code cards in getting started
+    // Default stack (React) badge + file name
     await expect(
       page.locator('#quickstart').getByRole('link', { name: /@guideloop\/react/i })
     ).toBeVisible();
-    await expect(
-      page.locator('#quickstart').getByRole('link', { name: /@guideloop\/vanilla/i }).first()
-    ).toBeVisible();
-
-    await expect(page.getByRole('link', { name: 'GitHub' }).first()).toHaveAttribute(
-      'href',
-      'https://github.com/oznksc/guideloop'
-    );
-
     await expect(page.getByText('App.tsx').first()).toBeVisible();
+
+    // Switch to Vanilla and Web Component samples
+    await page.getByRole('tab', { name: /Vanilla/i }).click();
+    await expect(
+      page.locator('#quickstart').getByRole('link', { name: /@guideloop\/vanilla/i })
+    ).toBeVisible();
     await expect(page.getByText('tour.js').first()).toBeVisible();
+
+    await page.getByRole('tab', { name: /WC|Web Component/i }).click();
     await expect(page.getByText('index.html').first()).toBeVisible();
+
+    await expect(
+      page.getByRole('link', { name: /GitHub/i }).first()
+    ).toHaveAttribute('href', 'https://github.com/oznksc/guideloop');
   });
 
   test('hero install copy control is interactive', async ({ page }) => {
-    const copyBtn = page.getByRole('button', {
-      name: /Copy (React|Svelte) install command/,
-    });
+    const copyBtn = page
+      .locator('.hero-section')
+      .getByRole('button', { name: /Copy .* install command/ });
     await expect(copyBtn).toBeVisible();
     await copyBtn.click();
     await expect(copyBtn).toBeEnabled();
