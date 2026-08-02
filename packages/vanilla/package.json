@@ -30,8 +30,8 @@
     "README.md"
   ],
   "scripts": {
-    "build": "npm run clean && rollup -c",
-    "dev": "rollup -c -w",
+    "build": "npm run clean && node ../../scripts/run-rollup.mjs -c",
+    "dev": "node ../../scripts/run-rollup.mjs -c -w",
     "clean": "rimraf dist",
     "test": "jest --passWithNoTests",
     "lint": "eslint 'src/**/*.{ts,tsx}'"
