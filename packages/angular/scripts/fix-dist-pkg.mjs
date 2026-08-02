@@ -1,6 +1,6 @@
 /**
- * ng-packagr copies package.json into dist/. Strip publishConfig.directory
- * so the published package is the dist root (not dist/dist).
+ * Ensure dist/package.json is ready for `npm publish ./packages/angular/dist`.
+ * ng-packagr already strips scripts/devDependencies; we only enforce access.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -15,14 +15,6 @@ if (!fs.existsSync(pkgPath)) {
 }
 
 const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-if (pkg.publishConfig && 'directory' in pkg.publishConfig) {
-  delete pkg.publishConfig.directory;
-  if (Object.keys(pkg.publishConfig).length === 0) {
-    delete pkg.publishConfig;
-  } else {
-    // Keep access: public for re-publish safety
-    pkg.publishConfig.access = pkg.publishConfig.access || 'public';
-  }
-}
+pkg.publishConfig = { access: 'public' };
 fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
 console.log('fixed dist/package.json publishConfig');

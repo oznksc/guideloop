@@ -1,6 +1,6 @@
 {
   "name": "@guideloop/angular",
-  "version": "2.0.2",
+  "version": "2.0.4",
   "description": "Angular guided tour library powered by @guideloop/core and @guideloop/vanilla",
   "author": "Ozan Kesici",
   "license": "MIT",
@@ -49,7 +49,6 @@
     "zone.js": "^0.14.10"
   },
   "publishConfig": {
-    "access": "public",
-    "directory": "dist"
+    "access": "public"
   }
 }

@@ -7,9 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.4] - 2026-08-02
+
 ### Added
-- **`@guideloop/svelte`** — Svelte bindings (`GuideLoop`, `OnboardingChecklist`, `Progress`) powered by `@guideloop/vanilla` + `@guideloop/core`.
-- **`@guideloop/angular`** — Angular standalone components (`guideloop-tour`, checklist, progress) powered by `@guideloop/vanilla` + `@guideloop/core`.
+- **`@guideloop/angular`** — Angular standalone components (`guideloop-tour`, checklist, progress) powered by `@guideloop/vanilla` + `@guideloop/core`. Ivy partial compilation via ng-packagr; publish from `packages/angular/dist`.
 
 ## [2.0.2] - 2026-08-02
 

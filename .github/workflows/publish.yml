@@ -69,7 +69,8 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      # ng-packagr emits a self-contained package under dist/ (Ivy partial + fesm)
       - name: Publish @guideloop/angular
-        run: npm publish -w @guideloop/angular --access public --provenance
+        run: npm publish ./packages/angular/dist --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
