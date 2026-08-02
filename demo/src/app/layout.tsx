@@ -32,6 +32,8 @@ export const metadata: Metadata = {
   title: "GuideLoop — product tours for React, Vue, Svelte, Angular & Vanilla JS",
   description:
     "Contextual product tours and onboarding for React, Vue, Svelte, Angular, Vanilla JS, and Web Components.",
+  // Icons: file-based metadata in app/ (favicon.ico, icon.svg, icon.png, apple-icon.png).
+  // Next prefixes basePath automatically — do not hardcode absolute /icon paths here.
   openGraph: {
     title: "GuideLoop — product tours for React, Vue, Svelte, Angular & Vanilla JS",
     description:
