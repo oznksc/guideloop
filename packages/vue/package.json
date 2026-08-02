@@ -1,0 +1,70 @@
+{
+  "name": "@guideloop/vue",
+  "version": "2.0.4",
+  "description": "Vue 3 guided tour library powered by @guideloop/core and @guideloop/vanilla",
+  "author": "Ozan Kesici",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oznksc/guideloop.git",
+    "directory": "packages/vue"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "npm run clean && rollup -c && node ./scripts/write-dts.mjs",
+    "dev": "rollup -c -w",
+    "clean": "rimraf dist",
+    "test": "jest --passWithNoTests",
+    "lint": "eslint 'src/**/*.{ts,tsx,vue}'"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "guided-tour",
+    "onboarding",
+    "walkthrough",
+    "product-tour",
+    "user-guide",
+    "spotlight"
+  ],
+  "peerDependencies": {
+    "vue": "^3.2.0"
+  },
+  "dependencies": {
+    "@guideloop/core": "^2.0.2",
+    "@guideloop/vanilla": "^2.0.2"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.8",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/jest": "^29.5.14",
+    "jest": "^29.7.0",
+    "rimraf": "^5.0.0",
+    "rollup": "^3.29.5",
+    "ts-jest": "^29.2.5",
+    "tslib": "^2.8.1",
+    "typescript": "^5.6.3",
+    "vue": "^3.5.13"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false
+}

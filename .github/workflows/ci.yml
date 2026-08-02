@@ -34,7 +34,7 @@ jobs:
           npx tsc --noEmit -p packages/core/tsconfig.json
           npx tsc --noEmit -p packages/react/tsconfig.json
           npx tsc --noEmit -p packages/vanilla/tsconfig.json
-          # Svelte / Angular: compile check via package build (ng-packagr / svelte rollup)
+          # Svelte / Vue / Angular: compile check via package build
 
       - name: Lint
         run: npm run lint

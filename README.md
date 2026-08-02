@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  Product tours & onboarding for <strong>React</strong>, <strong>Svelte</strong>, <strong>Angular</strong>, <strong>vanilla JS</strong>, and <strong>Web Components</strong>.
+  Product tours & onboarding for <strong>React</strong>, <strong>Vue</strong>, <strong>Svelte</strong>, <strong>Angular</strong>, <strong>vanilla JS</strong>, and <strong>Web Components</strong>.
 </p>
 
 <p align="center">
@@ -15,6 +15,7 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@guideloop/react"><img alt="@guideloop/react" src="https://img.shields.io/npm/v/@guideloop/react.svg?label=%40guideloop%2Freact&color=cb3837" /></a>
+  <a href="https://www.npmjs.com/package/@guideloop/vue"><img alt="@guideloop/vue" src="https://img.shields.io/npm/v/@guideloop/vue.svg?label=%40guideloop%2Fvue&color=cb3837" /></a>
   <a href="https://www.npmjs.com/package/@guideloop/svelte"><img alt="@guideloop/svelte" src="https://img.shields.io/npm/v/@guideloop/svelte.svg?label=%40guideloop%2Fsvelte&color=cb3837" /></a>
   <a href="https://www.npmjs.com/package/@guideloop/angular"><img alt="@guideloop/angular" src="https://img.shields.io/npm/v/@guideloop/angular.svg?label=%40guideloop%2Fangular&color=cb3837" /></a>
   <a href="https://www.npmjs.com/package/@guideloop/vanilla"><img alt="@guideloop/vanilla" src="https://img.shields.io/npm/v/@guideloop/vanilla.svg?label=%40guideloop%2Fvanilla&color=cb3837" /></a>
@@ -30,12 +31,13 @@
 | Package | Use when | Install |
 |---------|----------|---------|
 | [`@guideloop/react`](./packages/react) | React 16.8–19 | `npm i @guideloop/react` |
+| [`@guideloop/vue`](./packages/vue) | Vue 3.2+ | `npm i @guideloop/vue` |
 | [`@guideloop/svelte`](./packages/svelte) | Svelte 3.59+ / 4 / 5 | `npm i @guideloop/svelte` |
 | [`@guideloop/angular`](./packages/angular) | Angular ≥15 | `npm i @guideloop/angular` |
 | [`@guideloop/vanilla`](./packages/vanilla) | Any stack / no framework | `npm i @guideloop/vanilla` |
 | [`@guideloop/core`](./packages/core) | Custom bindings only | `npm i @guideloop/core` |
 
-Framework packages pull in `core` (and `vanilla` for Svelte/Angular engines) automatically.
+Framework packages pull in `core` (and `vanilla` for Vue/Svelte/Angular engines) automatically.
 
 ## Quick start
 
@@ -50,6 +52,26 @@ import { GuideLoop } from '@guideloop/react';
   onClose={() => setOpen(false)}
   theme="tailwind"
 />
+```
+
+**Vue**
+
+```vue
+<script setup>
+import { ref } from 'vue';
+import { GuideLoop } from '@guideloop/vue';
+const open = ref(false);
+</script>
+
+<template>
+  <button @click="open = true">Start</button>
+  <GuideLoop
+    :steps="[{ target: '#cta', title: 'Welcome', content: 'Start here.' }]"
+    v-model:is-open="open"
+    theme="tailwind"
+    @complete="() => {}"
+  />
+</template>
 ```
 
 **Svelte**

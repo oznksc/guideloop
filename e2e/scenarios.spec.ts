@@ -17,6 +17,7 @@ test.describe('Landing layout & stack carousel', () => {
     );
 
     await expect(section.getByLabel('React example', { exact: true })).toBeVisible();
+    await expect(section.getByLabel('Vue example', { exact: true })).toBeVisible();
     await expect(section.getByLabel('Svelte example', { exact: true })).toBeVisible();
     await expect(section.getByLabel('Angular example', { exact: true })).toBeVisible();
     await expect(section.getByLabel('Vanilla JS example', { exact: true })).toBeVisible();

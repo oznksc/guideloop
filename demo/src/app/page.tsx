@@ -12,11 +12,12 @@ import "./landing.css";
 
 const GITHUB_URL = "https://github.com/oznksc/guideloop";
 const NPM_REACT = "https://www.npmjs.com/package/@guideloop/react";
+const NPM_VUE = "https://www.npmjs.com/package/@guideloop/vue";
 const NPM_SVELTE = "https://www.npmjs.com/package/@guideloop/svelte";
 const NPM_ANGULAR = "https://www.npmjs.com/package/@guideloop/angular";
 const NPM_VANILLA = "https://www.npmjs.com/package/@guideloop/vanilla";
 type DemoThemeId = "slate" | "editorial" | "terminal" | "nordic";
-type StackId = "react" | "svelte" | "angular" | "vanilla" | "webcomponent";
+type StackId = "react" | "vue" | "svelte" | "angular" | "vanilla" | "webcomponent";
 
 interface DemoThemePreset {
   id: DemoThemeId;
@@ -70,6 +71,36 @@ export function App() {
     </>
   );
 }`,
+  },
+  {
+    id: "vue",
+    label: "Vue",
+    packageName: "@guideloop/vue",
+    file: "App.vue",
+    install: "npm i @guideloop/vue",
+    npmUrl: NPM_VUE,
+    code: `<script setup lang="ts">
+import { ref } from "vue";
+import { GuideLoop, type Step } from "@guideloop/vue";
+
+const open = ref(false);
+const steps: Step[] = [{
+  target: "#search-bar",
+  title: "Search",
+  content: "Vue 3 v-model:is-open API."
+}];
+</script>
+
+<template>
+  <button @click="open = true">Start</button>
+  <GuideLoop
+    :steps="steps"
+    v-model:is-open="open"
+    theme="tailwind"
+    @complete="() => console.log('done')"
+    @step-change="(step) => console.log(step)"
+  />
+</template>`,
   },
   {
     id: "svelte",
@@ -348,10 +379,11 @@ export default function Home() {
 
                 <p className="hero-subtitle">
                   Spotlight tours and onboarding checklists for{" "}
-                  <strong>React</strong>, <strong>Svelte</strong>,{" "}
-                  <strong>Angular</strong>, and plain{" "}
+                  <strong>React</strong>, <strong>Vue</strong>,{" "}
+                  <strong>Svelte</strong>, <strong>Angular</strong>, and plain{" "}
                   <strong>Vanilla JS</strong> — same core, themes, keyboard
                   traps, and multi-page persist. Components,{" "}
+                  <code className="hero-inline-code">v-model:is-open</code>,{" "}
                   <code className="hero-inline-code">bind:isOpen</code>,{" "}
                   <code className="hero-inline-code">&lt;guideloop-tour&gt;</code>
                   , an imperative API, or{" "}
@@ -361,17 +393,17 @@ export default function Home() {
 
               <div className="hero-cta-group">
                 <div className="install-command-pill" data-hero-spot="install">
-                  <code>$ npm i @guideloop/svelte</code>
+                  <code>$ npm i @guideloop/vue</code>
                   <button
                     type="button"
                     onClick={() =>
-                      void copyText("npm i @guideloop/svelte", () => {
+                      void copyText("npm i @guideloop/vue", () => {
                         setCopiedHeroInstall(true);
                         window.setTimeout(() => setCopiedHeroInstall(false), 1600);
                       })
                     }
-                    title="Copy Svelte install command"
-                    aria-label="Copy Svelte install command"
+                    title="Copy Vue install command"
+                    aria-label="Copy Vue install command"
                   >
                     {copiedHeroInstall ? (
                       <Check className="w-3.5 h-3.5" />
@@ -391,7 +423,7 @@ export default function Home() {
                   </span>
                   <span className="hero-stat-divider" />
                   <span className="hero-stat">
-                    <span className="hero-stat-symbol">^</span> React · Svelte · Angular
+                    <span className="hero-stat-symbol">^</span> React · Vue · Svelte · Angular
                   </span>
                   <span className="hero-stat-divider" />
                   <span className="hero-stat">
@@ -409,7 +441,7 @@ export default function Home() {
                   <span className="section-kicker">GETTING STARTED</span>
                   <h2>Same tour model · every stack</h2>
                   <p>
-                    React, Svelte, Angular, Vanilla JS, and Web Components —
+                    React, Vue, Svelte, Angular, Vanilla JS, and Web Components —
                     scroll the carousel on smaller screens.
                   </p>
                 </div>
@@ -499,7 +531,7 @@ export default function Home() {
 
           <div className="footer-bar">
             <p className="footer-tagline">
-              Tours for React, Svelte, Angular, Vanilla JS &amp; Web Components.
+              Tours for React, Vue, Svelte, Angular, Vanilla JS &amp; Web Components.
             </p>
             <nav className="footer-nav" aria-label="Footer">
               <a href={GITHUB_URL} target="_blank" rel="noreferrer">
@@ -507,6 +539,9 @@ export default function Home() {
               </a>
               <a href={NPM_REACT} target="_blank" rel="noreferrer">
                 react
+              </a>
+              <a href={NPM_VUE} target="_blank" rel="noreferrer">
+                vue
               </a>
               <a href={NPM_SVELTE} target="_blank" rel="noreferrer">
                 svelte
