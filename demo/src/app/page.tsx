@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from "react";
 import {
   Check,
   Copy,
@@ -35,19 +42,30 @@ const DEMO_THEMES: Record<DemoThemeId, DemoThemePreset> = {
 const STACK_CARDS: {
   id: StackId;
   label: string;
+  shortLabel: string;
   packageName: string;
   file: string;
   install: string;
   code: string;
   npmUrl: string;
+  blurb: string;
+  apiHint: string;
+  peers: string;
+  tags: string[];
 }[] = [
   {
     id: "react",
     label: "React",
+    shortLabel: "React",
     packageName: "@guideloop/react",
     file: "App.tsx",
     install: "npm i @guideloop/react",
     npmUrl: NPM_REACT,
+    blurb:
+      "Declarative components and hooks for React 16.8–19. Controlled isOpen, portals, and focus trap out of the box.",
+    apiHint: "isOpen · onClose · theme · persist",
+    peers: "react ≥16.8",
+    tags: ["components", "hooks", "RSC types"],
     code: `import { useState } from "react";
 import { GuideLoop, type Step } from "@guideloop/react";
 
@@ -75,10 +93,16 @@ export function App() {
   {
     id: "vue",
     label: "Vue",
+    shortLabel: "Vue",
     packageName: "@guideloop/vue",
     file: "App.vue",
     install: "npm i @guideloop/vue",
     npmUrl: NPM_VUE,
+    blurb:
+      "Vue 3 components with v-model:is-open. Same Step model as every other stack — powered by vanilla under the hood.",
+    apiHint: "v-model:is-open · @complete · @step-change",
+    peers: "vue ≥3.2",
+    tags: ["v-model", "composition", "TS"],
     code: `<script setup lang="ts">
 import { ref } from "vue";
 import { GuideLoop, type Step } from "@guideloop/vue";
@@ -105,10 +129,16 @@ const steps: Step[] = [{
   {
     id: "svelte",
     label: "Svelte",
+    shortLabel: "Svelte",
     packageName: "@guideloop/svelte",
     file: "App.svelte",
     install: "npm i @guideloop/svelte",
     npmUrl: NPM_SVELTE,
+    blurb:
+      "Idiomatic Svelte bindings with bind:isOpen and event dispatchers. Works with Svelte 3.59+, 4, and 5.",
+    apiHint: "bind:isOpen · on:complete · on:stepchange",
+    peers: "svelte ≥3.59",
+    tags: ["bind:", "events", "stores-ready"],
     code: `<script lang="ts">
   import { GuideLoop } from "@guideloop/svelte";
   import type { Step } from "@guideloop/svelte";
@@ -135,10 +165,16 @@ const steps: Step[] = [{
   {
     id: "angular",
     label: "Angular",
+    shortLabel: "Angular",
     packageName: "@guideloop/angular",
     file: "app.component.ts",
     install: "npm i @guideloop/angular",
     npmUrl: NPM_ANGULAR,
+    blurb:
+      "Standalone Angular components (≥15). Inputs/outputs map cleanly to isOpen, closed, complete, and stepChange.",
+    apiHint: "[isOpen] · (closed) · (complete) · (stepChange)",
+    peers: "@angular/core ≥15",
+    tags: ["standalone", "Ivy", "inputs"],
     code: `import { Component } from "@angular/core";
 import { GuideLoopComponent, type Step } from "@guideloop/angular";
 
@@ -169,10 +205,16 @@ export class AppComponent {
   {
     id: "vanilla",
     label: "Vanilla JS",
+    shortLabel: "Vanilla",
     packageName: "@guideloop/vanilla",
     file: "tour.js",
     install: "npm i @guideloop/vanilla",
     npmUrl: NPM_VANILLA,
+    blurb:
+      "Imperative API for any stack — no framework required. start / next / prev / skip / close with full theme parity.",
+    apiHint: "new GuideLoop() · start() · next() · close()",
+    peers: "none",
+    tags: ["imperative", "zero-UI-fw", "tree-shake"],
     code: `import { GuideLoop } from "@guideloop/vanilla";
 
 const tour = new GuideLoop({
@@ -193,10 +235,16 @@ await tour.start();
   {
     id: "webcomponent",
     label: "Web Component",
+    shortLabel: "WC",
     packageName: "@guideloop/vanilla",
     file: "index.html",
     install: "npm i @guideloop/vanilla",
     npmUrl: NPM_VANILLA,
+    blurb:
+      "Drop-in custom elements for HTML-first apps and CMS embeds. Same engine as the imperative API.",
+    apiHint: "<guide-loop> · .open() · steps attribute",
+    peers: "none (custom elements)",
+    tags: ["custom-elements", "HTML", "embed"],
     code: `<script type="module">
   import "@guideloop/vanilla/web-component";
 </script>
@@ -218,11 +266,18 @@ await tour.start();
 export default function Home() {
   const [currentTheme, setCurrentTheme] = useState<DemoThemeId>("slate");
   const [themeMenuOpen, setThemeMenuOpen] = useState(false);
-  const [copiedCode, setCopiedCode] = useState<StackId | null>(null);
+  const [activeStack, setActiveStack] = useState<StackId>("react");
+  const [copiedCode, setCopiedCode] = useState(false);
+  const [copiedInstall, setCopiedInstall] = useState(false);
   const [copiedHeroInstall, setCopiedHeroInstall] = useState(false);
+  const [installMenuOpen, setInstallMenuOpen] = useState(false);
   const themeMenuRef = useRef<HTMLDivElement>(null);
-  const carouselRef = useRef<HTMLDivElement>(null);
+  const installMenuRef = useRef<HTMLDivElement>(null);
+  const stackTablistRef = useRef<HTMLDivElement>(null);
   const themeListId = useId();
+  const installListId = useId();
+  const stackTablistId = useId();
+  const stackPanelId = useId();
 
   const applyThemeToDocument = useCallback((themeId: DemoThemeId) => {
     if (typeof document === "undefined") return;
@@ -247,17 +302,25 @@ export default function Home() {
   }, [currentTheme, applyThemeToDocument]);
 
   useEffect(() => {
-    if (!themeMenuOpen) return;
+    if (!themeMenuOpen && !installMenuOpen) return;
 
     const onPointerDown = (event: MouseEvent) => {
-      const root = themeMenuRef.current;
-      if (root && !root.contains(event.target as Node)) {
-        setThemeMenuOpen(false);
+      const t = event.target as Node;
+      if (themeMenuOpen) {
+        const root = themeMenuRef.current;
+        if (root && !root.contains(t)) setThemeMenuOpen(false);
+      }
+      if (installMenuOpen) {
+        const root = installMenuRef.current;
+        if (root && !root.contains(t)) setInstallMenuOpen(false);
       }
     };
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setThemeMenuOpen(false);
+      if (event.key === "Escape") {
+        setThemeMenuOpen(false);
+        setInstallMenuOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", onPointerDown);
@@ -266,7 +329,7 @@ export default function Home() {
       document.removeEventListener("mousedown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [themeMenuOpen]);
+  }, [themeMenuOpen, installMenuOpen]);
 
   const copyText = useCallback(async (text: string, onDone: () => void) => {
     try {
@@ -277,15 +340,41 @@ export default function Home() {
     }
   }, []);
 
-  const scrollCarousel = useCallback((dir: -1 | 1) => {
-    const el = carouselRef.current;
-    if (!el) return;
-    const card = el.querySelector<HTMLElement>(".stack-card");
-    const delta = (card?.offsetWidth ?? 320) + 12;
-    el.scrollBy({ left: dir * delta, behavior: "smooth" });
-  }, []);
-
   const activeTheme = DEMO_THEMES[currentTheme];
+  const activeCard =
+    STACK_CARDS.find((c) => c.id === activeStack) ?? STACK_CARDS[0];
+
+  const onStackTabKeyDown = useCallback(
+    (event: ReactKeyboardEvent<HTMLDivElement>) => {
+      const order = STACK_CARDS.map((c) => c.id);
+      const idx = order.indexOf(activeStack);
+      if (idx < 0) return;
+
+      let next = idx;
+      if (event.key === "ArrowDown" || event.key === "ArrowRight") {
+        next = (idx + 1) % order.length;
+      } else if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
+        next = (idx - 1 + order.length) % order.length;
+      } else if (event.key === "Home") {
+        next = 0;
+      } else if (event.key === "End") {
+        next = order.length - 1;
+      } else {
+        return;
+      }
+
+      event.preventDefault();
+      const nextId = order[next];
+      setActiveStack(nextId);
+      setCopiedCode(false);
+      setCopiedInstall(false);
+      const btn = stackTablistRef.current?.querySelector<HTMLButtonElement>(
+        `[data-stack-tab="${nextId}"]`
+      );
+      btn?.focus();
+    },
+    [activeStack]
+  );
 
   return (
     <main className="landing-wrapper">
@@ -392,18 +481,47 @@ export default function Home() {
               </div>
 
               <div className="hero-cta-group">
-                <div className="install-command-pill" data-hero-spot="install">
-                  <code>$ npm i @guideloop/vue</code>
+                <div
+                  className={`install-command-pill${installMenuOpen ? " is-open" : ""}`}
+                  data-hero-spot="install"
+                  ref={installMenuRef}
+                >
                   <button
                     type="button"
+                    className="install-stack-trigger"
+                    aria-haspopup="listbox"
+                    aria-expanded={installMenuOpen}
+                    aria-controls={installListId}
+                    onClick={() => {
+                      setInstallMenuOpen((open) => !open);
+                      setThemeMenuOpen(false);
+                    }}
+                  >
+                    <span className="install-stack-label">
+                      {activeCard.shortLabel}
+                    </span>
+                    <span className="install-stack-caret" aria-hidden="true">
+                      {installMenuOpen ? "\u25B2" : "\u25BC"}
+                    </span>
+                  </button>
+
+                  <span className="install-command-divider" aria-hidden="true" />
+
+                  <code className="install-command-text">
+                    $ {activeCard.install}
+                  </code>
+
+                  <button
+                    type="button"
+                    className="install-copy-btn"
                     onClick={() =>
-                      void copyText("npm i @guideloop/vue", () => {
+                      void copyText(activeCard.install, () => {
                         setCopiedHeroInstall(true);
                         window.setTimeout(() => setCopiedHeroInstall(false), 1600);
                       })
                     }
-                    title="Copy Vue install command"
-                    aria-label="Copy Vue install command"
+                    title={`Copy ${activeCard.label} install command`}
+                    aria-label={`Copy ${activeCard.label} install command`}
                   >
                     {copiedHeroInstall ? (
                       <Check className="w-3.5 h-3.5" />
@@ -411,6 +529,43 @@ export default function Home() {
                       <Copy className="w-3.5 h-3.5" />
                     )}
                   </button>
+
+                  {installMenuOpen ? (
+                    <ul
+                      id={installListId}
+                      className="install-stack-menu"
+                      role="listbox"
+                      aria-label="Install for stack"
+                    >
+                      {STACK_CARDS.map((card) => {
+                        const selected = card.id === activeStack;
+                        return (
+                          <li key={card.id} role="presentation">
+                            <button
+                              type="button"
+                              role="option"
+                              aria-selected={selected}
+                              className={`install-stack-item${selected ? " is-active" : ""}`}
+                              onClick={() => {
+                                setActiveStack(card.id);
+                                setCopiedCode(false);
+                                setCopiedInstall(false);
+                                setCopiedHeroInstall(false);
+                                setInstallMenuOpen(false);
+                              }}
+                            >
+                              <span className="install-stack-item-label">
+                                {card.label}
+                              </span>
+                              <span className="install-stack-item-pkg">
+                                {card.packageName}
+                              </span>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : null}
                 </div>
 
                 <div className="hero-stats" data-hero-spot="stats">
@@ -436,89 +591,153 @@ export default function Home() {
 
           <section id="quickstart" className="quickstart-section" tabIndex={-1}>
             <div className="quickstart-container">
-              <div className="section-header section-header--row">
-                <div>
-                  <span className="section-kicker">GETTING STARTED</span>
-                  <h2>Same tour model · every stack</h2>
-                  <p>
-                    React, Vue, Svelte, Angular, Vanilla JS, and Web Components —
-                    scroll the carousel on smaller screens.
-                  </p>
-                </div>
-                <div className="carousel-nav" aria-label="Carousel controls">
-                  <button
-                    type="button"
-                    className="carousel-nav-btn"
-                    onClick={() => scrollCarousel(-1)}
-                    aria-label="Previous stack card"
-                  >
-                    ‹
-                  </button>
-                  <button
-                    type="button"
-                    className="carousel-nav-btn"
-                    onClick={() => scrollCarousel(1)}
-                    aria-label="Next stack card"
-                  >
-                    ›
-                  </button>
-                </div>
+              <div className="section-header">
+                <span className="section-kicker">GETTING STARTED</span>
+                <h2>Same tour model · every stack</h2>
+                <p>
+                  One Step shape, every framework. Pick a stack on the rail —
+                  install, API surface, and a minimal example stay in view.
+                </p>
               </div>
 
-              <div
-                className="stack-carousel"
-                ref={carouselRef}
-                tabIndex={0}
-                aria-label="Stack quick starts"
-              >
-                {STACK_CARDS.map((card) => (
-                  <article key={card.id} className="stack-card">
-                    <a
-                      className="npm-badge stack-card-badge"
-                      href={card.npmUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      title={`${card.packageName} on npm`}
-                    >
-                      <span className="npm-badge-label">npm</span>
-                      <span className="npm-badge-value">{card.packageName}</span>
-                    </a>
+              <div className="stack-explorer">
+                <div
+                  ref={stackTablistRef}
+                  className="stack-tabs"
+                  role="tablist"
+                  id={stackTablistId}
+                  aria-label="Framework stacks"
+                  aria-orientation="vertical"
+                  onKeyDown={onStackTabKeyDown}
+                >
+                  {STACK_CARDS.map((card) => {
+                    const selected = card.id === activeStack;
+                    return (
+                      <button
+                        key={card.id}
+                        type="button"
+                        role="tab"
+                        id={`stack-tab-${card.id}`}
+                        data-stack-tab={card.id}
+                        className={`stack-tab${selected ? " is-active" : ""}`}
+                        aria-selected={selected}
+                        aria-controls={stackPanelId}
+                        tabIndex={selected ? 0 : -1}
+                        onClick={() => {
+                          setActiveStack(card.id);
+                          setCopiedCode(false);
+                          setCopiedInstall(false);
+                        }}
+                      >
+                        <span className="stack-tab-label">{card.shortLabel}</span>
+                        <span className="stack-tab-pkg" aria-hidden="true">
+                          {card.packageName.replace("@guideloop/", "")}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
 
-                    <div className="code-window stack-card-code">
-                      <div className="code-header">
-                        <div className="code-dots">
-                          <span className="dot dot--red" />
-                          <span className="dot dot--yellow" />
-                          <span className="dot dot--green" />
-                        </div>
-                        <span className="code-filename">{card.file}</span>
-                        <button
-                          type="button"
-                          className="code-copy-btn"
-                          onClick={() =>
-                            void copyText(card.code, () => {
-                              setCopiedCode(card.id);
-                              window.setTimeout(() => setCopiedCode(null), 1600);
-                            })
-                          }
-                          aria-label={`Copy ${card.label} example`}
+                <div
+                  className="stack-panel"
+                  role="tabpanel"
+                  id={stackPanelId}
+                  aria-labelledby={`stack-tab-${activeCard.id}`}
+                >
+                  <div className="stack-panel-meta">
+                    <div className="stack-panel-head">
+                      <div className="stack-panel-titles">
+                        <h3 className="stack-panel-title">{activeCard.label}</h3>
+                        <a
+                          className="npm-badge stack-panel-badge"
+                          href={activeCard.npmUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          title={`${activeCard.packageName} on npm`}
                         >
-                          {copiedCode === card.id ? (
-                            <Check className="w-4 h-4" />
-                          ) : (
-                            <Copy className="w-4 h-4" />
-                          )}
-                          <span>
-                            {copiedCode === card.id ? "Copied" : "Copy"}
+                          <span className="npm-badge-label">npm</span>
+                          <span className="npm-badge-value">
+                            {activeCard.packageName}
                           </span>
-                        </button>
+                        </a>
                       </div>
-                      <pre tabIndex={0} aria-label={`${card.label} example`}>
-                        <code>{card.code}</code>
-                      </pre>
+                      <p className="stack-panel-blurb">{activeCard.blurb}</p>
                     </div>
-                  </article>
-                ))}
+
+                    <dl className="stack-panel-facts">
+                      <div>
+                        <dt>API</dt>
+                        <dd>
+                          <code>{activeCard.apiHint}</code>
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Peers</dt>
+                        <dd>{activeCard.peers}</dd>
+                      </div>
+                    </dl>
+
+                    <ul className="stack-panel-tags" aria-label="Highlights">
+                      {activeCard.tags.map((tag) => (
+                        <li key={tag}>{tag}</li>
+                      ))}
+                    </ul>
+
+                    <div className="stack-panel-install">
+                      <code>{activeCard.install}</code>
+                      <button
+                        type="button"
+                        className="stack-install-copy"
+                        onClick={() =>
+                          void copyText(activeCard.install, () => {
+                            setCopiedInstall(true);
+                            window.setTimeout(() => setCopiedInstall(false), 1600);
+                          })
+                        }
+                        aria-label={`Copy ${activeCard.label} install command`}
+                      >
+                        {copiedInstall ? (
+                          <Check className="w-3.5 h-3.5" />
+                        ) : (
+                          <Copy className="w-3.5 h-3.5" />
+                        )}
+                        <span>{copiedInstall ? "Copied" : "Copy"}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="code-window stack-panel-code">
+                    <div className="code-header">
+                      <div className="code-dots">
+                        <span className="dot dot--red" />
+                        <span className="dot dot--yellow" />
+                        <span className="dot dot--green" />
+                      </div>
+                      <span className="code-filename">{activeCard.file}</span>
+                      <button
+                        type="button"
+                        className="code-copy-btn"
+                        onClick={() =>
+                          void copyText(activeCard.code, () => {
+                            setCopiedCode(true);
+                            window.setTimeout(() => setCopiedCode(false), 1600);
+                          })
+                        }
+                        aria-label={`Copy ${activeCard.label} example`}
+                      >
+                        {copiedCode ? (
+                          <Check className="w-4 h-4" />
+                        ) : (
+                          <Copy className="w-4 h-4" />
+                        )}
+                        <span>{copiedCode ? "Copied" : "Copy"}</span>
+                      </button>
+                    </div>
+                    <pre tabIndex={0} aria-label={`${activeCard.label} example`}>
+                      <code>{activeCard.code}</code>
+                    </pre>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
