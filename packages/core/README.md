@@ -1,15 +1,15 @@
 # @guideloop/core
 
-Framework-agnostic guided tour core: step management, DOM helpers, geometry, themes, and persistence.
+Framework-agnostic tour core: steps, DOM, geometry, themes, persistence.
 
-Most React apps should depend on [`@guideloop/react`](https://www.npmjs.com/package/@guideloop/react), which pulls this package in automatically.
-
-## Install
+Most apps should use [`@guideloop/react`](https://www.npmjs.com/package/@guideloop/react) or [`@guideloop/vanilla`](https://www.npmjs.com/package/@guideloop/vanilla) — they depend on this package automatically.
 
 ```bash
-npm install @guideloop/core
+npm i @guideloop/core
 ```
 
-## License
+Useful exports: `createStepManager`, `getTheme`, `waitForElement`, `saveTourState` / `loadTourState`, spotlight geometry helpers.
 
-MIT — see the monorepo [README](https://github.com/oznksc/guideloop).
+Monorepo: [github.com/oznksc/guideloop](https://github.com/oznksc/guideloop)
+
+MIT

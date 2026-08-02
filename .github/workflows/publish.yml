@@ -28,6 +28,7 @@ jobs:
         run: |
           npx tsc --noEmit -p packages/core/tsconfig.json
           npx tsc --noEmit -p packages/react/tsconfig.json
+          npx tsc --noEmit -p packages/vanilla/tsconfig.json
 
       - name: Build
         run: npm run build
@@ -37,9 +38,11 @@ jobs:
           TAG="${GITHUB_REF_NAME}"
           CORE_V="v$(node -p 'require("./packages/core/package.json").version')"
           REACT_V="v$(node -p 'require("./packages/react/package.json").version')"
+          VANILLA_V="v$(node -p 'require("./packages/vanilla/package.json").version')"
           test "$CORE_V" = "$TAG"
           test "$REACT_V" = "$TAG"
-          echo "Tag $TAG matches @guideloop/core@$CORE_V and @guideloop/react@$REACT_V"
+          test "$VANILLA_V" = "$TAG"
+          echo "Tag $TAG matches @guideloop/core, @guideloop/react, @guideloop/vanilla"
 
       - name: Publish @guideloop/core
         run: npm publish -w @guideloop/core --access public --provenance
@@ -48,5 +51,10 @@ jobs:
 
       - name: Publish @guideloop/react
         run: npm publish -w @guideloop/react --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish @guideloop/vanilla
+        run: npm publish -w @guideloop/vanilla --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -30,7 +30,10 @@ jobs:
         run: npm run build
 
       - name: Type check
-        run: npx tsc --noEmit -p packages/core/tsconfig.json && npx tsc --noEmit -p packages/react/tsconfig.json
+        run: |
+          npx tsc --noEmit -p packages/core/tsconfig.json
+          npx tsc --noEmit -p packages/react/tsconfig.json
+          npx tsc --noEmit -p packages/vanilla/tsconfig.json
 
       - name: Lint
         run: npm run lint

@@ -1,52 +1,44 @@
 # @guideloop/react
 
-React guided tour / onboarding library powered by [`@guideloop/core`](https://www.npmjs.com/package/@guideloop/core).
-
-## Install
+React guided tours & onboarding. Powered by [`@guideloop/core`](https://www.npmjs.com/package/@guideloop/core).
 
 ```bash
-npm install @guideloop/react
+npm i @guideloop/react
 ```
 
-Peer dependencies: `react` and `react-dom` (>=16.8). `@guideloop/core` is installed automatically.
+Peers: `react` / `react-dom` ≥16.8. `core` is installed automatically.
 
 ## Usage
 
 ```tsx
 import { GuideLoop } from '@guideloop/react';
 
-const steps = [
-  { target: '#cta', title: 'Welcome', content: 'Click here to get started.' },
-];
-
-export function AppTour({ open, onClose }) {
-  return <GuideLoop steps={steps} isOpen={open} onClose={onClose} />;
-}
+<GuideLoop
+  steps={[{ target: '#cta', title: 'Welcome', content: 'Start here.' }]}
+  isOpen={open}
+  onClose={onClose}
+  theme="tailwind"
+/>
 ```
 
-### Subpath exports
+## Entries
 
 | Import | Purpose |
-| --- | --- |
-| `@guideloop/react` | Main components & hooks |
-| `@guideloop/react/builder` | Dev-only Tour Builder (code-split entry) |
-| `@guideloop/react/types` | RSC-safe types + storage helpers |
+|--------|---------|
+| `@guideloop/react` | Components & hooks |
+| `@guideloop/react/builder` | Dev-only Tour Builder |
+| `@guideloop/react/types` | RSC-safe types + storage |
 
 ```tsx
-// Dynamic import keeps the builder out of production bundles
-const { TourBuilder } = await import('@guideloop/react/builder');
+const { TourBuilder } = await import('@guideloop/react/builder'); // gate in production
 ```
 
 ```ts
 import type { Step } from '@guideloop/react/types';
 ```
 
-## Docs
+Also: `OnboardingChecklist`, `Spotlight`, `Progress`, `debug` prop.
 
-Full documentation, themes, and examples: [github.com/oznksc/guideloop](https://github.com/oznksc/guideloop)
-
-Live demo: [oznksc.github.io/guideloop](https://oznksc.github.io/guideloop/)
-
-## License
+Docs & demo: [github.com/oznksc/guideloop](https://github.com/oznksc/guideloop) · [live](https://oznksc.github.io/guideloop/)
 
 MIT

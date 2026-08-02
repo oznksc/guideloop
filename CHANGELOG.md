@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.2] - 2026-08-02
+
+### Added
+- **`@guideloop/vanilla`** — framework-agnostic package with imperative `GuideLoop` API, DOM components, onboarding checklist, and Web Components (`<guide-loop>`, `<onboarding-checklist>`).
+- Vanilla unit tests (GuideLoop lifecycle, tooltip, portal, spotlight tracker, checklist, web components).
+- Publish workflow includes `@guideloop/vanilla`; CI type-checks the vanilla package.
+
+### Fixed
+- Vanilla `waitForTarget` now waits for missing targets before mounting the step UI.
+- Vanilla tour runs `beforeStep` / `afterStep` via `enterStep` / `leaveStep` (including first open and close).
+- Spotlight/overlay cutouts update live on scroll, resize, and DOM mutations.
+- HTMLElement step content is preserved (no longer stripped when mapping to core steps).
+- Multi-page `persist` saves active progress on every step change; skip/close mark tour inactive.
+- Onboarding modal primary action defaults to complete (parity with React); supports function content.
+- `sideEffects` marks the web-component entry so custom-element registration is not tree-shaken away.
+
 ## [2.0.0] - 2026-08-01
 
 ### Added
