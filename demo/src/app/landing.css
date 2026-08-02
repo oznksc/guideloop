@@ -12,7 +12,19 @@
   --color-accent-soft: rgba(3, 119, 217, 0.16);
   --color-accent-ink: #ffffff;
   --rail-left: 56px;
+  --content-rail-gap: 24px;
+  --content-inset-left: calc(var(--rail-left) + var(--content-rail-gap));
   --page-max: 1080px;
+  /*
+   * Horizontal placement of the shell when viewport > page-max.
+   * Centered would be 0.5 / 0.5. Shift left ~30% → left free 0.35, right free 0.65.
+   */
+  --layout-free-left: 0.35;
+  --layout-free-right: 0.65;
+  --layout-margin-left: max(
+    0px,
+    calc((100vw - min(100vw, var(--page-max))) * var(--layout-free-left))
+  );
   --radius-bubble: 9999px;
   --radius-panel: 0.55rem;
   --radius-card: 0.45rem;
@@ -21,6 +33,10 @@
   --density-pad-x: clamp(0.85rem, 3.6vw, 1.15rem);
   --safe-pad-x: max(var(--density-pad-x), env(safe-area-inset-left, 0px));
   --safe-pad-r: max(var(--density-pad-x), env(safe-area-inset-right, 0px));
+  /* Card track width from content pad to viewport right edge */
+  --carousel-track-width: calc(
+    100vw - var(--layout-margin-left) - var(--content-inset-left) - var(--density-pad-x)
+  );
 }
 
 .skip-link {
@@ -50,9 +66,12 @@
   min-height: 100vh;
   min-height: 100dvh;
   max-width: var(--page-max);
-  margin: 0 auto;
   width: 100%;
-  overflow-x: clip;
+  /* Not fully centered — ~30% closer to the left than auto margins */
+  margin-left: var(--layout-margin-left);
+  margin-right: auto;
+  /* visible so quickstart carousel can bleed past page-max to the right */
+  overflow-x: visible;
 }
 
 /* Tour path line — blue-tinted guide rail */
@@ -96,13 +115,15 @@
 .content-column {
   position: relative;
   z-index: 2;
-  padding-left: calc(var(--rail-left) + 24px);
+  padding-left: var(--content-inset-left);
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   min-height: 100dvh;
   min-width: 0;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* ==========================================================================
@@ -619,10 +640,17 @@
   min-width: 0;
 }
 
+/* Prev/next only when the track is likely to overflow (narrower viewports) */
 .carousel-nav {
   display: none;
   gap: 0.35rem;
   flex-shrink: 0;
+}
+
+@media (max-width: 1100px) {
+  .carousel-nav {
+    display: inline-flex;
+  }
 }
 
 .carousel-nav-btn {
@@ -643,29 +671,50 @@
   background: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface, #0e1522));
 }
 
-/* Side-by-side stack carousel */
+/*
+ * Stack carousel — width reaches the viewport right edge (not page-max).
+ * Cards keep a fixed min width and scroll horizontally inside the track.
+ */
 .stack-carousel {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.75rem;
-  width: 100%;
-  max-width: none;
+  display: flex;
+  gap: 0.65rem;
+  width: min(var(--carousel-track-width), 100vw);
+  max-width: min(var(--carousel-track-width), 100vw);
+  box-sizing: border-box;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 0.25rem;
+  padding-bottom: 0.4rem;
+  padding-right: max(var(--safe-pad-r), 1rem);
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-ink-muted, #8fa3b8) 35%, transparent)
+    transparent;
 }
 
-@media (max-width: 1200px) {
-  .stack-carousel {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.stack-carousel::-webkit-scrollbar {
+  height: 4px;
+}
+
+.stack-carousel::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-ink-muted, #8fa3b8) 40%, transparent);
+  border-radius: 999px;
 }
 
 .stack-card {
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
-  min-width: 0;
+  flex: 0 0 min(20rem, calc(100vw - 3.5rem));
+  width: min(20rem, calc(100vw - 3.5rem));
+  min-width: min(20rem, calc(100vw - 3.5rem));
+  max-width: min(20rem, calc(100vw - 3.5rem));
   background: transparent;
   border: none;
   box-shadow: none;
+  scroll-snap-align: start;
 }
 
 .stack-card-badge {
@@ -680,28 +729,6 @@
   min-height: 0;
   border-radius: var(--radius-panel);
   overflow: hidden;
-}
-
-@media (max-width: 960px) {
-  .stack-carousel {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: var(--density-pad-x);
-    gap: 0.65rem;
-    padding-bottom: 0.35rem;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-  }
-
-  .stack-card {
-    flex: 0 0 min(20.5rem, 86vw);
-    scroll-snap-align: start;
-  }
-
-  .carousel-nav {
-    display: inline-flex;
-  }
 }
 
 .install-command-pill button {
@@ -731,13 +758,20 @@
    ========================================================================== */
 .quickstart-section {
   padding: clamp(1rem, 2.8vw, 1.25rem) var(--density-pad-x) clamp(1.25rem, 3vw, 1.75rem);
-  padding-right: var(--safe-pad-r);
+  /* no right pad — carousel bleeds to the viewport edge */
+  padding-right: 0;
+  overflow: visible;
   transition: background-color 180ms ease;
 }
 
 .quickstart-container {
-  max-width: 100%;
+  max-width: none;
   min-width: 0;
+  overflow: visible;
+}
+
+.quickstart-container > .section-header {
+  padding-right: var(--safe-pad-r);
 }
 
 .section-kicker {
@@ -1063,13 +1097,32 @@ html[data-theme="nordic"] .footer-ascii-shader {
 
 /* ==========================================================================
    RESPONSIVE
-   Breakpoints: 900 (tablet, drop rail) · 720 · 520 · 380
+   Breakpoints: 1100 · 900 (drop rail) · 720 · 520 · 380
    ========================================================================== */
 
-/* —— ≤900px: drop rail, full-bleed content —— */
+/* —— ≤1100px: nav arrows for carousel; slightly tighter cards —— */
+@media (max-width: 1100px) {
+  .stack-card {
+    flex-basis: min(18.5rem, calc(100vw - 3.25rem));
+    width: min(18.5rem, calc(100vw - 3.25rem));
+    min-width: min(18.5rem, calc(100vw - 3.25rem));
+    max-width: min(18.5rem, calc(100vw - 3.25rem));
+  }
+}
+
+/* —— ≤900px: drop rail, full-bleed content, no left shell shift —— */
 @media (max-width: 900px) {
   :root {
     --rail-left: 0px;
+    --content-rail-gap: 0px;
+    --layout-margin-left: 0px;
+    --carousel-track-width: calc(100vw - var(--density-pad-x));
+  }
+
+  .landing-wrapper {
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
   }
 
   .landing-wrapper::before {
@@ -1088,6 +1141,20 @@ html[data-theme="nordic"] .footer-ascii-shader {
     padding-left: 0;
   }
 
+  .header-inner {
+    padding-left: var(--safe-pad-x);
+    padding-right: var(--safe-pad-r);
+  }
+
+  .hero-section {
+    padding-left: var(--safe-pad-x);
+    padding-right: var(--safe-pad-r);
+  }
+
+  .quickstart-section {
+    padding-left: var(--safe-pad-x);
+  }
+
   .theme-dropdown-label {
     display: none;
   }
@@ -1095,6 +1162,11 @@ html[data-theme="nordic"] .footer-ascii-shader {
   .theme-dropdown-trigger {
     padding-left: 0.55rem;
     padding-right: 0.55rem;
+  }
+
+  .section-header--row {
+    flex-wrap: wrap;
+    align-items: center;
   }
 
   .footer-ascii-shader {
@@ -1107,21 +1179,27 @@ html[data-theme="nordic"] .footer-ascii-shader {
   }
 }
 
-/* —— ≤720px: stack hero chips, denser type —— */
+/* —— ≤720px: stack hero CTA, denser type —— */
 @media (max-width: 720px) {
   .header-inner {
     padding-top: 0.55rem;
     padding-bottom: 0.55rem;
     min-height: 2.85rem;
+    gap: 0.4rem;
   }
 
   .brand-logo {
     height: 1.35rem;
+    max-width: min(8rem, 40vw);
   }
 
   .hero-section {
     padding-top: 1.1rem;
     padding-bottom: 1rem;
+  }
+
+  .hero-intro {
+    max-width: 100%;
   }
 
   .hero-intro + .hero-cta-group,
@@ -1137,11 +1215,13 @@ html[data-theme="nordic"] .footer-ascii-shader {
 
   .install-command-pill {
     width: 100%;
+    max-width: 100%;
     justify-content: space-between;
   }
 
   .hero-stats {
     width: 100%;
+    max-width: 100%;
     height: auto;
     min-height: 2.15rem;
     flex-wrap: wrap;
@@ -1159,6 +1239,13 @@ html[data-theme="nordic"] .footer-ascii-shader {
     font-size: 0.58rem;
     max-width: min(88vw, 15rem);
     padding: 0.18rem 0.42rem;
+  }
+
+  .stack-card {
+    flex-basis: min(17.25rem, calc(100vw - 2.75rem));
+    width: min(17.25rem, calc(100vw - 2.75rem));
+    min-width: min(17.25rem, calc(100vw - 2.75rem));
+    max-width: min(17.25rem, calc(100vw - 2.75rem));
   }
 
   .section-header h2 {
@@ -1208,6 +1295,7 @@ html[data-theme="nordic"] .footer-ascii-shader {
   .hero-subtitle {
     font-size: 0.8rem;
     line-height: 1.5;
+    max-width: 100%;
   }
 
   .hero-stat-divider {
@@ -1232,8 +1320,20 @@ html[data-theme="nordic"] .footer-ascii-shader {
     gap: 0.22rem;
   }
 
+  .section-header--row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .section-kicker {
     font-size: 0.55rem;
+  }
+
+  .stack-card {
+    flex-basis: min(16.5rem, calc(100vw - 2.5rem));
+    width: min(16.5rem, calc(100vw - 2.5rem));
+    min-width: min(16.5rem, calc(100vw - 2.5rem));
+    max-width: min(16.5rem, calc(100vw - 2.5rem));
   }
 
   .footer-bar {
@@ -1284,6 +1384,13 @@ html[data-theme="nordic"] .footer-ascii-shader {
   .install-command-pill {
     font-size: 0.72rem;
     height: 2rem;
+  }
+
+  .stack-card {
+    flex-basis: calc(100vw - 2.25rem);
+    width: calc(100vw - 2.25rem);
+    min-width: calc(100vw - 2.25rem);
+    max-width: calc(100vw - 2.25rem);
   }
 
   .footer-tagline {
