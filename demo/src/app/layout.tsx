@@ -29,13 +29,13 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://oznksc.github.io/guideloop/"),
-  title: "GuideLoop — product tours for React & Vanilla JS",
+  title: "GuideLoop — product tours for React, Svelte & Vanilla JS",
   description:
-    "Contextual product tours and onboarding for React, Vanilla JS, and Web Components.",
+    "Contextual product tours and onboarding for React, Svelte, Vanilla JS, and Web Components.",
   openGraph: {
-    title: "GuideLoop — product tours for React & Vanilla JS",
+    title: "GuideLoop — product tours for React, Svelte & Vanilla JS",
     description:
-      "Spotlight tours and checklists — React components, imperative API, or <guide-loop>.",
+      "Spotlight tours and checklists — React, Svelte, imperative API, or <guide-loop>.",
     type: "website",
   },
 };

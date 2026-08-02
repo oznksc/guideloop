@@ -85,16 +85,19 @@ export function App() {
   const steps: Step[] = [{
     target: "#search-bar",
     title: "Search",
-    content: "Bind any CSS selector."
+    content: "Svelte-friendly bind:isOpen API."
   }];
 </script>
 
 <button on:click={() => (open = true)}>Start</button>
+
+<!-- Idiomatic Svelte: bind open state + events -->
 <GuideLoop
   steps={steps}
   bind:isOpen={open}
   theme="tailwind"
   on:complete={() => console.log("done")}
+  on:stepchange={({ detail }) => console.log(detail.step)}
 />`,
   },
   {
@@ -310,26 +313,28 @@ export default function Home() {
 
                 <p className="hero-subtitle">
                   Spotlight tours and onboarding checklists for{" "}
-                  <strong>React</strong> or plain <strong>Vanilla JS</strong> —
-                  same core, themes, keyboard traps, and multi-page persist. Use
-                  components, an imperative API, or{" "}
+                  <strong>React</strong>, <strong>Svelte</strong>, and plain{" "}
+                  <strong>Vanilla JS</strong> — same core, themes, keyboard
+                  traps, and multi-page persist. Components,{" "}
+                  <code className="hero-inline-code">bind:isOpen</code>, an
+                  imperative API, or{" "}
                   <code className="hero-inline-code">&lt;guide-loop&gt;</code>.
                 </p>
               </div>
 
               <div className="hero-cta-group">
                 <div className="install-command-pill" data-hero-spot="install">
-                  <code>$ npm i @guideloop/react</code>
+                  <code>$ npm i @guideloop/svelte</code>
                   <button
                     type="button"
                     onClick={() =>
-                      void copyText("npm i @guideloop/react", () => {
+                      void copyText("npm i @guideloop/svelte", () => {
                         setCopiedHeroInstall(true);
                         window.setTimeout(() => setCopiedHeroInstall(false), 1600);
                       })
                     }
-                    title="Copy install command"
-                    aria-label="Copy React install command"
+                    title="Copy Svelte install command"
+                    aria-label="Copy Svelte install command"
                   >
                     {copiedHeroInstall ? (
                       <Check className="w-3.5 h-3.5" />
@@ -349,7 +354,7 @@ export default function Home() {
                   </span>
                   <span className="hero-stat-divider" />
                   <span className="hero-stat">
-                    <span className="hero-stat-symbol">^</span> React 16+ · JS
+                    <span className="hero-stat-symbol">^</span> React · Svelte · JS
                   </span>
                   <span className="hero-stat-divider" />
                   <span className="hero-stat">
@@ -366,7 +371,10 @@ export default function Home() {
                 <div>
                   <span className="section-kicker">GETTING STARTED</span>
                   <h2>Same tour model · every stack</h2>
-                  <p>Pick your stack — scroll the carousel on smaller screens.</p>
+                  <p>
+                    React, Svelte, Vanilla JS, and Web Components — scroll the
+                    carousel on smaller screens.
+                  </p>
                 </div>
                 <div className="carousel-nav" aria-label="Carousel controls">
                   <button
@@ -454,7 +462,7 @@ export default function Home() {
 
           <div className="footer-bar">
             <p className="footer-tagline">
-              Tours for React, Vanilla JS &amp; Web Components.
+              Tours for React, Svelte, Vanilla JS &amp; Web Components.
             </p>
             <nav className="footer-nav" aria-label="Footer">
               <a href={GITHUB_URL} target="_blank" rel="noreferrer">

@@ -35,7 +35,7 @@ test.describe('GuideLoop product landing', () => {
 
   test('hero install copy control is interactive', async ({ page }) => {
     const copyBtn = page.getByRole('button', {
-      name: 'Copy React install command',
+      name: /Copy (React|Svelte) install command/,
     });
     await expect(copyBtn).toBeVisible();
     await copyBtn.click();
