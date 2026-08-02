@@ -13,9 +13,10 @@ import "./landing.css";
 const GITHUB_URL = "https://github.com/oznksc/guideloop";
 const NPM_REACT = "https://www.npmjs.com/package/@guideloop/react";
 const NPM_SVELTE = "https://www.npmjs.com/package/@guideloop/svelte";
+const NPM_ANGULAR = "https://www.npmjs.com/package/@guideloop/angular";
 const NPM_VANILLA = "https://www.npmjs.com/package/@guideloop/vanilla";
 type DemoThemeId = "slate" | "editorial" | "terminal" | "nordic";
-type StackId = "react" | "svelte" | "vanilla" | "webcomponent";
+type StackId = "react" | "svelte" | "angular" | "vanilla" | "webcomponent";
 
 interface DemoThemePreset {
   id: DemoThemeId;
@@ -99,6 +100,40 @@ export function App() {
   on:complete={() => console.log("done")}
   on:stepchange={({ detail }) => console.log(detail.step)}
 />`,
+  },
+  {
+    id: "angular",
+    label: "Angular",
+    packageName: "@guideloop/angular",
+    file: "app.component.ts",
+    install: "npm i @guideloop/angular",
+    npmUrl: NPM_ANGULAR,
+    code: `import { Component } from "@angular/core";
+import { GuideLoopComponent, type Step } from "@guideloop/angular";
+
+@Component({
+  standalone: true,
+  imports: [GuideLoopComponent],
+  template: \`
+    <button (click)="open = true">Start</button>
+    <guideloop-tour
+      [steps]="steps"
+      [isOpen]="open"
+      theme="tailwind"
+      (closed)="open = false"
+      (complete)="onDone()"
+    />
+  \`,
+})
+export class AppComponent {
+  open = false;
+  steps: Step[] = [{
+    target: "#search-bar",
+    title: "Search",
+    content: "Angular standalone component API."
+  }];
+  onDone() { console.log("done"); }
+}`,
   },
   {
     id: "vanilla",
@@ -313,11 +348,13 @@ export default function Home() {
 
                 <p className="hero-subtitle">
                   Spotlight tours and onboarding checklists for{" "}
-                  <strong>React</strong>, <strong>Svelte</strong>, and plain{" "}
+                  <strong>React</strong>, <strong>Svelte</strong>,{" "}
+                  <strong>Angular</strong>, and plain{" "}
                   <strong>Vanilla JS</strong> — same core, themes, keyboard
                   traps, and multi-page persist. Components,{" "}
-                  <code className="hero-inline-code">bind:isOpen</code>, an
-                  imperative API, or{" "}
+                  <code className="hero-inline-code">bind:isOpen</code>,{" "}
+                  <code className="hero-inline-code">&lt;guideloop-tour&gt;</code>
+                  , an imperative API, or{" "}
                   <code className="hero-inline-code">&lt;guide-loop&gt;</code>.
                 </p>
               </div>
@@ -354,7 +391,7 @@ export default function Home() {
                   </span>
                   <span className="hero-stat-divider" />
                   <span className="hero-stat">
-                    <span className="hero-stat-symbol">^</span> React · Svelte · JS
+                    <span className="hero-stat-symbol">^</span> React · Svelte · Angular
                   </span>
                   <span className="hero-stat-divider" />
                   <span className="hero-stat">
@@ -372,8 +409,8 @@ export default function Home() {
                   <span className="section-kicker">GETTING STARTED</span>
                   <h2>Same tour model · every stack</h2>
                   <p>
-                    React, Svelte, Vanilla JS, and Web Components — scroll the
-                    carousel on smaller screens.
+                    React, Svelte, Angular, Vanilla JS, and Web Components —
+                    scroll the carousel on smaller screens.
                   </p>
                 </div>
                 <div className="carousel-nav" aria-label="Carousel controls">
@@ -462,7 +499,7 @@ export default function Home() {
 
           <div className="footer-bar">
             <p className="footer-tagline">
-              Tours for React, Svelte, Vanilla JS &amp; Web Components.
+              Tours for React, Svelte, Angular, Vanilla JS &amp; Web Components.
             </p>
             <nav className="footer-nav" aria-label="Footer">
               <a href={GITHUB_URL} target="_blank" rel="noreferrer">
@@ -473,6 +510,9 @@ export default function Home() {
               </a>
               <a href={NPM_SVELTE} target="_blank" rel="noreferrer">
                 svelte
+              </a>
+              <a href={NPM_ANGULAR} target="_blank" rel="noreferrer">
+                angular
               </a>
               <a href={NPM_VANILLA} target="_blank" rel="noreferrer">
                 vanilla
