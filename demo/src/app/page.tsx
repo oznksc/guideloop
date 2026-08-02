@@ -26,6 +26,7 @@ import {
   ThemeTerminalIcon,
   VanillaIcon,
   VueIcon,
+  WebComponentIcon,
 } from "../components/DemoIcons";
 import { AsciiLogoShader } from "../components/AsciiLogoShader";
 import { HeroSpotlightDemo } from "../components/HeroSpotlightDemo";
@@ -58,6 +59,7 @@ const STACK_CARDS: {
   id: StackId;
   label: string;
   shortLabel: string;
+  Icon: IconComponent;
   packageName: string;
   file: string;
   install: string;
@@ -72,6 +74,7 @@ const STACK_CARDS: {
     id: "react",
     label: "React",
     shortLabel: "React",
+    Icon: ReactIcon,
     packageName: "@guideloop/react",
     file: "App.tsx",
     install: "npm i @guideloop/react",
@@ -109,6 +112,7 @@ export function App() {
     id: "vue",
     label: "Vue",
     shortLabel: "Vue",
+    Icon: VueIcon,
     packageName: "@guideloop/vue",
     file: "App.vue",
     install: "npm i @guideloop/vue",
@@ -145,6 +149,7 @@ const steps: Step[] = [{
     id: "svelte",
     label: "Svelte",
     shortLabel: "Svelte",
+    Icon: SvelteIcon,
     packageName: "@guideloop/svelte",
     file: "App.svelte",
     install: "npm i @guideloop/svelte",
@@ -181,6 +186,7 @@ const steps: Step[] = [{
     id: "angular",
     label: "Angular",
     shortLabel: "Angular",
+    Icon: AngularIcon,
     packageName: "@guideloop/angular",
     file: "app.component.ts",
     install: "npm i @guideloop/angular",
@@ -221,6 +227,7 @@ export class AppComponent {
     id: "vanilla",
     label: "Vanilla JS",
     shortLabel: "Vanilla",
+    Icon: VanillaIcon,
     packageName: "@guideloop/vanilla",
     file: "tour.js",
     install: "npm i @guideloop/vanilla",
@@ -251,6 +258,7 @@ await tour.start();
     id: "webcomponent",
     label: "Web Component",
     shortLabel: "WC",
+    Icon: WebComponentIcon,
     packageName: "@guideloop/vanilla",
     file: "index.html",
     install: "npm i @guideloop/vanilla",
@@ -639,6 +647,7 @@ export default function Home() {
                 >
                   {STACK_CARDS.map((card) => {
                     const selected = card.id === activeStack;
+                    const StackIcon = card.Icon;
                     return (
                       <button
                         key={card.id}
@@ -649,6 +658,8 @@ export default function Home() {
                         className={`stack-tab${selected ? " is-active" : ""}`}
                         aria-selected={selected}
                         aria-controls={stackPanelId}
+                        aria-label={card.label}
+                        title={card.label}
                         tabIndex={selected ? 0 : -1}
                         onClick={() => {
                           setActiveStack(card.id);
@@ -656,10 +667,8 @@ export default function Home() {
                           setCopiedInstall(false);
                         }}
                       >
+                        <StackIcon className="stack-tab-icon" aria-hidden="true" />
                         <span className="stack-tab-label">{card.shortLabel}</span>
-                        <span className="stack-tab-pkg" aria-hidden="true">
-                          {card.packageName.replace("@guideloop/", "")}
-                        </span>
                       </button>
                     );
                   })}

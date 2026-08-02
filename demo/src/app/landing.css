@@ -798,19 +798,26 @@
 }
 
 /*
- * Stack explorer — vertical tabs hang left of the tour rail;
- * detail panel sits on the content side (right of the line).
+ * Stack explorer — vertical tabs fill the left-of-rail gutter and sit
+ * flush against the tour line; the detail panel stays on the content side.
+ *
+ * Coordinate system (relative to .landing-wrapper):
+ *   rail line .............. left: var(--rail-left)
+ *   .content-column ........ padding-left: var(--content-inset-left)
+ *   .quickstart-section .... padding-left: var(--density-pad-x)
+ *
+ * So content starts at content-inset-left + density-pad-x. Pull the
+ * explorer back by that full amount so col-1 runs [0 → rail-left]
+ * and its right edge meets the rail. Panel gap restores content align.
  */
 .stack-explorer {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: var(--rail-left) minmax(0, 1fr);
   align-items: stretch;
-  gap: 40px;
-  /*
-   * Pull the tab column into the rail gutter so tabs sit left of the
-   * vertical tour line; the detail panel stays on the content side.
-   */
-  margin-left: calc(-1 * (var(--rail-left) + var(--content-rail-gap) - -1rem));
+  column-gap: calc(var(--content-rail-gap) + var(--density-pad-x));
+  margin-left: calc(
+    -1 * (var(--content-inset-left) + var(--density-pad-x))
+  );
   min-width: 0;
 }
 
@@ -818,54 +825,57 @@
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
-  /* fill the left-of-rail gutter (with a tiny overlap onto the line) */
-  min-width: 3.25rem;
-  max-width: 4.75rem;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
   box-sizing: border-box;
   position: relative;
   z-index: 3;
+  /* Keep tab faces hard against the rail line */
+  margin: 0;
+  padding: 0;
 }
 
 .stack-tab {
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 0.08rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.22rem;
   width: 100%;
   margin: 0;
-  padding: 0.42rem 0.45rem 0.42rem 0.3rem;
+  padding: 0.48rem 0.35rem 0.48rem 0.3rem;
   border: 1px solid transparent;
   border-right: none;
   border-radius: 0.4rem 0 0 0.4rem;
   background: transparent;
   color: var(--color-ink-muted, #8fa3b8);
   font-family: var(--font-sans);
-  text-align: right;
+  text-align: center;
   cursor: pointer;
   transition:
     color 0.12s ease,
     background 0.12s ease,
     border-color 0.12s ease,
-    box-shadow 0.12s ease,
-    transform 0.12s ease;
+    box-shadow 0.12s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
-.stack-tab-label {
-  font-size: 0.72rem;
-  font-weight: 650;
-  letter-spacing: -0.01em;
-  line-height: 1.15;
-  color: inherit;
+.stack-tab-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+  display: block;
+  flex-shrink: 0;
+  opacity: 0.88;
 }
 
-.stack-tab-pkg {
-  font-family: var(--font-mono);
-  font-size: 0.52rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  opacity: 0.55;
+.stack-tab-label {
+  font-size: 0.62rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  color: inherit;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -890,23 +900,21 @@
   box-shadow:
     -4px 0 14px color-mix(in srgb, var(--color-accent) 12%, transparent),
     inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 8%, transparent);
-  transform: translateX(-2px);
 }
 
-.stack-tab.is-active .stack-tab-pkg {
-  opacity: 0.75;
+.stack-tab.is-active .stack-tab-icon {
+  opacity: 1;
   color: var(--color-accent);
 }
 
-/* Active tab “bites” into the rail with an accent notch */
+/* Active tab accent bar sits on the rail line */
 .stack-tab.is-active::after {
-  display: none;
   content: "";
   position: absolute;
-  right: -1px;
+  right: 0;
   top: 50%;
-  width: 3px;
-  height: 1.1rem;
+  width: 2px;
+  height: 1.15rem;
   transform: translateY(-50%);
   border-radius: 2px 0 0 2px;
   background: var(--color-accent);
@@ -1504,24 +1512,30 @@ html[data-theme="nordic"] .footer-ascii-shader {
 
   .stack-tab {
     flex: 0 0 auto;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.35rem;
     text-align: left;
-    padding: 0.4rem 0.65rem;
+    padding: 0.4rem 0.7rem 0.4rem 0.55rem;
     border-radius: 999px;
     border: 1px solid var(--color-line, rgba(148, 190, 230, 0.14));
   }
 
+  .stack-tab-icon {
+    width: 0.95rem;
+    height: 0.95rem;
+  }
+
+  .stack-tab-label {
+    font-size: 0.68rem;
+  }
+
   .stack-tab.is-active {
-    transform: none;
     border-color: color-mix(in srgb, var(--color-accent) 45%, transparent);
     box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 18%, transparent);
   }
 
   .stack-tab.is-active::after {
-    display: none;
-  }
-
-  .stack-tab-pkg {
     display: none;
   }
 
@@ -1749,11 +1763,16 @@ html[data-theme="nordic"] .footer-ascii-shader {
   }
 
   .stack-tab {
-    padding: 0.35rem 0.55rem;
+    padding: 0.32rem 0.5rem 0.32rem 0.42rem;
+  }
+
+  .stack-tab-icon {
+    width: 0.88rem;
+    height: 0.88rem;
   }
 
   .stack-tab-label {
-    font-size: 0.68rem;
+    font-size: 0.62rem;
   }
 
   .footer-tagline {
