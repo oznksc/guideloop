@@ -269,6 +269,17 @@ export function VanillaIcon(props: IconProps) {
   );
 }
 
+/** Web Components / custom elements mark */
+export function WebComponentIcon(props: IconProps) {
+  return (
+    <IconFrame {...props} strokeWidth={1.75}>
+      <path d="M8 5 3 12l5 7" />
+      <path d="m16 5 5 7-5 7" />
+      <path d="m14.2 4.5-4.4 15" />
+    </IconFrame>
+  );
+}
+
 export function CaretDown(props: IconProps) {
   return (
     <IconFrame {...props} strokeWidth={2}>
