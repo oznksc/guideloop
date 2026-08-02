@@ -6,12 +6,26 @@ import {
   useId,
   useRef,
   useState,
+  type ComponentType,
   type KeyboardEvent as ReactKeyboardEvent,
+  type SVGProps,
 } from "react";
 import {
+  AngularIcon,
+  CaretDown,
+  CaretUp,
   Check,
   Copy,
+  Github,
   GuideLoopLogo,
+  ReactIcon,
+  SvelteIcon,
+  ThemeEditorialIcon,
+  ThemeNordicIcon,
+  ThemeSlateIcon,
+  ThemeTerminalIcon,
+  VanillaIcon,
+  VueIcon,
 } from "../components/DemoIcons";
 import { AsciiLogoShader } from "../components/AsciiLogoShader";
 import { HeroSpotlightDemo } from "../components/HeroSpotlightDemo";
@@ -25,18 +39,19 @@ const NPM_ANGULAR = "https://www.npmjs.com/package/@guideloop/angular";
 const NPM_VANILLA = "https://www.npmjs.com/package/@guideloop/vanilla";
 type DemoThemeId = "slate" | "editorial" | "terminal" | "nordic";
 type StackId = "react" | "vue" | "svelte" | "angular" | "vanilla" | "webcomponent";
+type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 
 interface DemoThemePreset {
   id: DemoThemeId;
   name: string;
-  icon: string;
+  Icon: IconComponent;
 }
 
 const DEMO_THEMES: Record<DemoThemeId, DemoThemePreset> = {
-  slate: { id: "slate", name: "Guide Blue", icon: "\u25CF" },
-  editorial: { id: "editorial", name: "Editorial Craft", icon: "\uD83D\uDCDC" },
-  terminal: { id: "terminal", name: "Terminal CLI", icon: "\uD83D\uDCDF" },
-  nordic: { id: "nordic", name: "Nordic Frost", icon: "\uD83D\uDC8E" },
+  slate: { id: "slate", name: "Guide Blue", Icon: ThemeSlateIcon },
+  editorial: { id: "editorial", name: "Editorial Craft", Icon: ThemeEditorialIcon },
+  terminal: { id: "terminal", name: "Terminal CLI", Icon: ThemeTerminalIcon },
+  nordic: { id: "nordic", name: "Nordic Frost", Icon: ThemeNordicIcon },
 };
 
 const STACK_CARDS: {
@@ -341,6 +356,7 @@ export default function Home() {
   }, []);
 
   const activeTheme = DEMO_THEMES[currentTheme];
+  const ActiveThemeIcon = activeTheme.Icon;
   const activeCard =
     STACK_CARDS.find((c) => c.id === activeStack) ?? STACK_CARDS[0];
 
@@ -398,16 +414,20 @@ export default function Home() {
                   aria-haspopup="listbox"
                   aria-expanded={themeMenuOpen}
                   aria-controls={themeListId}
+                  aria-label={`Theme: ${activeTheme.name}`}
+                  title={activeTheme.name}
                   onClick={() => setThemeMenuOpen((open) => !open)}
                 >
-                  <span className="theme-dropdown-icon" aria-hidden="true">
-                    {activeTheme.icon}
-                  </span>
-                  <span className="theme-dropdown-label">
-                    {activeTheme.name.split(" ")[0]}
-                  </span>
+                  <ActiveThemeIcon
+                    className="theme-dropdown-icon"
+                    aria-hidden="true"
+                  />
                   <span className="theme-dropdown-caret" aria-hidden="true">
-                    {themeMenuOpen ? "\u25B2" : "\u25BC"}
+                    {themeMenuOpen ? (
+                      <CaretUp className="theme-dropdown-caret-svg" />
+                    ) : (
+                      <CaretDown className="theme-dropdown-caret-svg" />
+                    )}
                   </span>
                 </button>
 
@@ -421,17 +441,22 @@ export default function Home() {
                     {(Object.keys(DEMO_THEMES) as DemoThemeId[]).map((id) => {
                       const theme = DEMO_THEMES[id];
                       const selected = currentTheme === id;
+                      const ThemeIcon = theme.Icon;
                       return (
                         <li key={id} role="presentation">
                           <button
                             type="button"
                             role="option"
                             aria-selected={selected}
+                            aria-label={theme.name}
+                            title={theme.name}
                             className={`theme-dropdown-item${selected ? " is-active" : ""}`}
                             onClick={() => changeTheme(id)}
                           >
-                            <span aria-hidden="true">{theme.icon}</span>
-                            <span>{theme.name}</span>
+                            <ThemeIcon
+                              className="theme-dropdown-item-icon"
+                              aria-hidden="true"
+                            />
                           </button>
                         </li>
                       );
@@ -444,9 +469,11 @@ export default function Home() {
                 href={GITHUB_URL}
                 target="_blank"
                 rel="noreferrer"
-                className="btn btn--ghost"
+                className="btn btn--ghost btn--icon"
+                aria-label="GitHub repository"
+                title="GitHub"
               >
-                GitHub
+                <Github className="header-github-icon" />
               </a>
             </div>
           </div>
@@ -753,25 +780,69 @@ export default function Home() {
               Tours for React, Vue, Svelte, Angular, Vanilla JS &amp; Web Components.
             </p>
             <nav className="footer-nav" aria-label="Footer">
-              <a href={GITHUB_URL} target="_blank" rel="noreferrer">
-                GitHub
+              <a
+                href={GITHUB_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="footer-icon-link"
+                aria-label="GitHub repository"
+                title="GitHub"
+              >
+                <Github className="footer-icon" />
               </a>
-              <a href={NPM_REACT} target="_blank" rel="noreferrer">
-                react
+              <a
+                href={NPM_REACT}
+                target="_blank"
+                rel="noreferrer"
+                className="footer-icon-link"
+                aria-label="@guideloop/react on npm"
+                title="React"
+              >
+                <ReactIcon className="footer-icon" />
               </a>
-              <a href={NPM_VUE} target="_blank" rel="noreferrer">
-                vue
+              <a
+                href={NPM_VUE}
+                target="_blank"
+                rel="noreferrer"
+                className="footer-icon-link"
+                aria-label="@guideloop/vue on npm"
+                title="Vue"
+              >
+                <VueIcon className="footer-icon" />
               </a>
-              <a href={NPM_SVELTE} target="_blank" rel="noreferrer">
-                svelte
+              <a
+                href={NPM_SVELTE}
+                target="_blank"
+                rel="noreferrer"
+                className="footer-icon-link"
+                aria-label="@guideloop/svelte on npm"
+                title="Svelte"
+              >
+                <SvelteIcon className="footer-icon" />
               </a>
-              <a href={NPM_ANGULAR} target="_blank" rel="noreferrer">
-                angular
+              <a
+                href={NPM_ANGULAR}
+                target="_blank"
+                rel="noreferrer"
+                className="footer-icon-link"
+                aria-label="@guideloop/angular on npm"
+                title="Angular"
+              >
+                <AngularIcon className="footer-icon" />
               </a>
-              <a href={NPM_VANILLA} target="_blank" rel="noreferrer">
-                vanilla
+              <a
+                href={NPM_VANILLA}
+                target="_blank"
+                rel="noreferrer"
+                className="footer-icon-link"
+                aria-label="@guideloop/vanilla on npm"
+                title="Vanilla JS"
+              >
+                <VanillaIcon className="footer-icon" />
               </a>
-              <span>MIT</span>
+              <span className="footer-meta" title="MIT License">
+                MIT
+              </span>
               <span className="footer-copy">&copy; 2026</span>
             </nav>
           </div>
