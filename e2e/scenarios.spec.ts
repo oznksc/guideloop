@@ -13,10 +13,11 @@ test.describe('Landing layout & stack carousel', () => {
   test('shows three stack code samples in getting started', async ({ page }) => {
     const section = page.locator('#quickstart');
     await expect(section.getByRole('heading', { level: 2 })).toContainText(
-      /three ways|quick start|Same tour/i
+      /every stack|three ways|quick start|Same tour/i
     );
 
     await expect(section.getByLabel('React example', { exact: true })).toBeVisible();
+    await expect(section.getByLabel('Svelte example', { exact: true })).toBeVisible();
     await expect(section.getByLabel('Vanilla JS example', { exact: true })).toBeVisible();
     await expect(
       section.getByLabel('Web Component example', { exact: true })

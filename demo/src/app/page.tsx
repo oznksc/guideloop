@@ -12,9 +12,10 @@ import "./landing.css";
 
 const GITHUB_URL = "https://github.com/oznksc/guideloop";
 const NPM_REACT = "https://www.npmjs.com/package/@guideloop/react";
+const NPM_SVELTE = "https://www.npmjs.com/package/@guideloop/svelte";
 const NPM_VANILLA = "https://www.npmjs.com/package/@guideloop/vanilla";
 type DemoThemeId = "slate" | "editorial" | "terminal" | "nordic";
-type StackId = "react" | "vanilla" | "webcomponent";
+type StackId = "react" | "svelte" | "vanilla" | "webcomponent";
 
 interface DemoThemePreset {
   id: DemoThemeId;
@@ -68,6 +69,33 @@ export function App() {
     </>
   );
 }`,
+  },
+  {
+    id: "svelte",
+    label: "Svelte",
+    packageName: "@guideloop/svelte",
+    file: "App.svelte",
+    install: "npm i @guideloop/svelte",
+    npmUrl: NPM_SVELTE,
+    code: `<script lang="ts">
+  import { GuideLoop } from "@guideloop/svelte";
+  import type { Step } from "@guideloop/svelte";
+
+  let open = false;
+  const steps: Step[] = [{
+    target: "#search-bar",
+    title: "Search",
+    content: "Bind any CSS selector."
+  }];
+</script>
+
+<button on:click={() => (open = true)}>Start</button>
+<GuideLoop
+  steps={steps}
+  bind:isOpen={open}
+  theme="tailwind"
+  on:complete={() => console.log("done")}
+/>`,
   },
   {
     id: "vanilla",
@@ -337,7 +365,7 @@ export default function Home() {
               <div className="section-header section-header--row">
                 <div>
                   <span className="section-kicker">GETTING STARTED</span>
-                  <h2>Same tour model · three ways in</h2>
+                  <h2>Same tour model · every stack</h2>
                   <p>Pick your stack — scroll the carousel on smaller screens.</p>
                 </div>
                 <div className="carousel-nav" aria-label="Carousel controls">
@@ -434,6 +462,9 @@ export default function Home() {
               </a>
               <a href={NPM_REACT} target="_blank" rel="noreferrer">
                 react
+              </a>
+              <a href={NPM_SVELTE} target="_blank" rel="noreferrer">
+                svelte
               </a>
               <a href={NPM_VANILLA} target="_blank" rel="noreferrer">
                 vanilla

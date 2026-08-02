@@ -39,10 +39,12 @@ jobs:
           CORE_V="v$(node -p 'require("./packages/core/package.json").version')"
           REACT_V="v$(node -p 'require("./packages/react/package.json").version')"
           VANILLA_V="v$(node -p 'require("./packages/vanilla/package.json").version')"
+          SVELTE_V="v$(node -p 'require("./packages/svelte/package.json").version')"
           test "$CORE_V" = "$TAG"
           test "$REACT_V" = "$TAG"
           test "$VANILLA_V" = "$TAG"
-          echo "Tag $TAG matches @guideloop/core, @guideloop/react, @guideloop/vanilla"
+          test "$SVELTE_V" = "$TAG"
+          echo "Tag $TAG matches @guideloop/{core,react,vanilla,svelte}"
 
       - name: Publish @guideloop/core
         run: npm publish -w @guideloop/core --access public --provenance
@@ -56,5 +58,10 @@ jobs:
 
       - name: Publish @guideloop/vanilla
         run: npm publish -w @guideloop/vanilla --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish @guideloop/svelte
+        run: npm publish -w @guideloop/svelte --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
