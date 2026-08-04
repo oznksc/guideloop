@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@ant-design/icons": "^5.5.1",
+    "@ant-design/icons": "^6.3.2",
     "@guideloop/core": "file:../packages/core",
     "@guideloop/react": "file:../packages/react",
     "antd": "^5.21.6",
