@@ -53,7 +53,7 @@
     "@guideloop/vanilla": "^2.0.2"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^25.0.8",
+    "@rollup/plugin-commonjs": "^29.0.3",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-typescript": "^11.1.6",
     "@testing-library/jest-dom": "^5.17.0",
