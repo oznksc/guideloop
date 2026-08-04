@@ -16,9 +16,9 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.49.1",
-    "@typescript-eslint/eslint-plugin": "^5.62.0",
-    "@typescript-eslint/parser": "^5.62.0",
-    "eslint": "^8.57.0",
+    "@typescript-eslint/eslint-plugin": "^8.65.0",
+    "@typescript-eslint/parser": "^8.65.0",
+    "eslint": "^10.8.0",
     "turbo": "^2.0.0",
     "typescript": "^4.9.5"
   }
