@@ -547,13 +547,6 @@ export default function UIShowcase() {
                   </div>
                 </section>
               )}
-
-              {/* Footer */}
-              <footer className="ui-showcase__footer">
-                <Link href="../" className="back-link">
-                  &larr; Back to landing
-                </Link>
-              </footer>
             </div>
           </div>
         </div>
