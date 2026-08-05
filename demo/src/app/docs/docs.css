@@ -1,0 +1,87 @@
+/* GuideLoop Core Docs — Documentation layout styling matching the landing shell */
+
+.docs-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.docs-block {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: var(--color-surface, #0e1522);
+  border: 1px solid var(--color-line-strong, rgba(148, 190, 230, 0.16));
+  border-radius: var(--radius-panel, 0.55rem);
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.docs-block__title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-ink, #eef4fb);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.docs-block__desc {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--color-ink-muted, #8fa3b8);
+  margin: 0;
+}
+
+.docs-param-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.docs-param-table th,
+.docs-param-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-line, rgba(148, 190, 230, 0.1));
+}
+
+.docs-param-table th {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-accent, #0377d9);
+  background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+}
+
+.docs-param-table td code {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.25rem;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-sky, #4db8ff);
+}
+
+.docs-badge-required {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+}
+
+.docs-badge-optional {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: var(--color-line-strong);
+  color: var(--color-ink-muted);
+}
