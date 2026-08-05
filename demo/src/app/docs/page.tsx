@@ -50,24 +50,32 @@ interface DocsTopic {
   id: DocsTopicId;
   label: string;
   shortLabel: string;
+  category: "getting-started" | "adapters" | "architecture" | "reference";
   Icon: ComponentType<SVGProps<SVGSVGElement>>;
 }
 
 const DOCS_TOPICS: DocsTopic[] = [
-  { id: "quickstart", label: "Quick Start", shortLabel: "Start", Icon: Sparkles },
-  { id: "react-pkg", label: "React Adapter (@guideloop/react)", shortLabel: "React", Icon: ReactIcon },
-  { id: "vue-pkg", label: "Vue Adapter (@guideloop/vue)", shortLabel: "Vue", Icon: VueIcon },
-  { id: "angular-pkg", label: "Angular Adapter (@guideloop/angular)", shortLabel: "Angular", Icon: AngularIcon },
-  { id: "svelte-pkg", label: "Svelte Adapter (@guideloop/svelte)", shortLabel: "Svelte", Icon: SvelteIcon },
-  { id: "vanilla-pkg", label: "Vanilla JS Core (@guideloop/core)", shortLabel: "JS", Icon: VanillaIcon },
-  { id: "web-component-pkg", label: "Web Components (<guide-loop>)", shortLabel: "WebComp", Icon: WebComponentIcon },
-  { id: "step-model", label: "Step Model & Schema", shortLabel: "Steps", Icon: CodeIcon },
-  { id: "theme-system", label: "Theme & Customization", shortLabel: "Theme", Icon: Layers },
-  { id: "branching", label: "Branching & Actions", shortLabel: "Flow", Icon: Timeline },
-  { id: "triggers", label: "Auto Triggers & Clicks", shortLabel: "Events", Icon: Command },
-  { id: "persistence", label: "State Persistence", shortLabel: "State", Icon: Board },
-  { id: "keyboard", label: "Focus Trap & Accessibility", shortLabel: "a11y", Icon: Shield },
-  { id: "api-ref", label: "Imperative API & Props", shortLabel: "API", Icon: CodeIcon },
+  // 1. Getting Started
+  { id: "quickstart", label: "Quick Start & Overview", shortLabel: "Start", category: "getting-started", Icon: Sparkles },
+  
+  // 2. Framework Adapters
+  { id: "react-pkg", label: "React Adapter (@guideloop/react)", shortLabel: "React", category: "adapters", Icon: ReactIcon },
+  { id: "vue-pkg", label: "Vue 3 Adapter (@guideloop/vue)", shortLabel: "Vue", category: "adapters", Icon: VueIcon },
+  { id: "angular-pkg", label: "Angular Service (@guideloop/angular)", shortLabel: "Angular", category: "adapters", Icon: AngularIcon },
+  { id: "svelte-pkg", label: "Svelte Stores (@guideloop/svelte)", shortLabel: "Svelte", category: "adapters", Icon: SvelteIcon },
+  { id: "vanilla-pkg", label: "Vanilla JS Engine (@guideloop/core)", shortLabel: "JS Core", category: "adapters", Icon: VanillaIcon },
+  { id: "web-component-pkg", label: "Web Component (<guide-loop>)", shortLabel: "WebComp", category: "adapters", Icon: WebComponentIcon },
+
+  // 3. Core Architecture
+  { id: "step-model", label: "Step Contract & Schema", shortLabel: "Schema", category: "architecture", Icon: CodeIcon },
+  { id: "theme-system", label: "Theme Resolution System", shortLabel: "Themes", category: "architecture", Icon: Layers },
+  { id: "branching", label: "Branching & Step Lifecycle", shortLabel: "Flow", category: "architecture", Icon: Timeline },
+  { id: "triggers", label: "DOM Event Triggers", shortLabel: "Events", category: "architecture", Icon: Command },
+  { id: "persistence", label: "Multi-Page Persistence", shortLabel: "State", category: "architecture", Icon: Board },
+
+  // 4. Reference & Specs
+  { id: "keyboard", label: "Accessibility & Focus Trap", shortLabel: "a11y", category: "reference", Icon: Shield },
+  { id: "api-ref", label: "Imperative API Reference", shortLabel: "API Ref", category: "reference", Icon: CodeIcon },
 ];
 
 const DEMO_THEMES = {
@@ -203,7 +211,75 @@ export default function CoreDocsPage() {
                 <span className="stack-tab-label">UI Kit</span>
               </Link>
 
-              {DOCS_TOPICS.map((topic) => {
+              {/* Categorized Left Rail */}
+              <div className="stack-tabs-group-title">Overview</div>
+              {DOCS_TOPICS.filter((t) => t.category === "getting-started").map((topic) => {
+                const selected = topic.id === activeTopic;
+                const TopicIcon = topic.Icon;
+                return (
+                  <button
+                    key={topic.id}
+                    type="button"
+                    role="tab"
+                    id={`docs-tab-${topic.id}`}
+                    className={`stack-tab${selected ? " is-active" : ""}`}
+                    aria-selected={selected}
+                    aria-label={topic.label}
+                    title={topic.label}
+                    onClick={() => setActiveTopic(topic.id)}
+                  >
+                    <TopicIcon className="stack-tab-icon" aria-hidden="true" />
+                    <span className="stack-tab-label">{topic.shortLabel}</span>
+                  </button>
+                );
+              })}
+
+              <div className="stack-tabs-group-title">Adapters</div>
+              {DOCS_TOPICS.filter((t) => t.category === "adapters").map((topic) => {
+                const selected = topic.id === activeTopic;
+                const TopicIcon = topic.Icon;
+                return (
+                  <button
+                    key={topic.id}
+                    type="button"
+                    role="tab"
+                    id={`docs-tab-${topic.id}`}
+                    className={`stack-tab${selected ? " is-active" : ""}`}
+                    aria-selected={selected}
+                    aria-label={topic.label}
+                    title={topic.label}
+                    onClick={() => setActiveTopic(topic.id)}
+                  >
+                    <TopicIcon className="stack-tab-icon" aria-hidden="true" />
+                    <span className="stack-tab-label">{topic.shortLabel}</span>
+                  </button>
+                );
+              })}
+
+              <div className="stack-tabs-group-title">Core Arch</div>
+              {DOCS_TOPICS.filter((t) => t.category === "architecture").map((topic) => {
+                const selected = topic.id === activeTopic;
+                const TopicIcon = topic.Icon;
+                return (
+                  <button
+                    key={topic.id}
+                    type="button"
+                    role="tab"
+                    id={`docs-tab-${topic.id}`}
+                    className={`stack-tab${selected ? " is-active" : ""}`}
+                    aria-selected={selected}
+                    aria-label={topic.label}
+                    title={topic.label}
+                    onClick={() => setActiveTopic(topic.id)}
+                  >
+                    <TopicIcon className="stack-tab-icon" aria-hidden="true" />
+                    <span className="stack-tab-label">{topic.shortLabel}</span>
+                  </button>
+                );
+              })}
+
+              <div className="stack-tabs-group-title">Reference</div>
+              {DOCS_TOPICS.filter((t) => t.category === "reference").map((topic) => {
                 const selected = topic.id === activeTopic;
                 const TopicIcon = topic.Icon;
                 return (
@@ -241,9 +317,9 @@ export default function CoreDocsPage() {
               {activeTopic === "quickstart" && (
                 <div className="docs-section">
                   <div className="docs-block">
-                    <h3 className="docs-block__title">Installation &amp; Core Concepts</h3>
+                    <h3 className="docs-block__title">Installation &amp; Core Architecture</h3>
                     <p className="docs-block__desc">
-                      <code>@guideloop/core</code> provides zero-dependency DOM management, spotlight tracking, focus trapping, and Popper.js positioning for all framework wrappers.
+                      GuideLoop consists of a pure ES2019 core engine (<code>@guideloop/core</code>) and framework-specific wrappers designed for zero runtime overhead.
                     </p>
                     <div className="code-window">
                       <div className="code-header">
@@ -256,7 +332,88 @@ export default function CoreDocsPage() {
                   </div>
 
                   <div className="docs-block">
-                    <h3 className="docs-block__title">Minimal Vanilla Usage</h3>
+                    <h3 className="docs-block__title">Choose Your Framework Adapter</h3>
+                    <p className="docs-block__desc">
+                      Select your application framework below for tailored setup guides, reactive hooks, and component APIs.
+                    </p>
+
+                    <div className="docs-framework-grid">
+                      <button
+                        type="button"
+                        className="docs-framework-card"
+                        onClick={() => setActiveTopic("react-pkg")}
+                      >
+                        <div className="docs-framework-card__header">
+                          <ReactIcon className="docs-framework-card__icon" />
+                          <h4 className="docs-framework-card__title">React</h4>
+                        </div>
+                        <span className="docs-framework-card__pkg">guideloop / @guideloop/react</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="docs-framework-card"
+                        onClick={() => setActiveTopic("vue-pkg")}
+                      >
+                        <div className="docs-framework-card__header">
+                          <VueIcon className="docs-framework-card__icon" />
+                          <h4 className="docs-framework-card__title">Vue 3</h4>
+                        </div>
+                        <span className="docs-framework-card__pkg">@guideloop/vue</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="docs-framework-card"
+                        onClick={() => setActiveTopic("angular-pkg")}
+                      >
+                        <div className="docs-framework-card__header">
+                          <AngularIcon className="docs-framework-card__icon" />
+                          <h4 className="docs-framework-card__title">Angular</h4>
+                        </div>
+                        <span className="docs-framework-card__pkg">@guideloop/angular</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="docs-framework-card"
+                        onClick={() => setActiveTopic("svelte-pkg")}
+                      >
+                        <div className="docs-framework-card__header">
+                          <SvelteIcon className="docs-framework-card__icon" />
+                          <h4 className="docs-framework-card__title">Svelte</h4>
+                        </div>
+                        <span className="docs-framework-card__pkg">@guideloop/svelte</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="docs-framework-card"
+                        onClick={() => setActiveTopic("vanilla-pkg")}
+                      >
+                        <div className="docs-framework-card__header">
+                          <VanillaIcon className="docs-framework-card__icon" />
+                          <h4 className="docs-framework-card__title">Vanilla JS</h4>
+                        </div>
+                        <span className="docs-framework-card__pkg">@guideloop/core</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="docs-framework-card"
+                        onClick={() => setActiveTopic("web-component-pkg")}
+                      >
+                        <div className="docs-framework-card__header">
+                          <WebComponentIcon className="docs-framework-card__icon" />
+                          <h4 className="docs-framework-card__title">Web Component</h4>
+                        </div>
+                        <span className="docs-framework-card__pkg">&lt;guide-loop&gt;</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="docs-block">
+                    <h3 className="docs-block__title">Minimal Core Engine Usage</h3>
                     <div className="code-window">
                       <div className="code-header">
                         <span className="code-filename">index.ts</span>
@@ -763,6 +920,40 @@ const saved = loadTourState("dashboard-tour");`}</code>
                   </div>
                 </div>
               )}
+
+              {/* Article Bottom Navigation Bar */}
+              {(() => {
+                const currentIndex = DOCS_TOPICS.findIndex((t) => t.id === activeTopic);
+                const prevTopic = currentIndex > 0 ? DOCS_TOPICS[currentIndex - 1] : null;
+                const nextTopic =
+                  currentIndex < DOCS_TOPICS.length - 1 ? DOCS_TOPICS[currentIndex + 1] : null;
+
+                return (
+                  <footer className="docs-nav-footer">
+                    {prevTopic ? (
+                      <button
+                        type="button"
+                        className="docs-nav-btn docs-nav-btn--prev"
+                        onClick={() => setActiveTopic(prevTopic.id)}
+                      >
+                        <span className="docs-nav-btn__dir">&larr; Previous</span>
+                        <span className="docs-nav-btn__title">{prevTopic.label}</span>
+                      </button>
+                    ) : <div />}
+
+                    {nextTopic ? (
+                      <button
+                        type="button"
+                        className="docs-nav-btn docs-nav-btn--next"
+                        onClick={() => setActiveTopic(nextTopic.id)}
+                      >
+                        <span className="docs-nav-btn__dir">Next &rarr;</span>
+                        <span className="docs-nav-btn__title">{nextTopic.label}</span>
+                      </button>
+                    ) : <div />}
+                  </footer>
+                );
+              })()}
             </div>
           </div>
         </div>

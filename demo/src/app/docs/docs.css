@@ -76,12 +76,113 @@
   color: #f87171;
 }
 
-.docs-badge-optional {
+/* Group Header in Left Rail */
+.stack-tabs-group-title {
   font-family: var(--font-mono);
   font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted, #8fa3b8);
+  padding: 0.75rem 0.5rem 0.25rem;
+  opacity: 0.85;
+}
+
+/* Framework Grid */
+.docs-framework-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.docs-framework-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-panel, 0.55rem);
+  padding: 1.25rem;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.docs-framework-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-accent);
+}
+
+.docs-framework-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.docs-framework-card__icon {
+  width: 1.4rem;
+  height: 1.4rem;
+  color: var(--color-accent);
+}
+
+.docs-framework-card__title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-ink);
+}
+
+.docs-framework-card__pkg {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-accent-sky, #4db8ff);
+}
+
+/* Article Navigation Bar */
+.docs-nav-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-line, rgba(148, 190, 230, 0.15));
+}
+
+.docs-nav-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-panel, 0.55rem);
+  color: var(--color-ink);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  font-family: var(--font-sans);
+}
+
+.docs-nav-btn:hover {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+}
+
+.docs-nav-btn--next {
+  margin-left: auto;
+  text-align: right;
+}
+
+.docs-nav-btn__dir {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.docs-nav-btn__title {
+  font-size: 0.88rem;
   font-weight: 600;
-  padding: 0.1rem 0.4rem;
-  border-radius: 999px;
-  background: var(--color-line-strong);
-  color: var(--color-ink-muted);
 }
