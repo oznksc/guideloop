@@ -21,6 +21,9 @@ export const metadata: Metadata = {
       "Spotlight tours and checklists — React, Vue, Svelte, Angular, imperative API, or <guide-loop>.",
     type: "website",
   },
+  verification: {
+    google: "8jHOUD8pYi7C18EbaUEP-5Gjv8mU2mH9if36mBpcpVw",
+  },
 };
 
 export default function RootLayout({
@@ -32,6 +35,9 @@ export default function RootLayout({
 
   return (
     <html lang="en" data-theme="slate" suppressHydrationWarning>
+      <head>
+        <meta name="google-site-verification" content="8jHOUD8pYi7C18EbaUEP-5Gjv8mU2mH9if36mBpcpVw" />
+      </head>
       <body className="antialiased">
         {children}
         {/*
