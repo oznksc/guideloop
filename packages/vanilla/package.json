@@ -1,6 +1,6 @@
 {
   "name": "@guideloop/vanilla",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Framework-agnostic guided tour library — imperative API + Web Components powered by @guideloop/core",
   "author": "Ozan Kesici",
   "license": "MIT",

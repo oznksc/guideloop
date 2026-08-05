@@ -1,6 +1,6 @@
 {
   "name": "@guideloop/svelte",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Svelte guided tour library powered by @guideloop/core and @guideloop/vanilla",
   "author": "Ozan Kesici",
   "license": "MIT",

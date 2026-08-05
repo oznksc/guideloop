@@ -1,6 +1,6 @@
 {
   "name": "@guideloop/react",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "React guided tour library powered by @guideloop/core",
   "author": "Ozan Kesici",
   "license": "MIT",
