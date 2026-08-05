@@ -79,12 +79,18 @@
 /* Group Header in Left Rail */
 .stack-tabs-group-title {
   font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-size: 0.52rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--color-ink-muted, #8fa3b8);
-  padding: 0.75rem 0.5rem 0.25rem;
+  color: var(--color-accent);
+  padding: 0.6rem 0.2rem 0.15rem;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   opacity: 0.85;
 }
 

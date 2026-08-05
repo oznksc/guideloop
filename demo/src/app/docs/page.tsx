@@ -212,7 +212,7 @@ export default function CoreDocsPage() {
               </Link>
 
               {/* Categorized Left Rail */}
-              <div className="stack-tabs-group-title">Overview</div>
+              <div className="stack-tabs-group-title">Intro</div>
               {DOCS_TOPICS.filter((t) => t.category === "getting-started").map((topic) => {
                 const selected = topic.id === activeTopic;
                 const TopicIcon = topic.Icon;
@@ -234,7 +234,7 @@ export default function CoreDocsPage() {
                 );
               })}
 
-              <div className="stack-tabs-group-title">Adapters</div>
+              <div className="stack-tabs-group-title">Packs</div>
               {DOCS_TOPICS.filter((t) => t.category === "adapters").map((topic) => {
                 const selected = topic.id === activeTopic;
                 const TopicIcon = topic.Icon;
@@ -256,7 +256,7 @@ export default function CoreDocsPage() {
                 );
               })}
 
-              <div className="stack-tabs-group-title">Core Arch</div>
+              <div className="stack-tabs-group-title">Arch</div>
               {DOCS_TOPICS.filter((t) => t.category === "architecture").map((topic) => {
                 const selected = topic.id === activeTopic;
                 const TopicIcon = topic.Icon;
@@ -278,7 +278,7 @@ export default function CoreDocsPage() {
                 );
               })}
 
-              <div className="stack-tabs-group-title">Reference</div>
+              <div className="stack-tabs-group-title">Specs</div>
               {DOCS_TOPICS.filter((t) => t.category === "reference").map((topic) => {
                 const selected = topic.id === activeTopic;
                 const TopicIcon = topic.Icon;
