@@ -57,7 +57,7 @@
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-typescript": "^11.1.6",
     "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/svelte": "^4.2.3",
+    "@testing-library/svelte": "^5.4.2",
     "@tsconfig/svelte": "^5.0.4",
     "@types/jest": "^30.0.0",
     "jest": "^30.4.2",
