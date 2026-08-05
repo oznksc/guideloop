@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Outfit:wght@100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,13 +15,23 @@ html {
   overflow-x: clip;
 }
 
+:root {
+  --font-jakarta: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-outfit: 'Outfit', system-ui, sans-serif;
+  --font-jetbrains-mono: 'JetBrains Mono', monospace;
+  --font-sans: var(--font-jakarta);
+  --font-body: var(--font-jakarta);
+  --font-display: var(--font-outfit);
+  --font-mono: var(--font-jetbrains-mono);
+}
+
 body {
   min-width: 20rem;
   margin: 0;
   overflow-x: clip;
   color: var(--color-ink);
   background: var(--color-canvas);
-  font-family: var(--font-body);
+  font-family: var(--font-sans);
   font-size: var(--text-body);
   line-height: 1.6;
   text-rendering: optimizeLegibility;

@@ -1,39 +1,20 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
-import { Lora, JetBrains_Mono } from "next/font/google";
 import "../../../tokens.css";
 import "./globals.css";
 import { DevTourBuilder } from "../components/DevTourBuilder";
-
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
-
-const lora = Lora({
-  subsets: ["latin"],
-  variable: "--font-newsreader",
-  style: ["normal", "italic"],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-jetbrains-mono",
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://oznksc.github.io/guideloop/"),
   title: "GuideLoop — product tours for React, Vue, Svelte, Angular & Vanilla JS",
   description:
     "Contextual product tours and onboarding for React, Vue, Svelte, Angular, Vanilla JS, and Web Components.",
-  // Icons: file-based metadata in app/ (favicon.ico, icon.svg, icon.png, apple-icon.png).
-  // Next prefixes basePath automatically — do not hardcode absolute /icon paths here.
+  icons: {
+    icon: [
+      { url: "favicon.ico" },
+      { url: "icon.svg", type: "image/svg+xml" },
+    ],
+    apple: "apple-touch-icon.png",
+  },
   openGraph: {
     title: "GuideLoop — product tours for React, Vue, Svelte, Angular & Vanilla JS",
     description:
@@ -51,9 +32,7 @@ export default function RootLayout({
 
   return (
     <html lang="en" data-theme="slate" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${lora.variable} ${jetbrainsMono.variable} antialiased`}
-      >
+      <body className="antialiased">
         {children}
         {/*
           Dev-only visual editor. Production builds:
