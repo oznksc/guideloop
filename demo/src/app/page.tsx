@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   useCallback,
   useEffect,
@@ -672,15 +673,15 @@ export default function Home() {
                       </button>
                     );
                   })}
-                  <a
-                    href="/ui"
+                  <Link
+                    href="./ui/"
                     className="stack-tab stack-tab--ui-link"
                     title="View UI Kit Components Showcase"
                     aria-label="UI Kit Showcase"
                   >
                     <span className="stack-tab-ui-dot" aria-hidden="true" />
                     <span className="stack-tab-label">UI Kit</span>
-                  </a>
+                  </Link>
                 </div>
 
                 <div

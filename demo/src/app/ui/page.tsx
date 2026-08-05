@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import Link from "next/link";
 import {
   GuideLoopLogo,
   CaretDown,
@@ -70,10 +71,10 @@ export default function UIShowcase() {
         {/* Landing Shell Header */}
         <header className="site-header">
           <div className="header-inner">
-            <a className="site-brand" href="/" aria-label="GuideLoop home">
+            <Link className="site-brand" href="../" aria-label="GuideLoop home">
               <GuideLoopLogo className="brand-logo" />
               <span className="brand-badge">UI Kit</span>
-            </a>
+            </Link>
 
             <div className="header-actions">
               <div className="theme-dropdown" ref={themeMenuRef}>
@@ -128,15 +129,15 @@ export default function UIShowcase() {
         <div className="ui-showcase-content">
           <div className="stack-explorer">
             <div className="stack-tabs" role="tablist" aria-label="UI Showcase Navigation">
-              <a
-                href="/"
+              <Link
+                href="../"
                 className="stack-tab stack-tab--back-link"
                 title="Back to Landing Page"
                 aria-label="Back to Landing Page"
               >
                 <span className="stack-tab-back-arrow" aria-hidden="true">&larr;</span>
                 <span className="stack-tab-label">Landing</span>
-              </a>
+              </Link>
               <div className="stack-tab is-active" title="UI Kit Showcase">
                 <span className="stack-tab-ui-dot" aria-hidden="true" />
                 <span className="stack-tab-label">UI Kit</span>
@@ -618,9 +619,9 @@ export default function UIShowcase() {
 
         {/* Footer */}
         <footer className="ui-showcase__footer">
-          <a href="/" className="back-link">
+          <Link href="../" className="back-link">
             &larr; Back to landing
-          </a>
+          </Link>
         </footer>
             </div>
           </div>
