@@ -18,6 +18,12 @@ import {
   Timeline,
   Shield,
   Board,
+  ReactIcon,
+  VueIcon,
+  AngularIcon,
+  SvelteIcon,
+  VanillaIcon,
+  WebComponentIcon,
 } from "../../components/DemoIcons";
 import "../landing.css";
 import "../ui/ui-show.css";
@@ -26,6 +32,12 @@ import "./docs.css";
 type DemoThemeId = "slate" | "editorial" | "terminal" | "nordic";
 type DocsTopicId =
   | "quickstart"
+  | "react-pkg"
+  | "vue-pkg"
+  | "angular-pkg"
+  | "svelte-pkg"
+  | "vanilla-pkg"
+  | "web-component-pkg"
   | "step-model"
   | "theme-system"
   | "branching"
@@ -43,6 +55,12 @@ interface DocsTopic {
 
 const DOCS_TOPICS: DocsTopic[] = [
   { id: "quickstart", label: "Quick Start", shortLabel: "Start", Icon: Sparkles },
+  { id: "react-pkg", label: "React Adapter (@guideloop/react)", shortLabel: "React", Icon: ReactIcon },
+  { id: "vue-pkg", label: "Vue Adapter (@guideloop/vue)", shortLabel: "Vue", Icon: VueIcon },
+  { id: "angular-pkg", label: "Angular Adapter (@guideloop/angular)", shortLabel: "Angular", Icon: AngularIcon },
+  { id: "svelte-pkg", label: "Svelte Adapter (@guideloop/svelte)", shortLabel: "Svelte", Icon: SvelteIcon },
+  { id: "vanilla-pkg", label: "Vanilla JS Core (@guideloop/core)", shortLabel: "JS", Icon: VanillaIcon },
+  { id: "web-component-pkg", label: "Web Components (<guide-loop>)", shortLabel: "WebComp", Icon: WebComponentIcon },
   { id: "step-model", label: "Step Model & Schema", shortLabel: "Steps", Icon: CodeIcon },
   { id: "theme-system", label: "Theme & Customization", shortLabel: "Theme", Icon: Layers },
   { id: "branching", label: "Branching & Actions", shortLabel: "Flow", Icon: Timeline },
@@ -232,7 +250,7 @@ export default function CoreDocsPage() {
                         <span className="code-filename">Terminal</span>
                       </div>
                       <pre className="code-block">
-                        <code>npm install @guideloop/core @popperjs/core</code>
+                        <code>npm install guideloop @popperjs/core</code>
                       </pre>
                     </div>
                   </div>
@@ -244,7 +262,7 @@ export default function CoreDocsPage() {
                         <span className="code-filename">index.ts</span>
                       </div>
                       <pre className="code-block">
-                        <code>{`import { GuideLoop } from "@guideloop/core";
+                        <code>{`import { GuideLoop } from "guideloop";
 
 const tour = new GuideLoop({
   steps: [
@@ -259,6 +277,222 @@ const tour = new GuideLoop({
 });
 
 await tour.start();`}</code>
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* React Adapter */}
+              {activeTopic === "react-pkg" && (
+                <div className="docs-section">
+                  <div className="docs-block">
+                    <h3 className="docs-block__title">React Component &amp; Hook Adapter</h3>
+                    <p className="docs-block__desc">
+                      First-class React integration with declarative <code>&lt;GuideLoop /&gt;</code> components, SSR safety for Next.js App Router, and custom hooks.
+                    </p>
+                    <div className="code-window">
+                      <div className="code-header">
+                        <span className="code-filename">App.tsx</span>
+                      </div>
+                      <pre className="code-block">
+                        <code>{`import React, { useState } from "react";
+import { GuideLoop, useGuideLoop } from "guideloop";
+
+export function App() {
+  const [isOpen, setIsOpen] = useState(true);
+
+  const steps = [
+    {
+      target: "#hero-title",
+      title: "React Guided Tour",
+      content: "Declarative React tour state management.",
+      placement: "bottom"
+    }
+  ];
+
+  return (
+    <div>
+      <h1 id="hero-title">My Application</h1>
+      <GuideLoop
+        steps={steps}
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        theme="tailwind"
+      />
+    </div>
+  );
+}`}</code>
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Vue Adapter */}
+              {activeTopic === "vue-pkg" && (
+                <div className="docs-section">
+                  <div className="docs-block">
+                    <h3 className="docs-block__title">Vue 3 Composition API &amp; Plugin</h3>
+                    <p className="docs-block__desc">
+                      Native Vue 3 reactivity wrapper with <code>v-guide-loop</code> directives and <code>useGuideLoop()</code> composable.
+                    </p>
+                    <div className="code-window">
+                      <div className="code-header">
+                        <span className="code-filename">App.vue</span>
+                      </div>
+                      <pre className="code-block">
+                        <code>{`<script setup>
+import { ref } from 'vue';
+import { GuideLoop } from '@guideloop/vue';
+
+const isOpen = ref(true);
+const steps = [
+  {
+    target: '#vue-header',
+    title: 'Vue 3 Tour',
+    content: 'Seamless reactivity with Composition API.',
+    placement: 'bottom'
+  }
+];
+</script>
+
+<template>
+  <h1 id="vue-header">Vue App</h1>
+  <GuideLoop :steps="steps" :is-open="isOpen" @close="isOpen = false" />
+</template>`}</code>
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Angular Adapter */}
+              {activeTopic === "angular-pkg" && (
+                <div className="docs-section">
+                  <div className="docs-block">
+                    <h3 className="docs-block__title">Angular Module &amp; Service</h3>
+                    <p className="docs-block__desc">
+                      Dependency injection-friendly Angular service (<code>GuideLoopService</code>) and directive for standalone or NgModule applications.
+                    </p>
+                    <div className="code-window">
+                      <div className="code-header">
+                        <span className="code-filename">app.component.ts</span>
+                      </div>
+                      <pre className="code-block">
+                        <code>{`import { Component, OnInit } from '@angular/core';
+import { GuideLoopService } from '@guideloop/angular';
+
+@Component({
+  selector: 'app-root',
+  template: \`<h1 id="ng-title">Angular App</h1>\`
+})
+export class AppComponent implements OnInit {
+  constructor(private tour: GuideLoopService) {}
+
+  ngOnInit() {
+    this.tour.start({
+      steps: [
+        {
+          target: '#ng-title',
+          title: 'Angular Tour',
+          content: 'Dependency Injected onboarding service.'
+        }
+      ]
+    });
+  }
+}`}</code>
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Svelte Adapter */}
+              {activeTopic === "svelte-pkg" && (
+                <div className="docs-section">
+                  <div className="docs-block">
+                    <h3 className="docs-block__title">Svelte Stores &amp; Actions</h3>
+                    <p className="docs-block__desc">
+                      Ultra-lightweight Svelte store wrapper and <code>use:guideloop</code> action bindings.
+                    </p>
+                    <div className="code-window">
+                      <div className="code-header">
+                        <span className="code-filename">App.svelte</span>
+                      </div>
+                      <pre className="code-block">
+                        <code>{`<script>
+  import { GuideLoop } from '@guideloop/svelte';
+
+  let isOpen = true;
+  const steps = [
+    {
+      target: '#svelte-title',
+      title: 'Svelte Tour',
+      content: 'Reactive stores & DOM action bindings.'
+    }
+  ];
+</script>
+
+<h1 id="svelte-title">Svelte App</h1>
+<GuideLoop {steps} bind:isOpen theme="material" />`}</code>
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Vanilla JS Core */}
+              {activeTopic === "vanilla-pkg" && (
+                <div className="docs-section">
+                  <div className="docs-block">
+                    <h3 className="docs-block__title">Vanilla JavaScript Core Engine</h3>
+                    <p className="docs-block__desc">
+                      Framework-agnostic ES2019 engine usable with direct script tags or ESM bundlers.
+                    </p>
+                    <div className="code-window">
+                      <div className="code-header">
+                        <span className="code-filename">index.html</span>
+                      </div>
+                      <pre className="code-block">
+                        <code>{`<script type="module">
+  import { GuideLoop } from 'https://cdn.jsdelivr.net/npm/@guideloop/core/+esm';
+
+  const tour = new GuideLoop({
+    steps: [
+      { target: '#vanilla-heading', title: 'Vanilla JS', content: 'No framework needed.' }
+    ]
+  });
+  tour.start();
+</script>`}</code>
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Web Components */}
+              {activeTopic === "web-component-pkg" && (
+                <div className="docs-section">
+                  <div className="docs-block">
+                    <h3 className="docs-block__title">Custom Element (&lt;guide-loop&gt;)</h3>
+                    <p className="docs-block__desc">
+                      Web Component standard packaging for Shadow DOM isolation, micro-frontends, or legacy CMS integration.
+                    </p>
+                    <div className="code-window">
+                      <div className="code-header">
+                        <span className="code-filename">index.html</span>
+                      </div>
+                      <pre className="code-block">
+                        <code>{`<script src="https://cdn.jsdelivr.net/npm/@guideloop/elements"></script>
+
+<guide-loop theme="antd" is-open="true">
+  <script type="application/json">
+    [
+      { "target": "#wc-btn", "title": "Web Component", "content": "Encapsulated Shadow DOM tour." }
+    ]
+  </script>
+</guide-loop>`}</code>
                       </pre>
                     </div>
                   </div>
