@@ -27,7 +27,7 @@ test.describe('Landing layout & stack explorer', () => {
       'Svelte',
       'Angular',
       'Vanilla',
-      'WC',
+      'Web Component',
     ]) {
       await expect(
         tablist.getByRole('tab', { name: new RegExp(name, 'i') })
