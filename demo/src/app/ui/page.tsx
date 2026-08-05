@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, type ComponentType, type SVGProps } from "react";
 import Link from "next/link";
 import {
   GuideLoopLogo,
@@ -11,6 +11,14 @@ import {
   ThemeEditorialIcon,
   ThemeTerminalIcon,
   ThemeNordicIcon,
+  Command,
+  Bell,
+  Timeline,
+  Sparkles,
+  Board,
+  Layers,
+  CodeIcon,
+  Shield,
 } from "../../components/DemoIcons";
 import "../landing.css";
 import "./ui-show.css";
@@ -30,18 +38,18 @@ interface UICategory {
   id: UICategoryId;
   label: string;
   shortLabel: string;
-  iconSymbol: string;
+  Icon: ComponentType<SVGProps<SVGSVGElement>>;
 }
 
 const UI_CATEGORIES: UICategory[] = [
-  { id: "buttons", label: "Buttons", shortLabel: "Btn", iconSymbol: "🔘" },
-  { id: "tooltips", label: "Tooltips", shortLabel: "Tips", iconSymbol: "💬" },
-  { id: "progress", label: "Progress", shortLabel: "Prog", iconSymbol: "🟢" },
-  { id: "spotlight", label: "Spotlight", shortLabel: "Spot", iconSymbol: "⭕" },
-  { id: "checklist", label: "Checklist", shortLabel: "List", iconSymbol: "☑️" },
-  { id: "colors", label: "Theme Colors", shortLabel: "Color", iconSymbol: "🎨" },
-  { id: "config", label: "Config", shortLabel: "Code", iconSymbol: "⚙️" },
-  { id: "overlay", label: "Overlay", shortLabel: "Dim", iconSymbol: "⬛" },
+  { id: "buttons", label: "Buttons", shortLabel: "Btn", Icon: Command },
+  { id: "tooltips", label: "Tooltips", shortLabel: "Tips", Icon: Bell },
+  { id: "progress", label: "Progress", shortLabel: "Prog", Icon: Timeline },
+  { id: "spotlight", label: "Spotlight", shortLabel: "Spot", Icon: Sparkles },
+  { id: "checklist", label: "Checklist", shortLabel: "List", Icon: Board },
+  { id: "colors", label: "Theme Colors", shortLabel: "Color", Icon: Layers },
+  { id: "config", label: "Config", shortLabel: "Code", Icon: CodeIcon },
+  { id: "overlay", label: "Overlay", shortLabel: "Dim", Icon: Shield },
 ];
 
 const DEMO_THEMES = {
@@ -174,6 +182,7 @@ export default function UIShowcase() {
 
               {UI_CATEGORIES.map((cat) => {
                 const selected = cat.id === activeCategory;
+                const CatIcon = cat.Icon;
                 return (
                   <button
                     key={cat.id}
@@ -186,7 +195,7 @@ export default function UIShowcase() {
                     title={cat.label}
                     onClick={() => setActiveCategory(cat.id)}
                   >
-                    <span className="stack-tab-ui-emoji" aria-hidden="true">{cat.iconSymbol}</span>
+                    <CatIcon className="stack-tab-icon" aria-hidden="true" />
                     <span className="stack-tab-label">{cat.shortLabel}</span>
                   </button>
                 );
