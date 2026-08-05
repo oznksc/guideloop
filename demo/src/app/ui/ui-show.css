@@ -1,0 +1,673 @@
+.ui-showcase-content {
+  width: 100%;
+  max-width: var(--page-max);
+  padding: 1.5rem var(--safe-pad-x) 4rem var(--density-pad-x);
+  padding-right: var(--safe-pad-r);
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  box-sizing: border-box;
+}
+
+/* Header */
+.ui-showcase__header {
+  margin-bottom: 3rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.ui-showcase__title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.ui-showcase__subtitle {
+  font-size: 1.0625rem;
+  color: var(--color-ink-muted);
+  margin: 0;
+  max-width: 560px;
+}
+
+/* Sections */
+.ui-section {
+  margin-bottom: 3.5rem;
+}
+
+.ui-section__title {
+  font-size: 1.375rem;
+  font-weight: 600;
+  margin: 0 0 0.35rem;
+  letter-spacing: -0.01em;
+}
+
+.ui-section__description {
+  font-size: 0.9375rem;
+  color: var(--color-ink-muted);
+  margin: 0 0 1.25rem;
+}
+
+/* Card Grid */
+.ui-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.ui-card-grid--wide {
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+}
+
+/* Card */
+.ui-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 0.625rem;
+  padding: 1.25rem;
+}
+
+.ui-card__title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 1rem;
+}
+
+.ui-card__title--spaced {
+  margin-top: 2rem;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.ui-button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.gl-btn {
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: default;
+  transition: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gl-btn--primary.gl-btn--tailwind {
+  background: #2563eb;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+}
+
+.gl-btn--secondary.gl-btn--tailwind {
+  background: transparent;
+  color: #4b5563;
+  padding: 8px 16px;
+  border-radius: 6px;
+}
+
+.gl-btn--ghost.gl-btn--tailwind {
+  background: transparent;
+  color: #6b7280;
+  padding: 8px 16px;
+  border-radius: 6px;
+}
+
+.gl-btn--primary.gl-btn--material {
+  background: #1976D2;
+  color: white;
+  padding: 6px 16px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.gl-btn--secondary.gl-btn--material {
+  background: transparent;
+  color: rgba(0, 0, 0, 0.87);
+  padding: 6px 16px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.gl-btn--ghost.gl-btn--material {
+  background: transparent;
+  color: rgba(0, 0, 0, 0.6);
+  padding: 6px 16px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.gl-btn--primary.gl-btn--antd {
+  background: #1890ff;
+  color: white;
+  padding: 4px 15px;
+  border-radius: 2px;
+}
+
+.gl-btn--secondary.gl-btn--antd {
+  background: white;
+  color: rgba(0, 0, 0, 0.85);
+  padding: 4px 15px;
+  border-radius: 2px;
+  border: 1px solid #d9d9d9;
+}
+
+.gl-btn--ghost.gl-btn--antd {
+  background: white;
+  color: rgba(0, 0, 0, 0.65);
+  padding: 4px 15px;
+  border-radius: 2px;
+  border: 1px solid #d9d9d9;
+}
+
+/* ============================================================
+   TOOLTIP CARDS
+   ============================================================ */
+.gl-tooltip {
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.gl-tooltip--tailwind {
+  background: white;
+  color: #1F2937;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+}
+
+.gl-tooltip--material {
+  background: white;
+  color: rgba(0, 0, 0, 0.87);
+  box-shadow: 0px 5px 5px -3px rgba(0,0,0,0.2), 0px 8px 10px 1px rgba(0,0,0,0.14);
+}
+
+.gl-tooltip--antd {
+  background: white;
+  color: rgba(0, 0, 0, 0.85);
+  box-shadow: 0 3px 6px -4px rgba(0,0,0,0.12), 0 6px 16px rgba(0,0,0,0.08);
+}
+
+.gl-tooltip__step {
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.gl-tooltip--tailwind .gl-tooltip__step { color: #6b7280; }
+.gl-tooltip--material .gl-tooltip__step { color: rgba(0,0,0,0.6); }
+.gl-tooltip--antd .gl-tooltip__step { color: rgba(0,0,0,0.45); }
+
+.gl-tooltip__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.gl-tooltip__title {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.gl-tooltip__content {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.gl-tooltip--tailwind .gl-tooltip__content { color: #4b5563; }
+.gl-tooltip--material .gl-tooltip__content { color: rgba(0,0,0,0.6); }
+.gl-tooltip--antd .gl-tooltip__content { color: rgba(0,0,0,0.65); }
+
+/* Toolbar */
+.gl-toolbar {
+  display: flex;
+  align-items: center;
+  margin-top: 0.25rem;
+  padding-top: 0.75rem;
+}
+
+.gl-toolbar--tailwind {
+  justify-content: flex-end;
+  gap: 0.5rem;
+  border-top: 1px solid #f3f4f6;
+}
+
+.gl-toolbar--material,
+.gl-toolbar--antd {
+  justify-content: space-between;
+  border-top: 1px solid rgba(0,0,0,0.08);
+}
+
+.gl-toolbar__left,
+.gl-toolbar__right {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ============================================================
+   PROGRESS DOTS
+   ============================================================ */
+.gl-progress {
+  display: inline-flex;
+  gap: 0.375rem;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-radius: 9999px;
+}
+
+.gl-progress:not(.gl-progress--material):not(.gl-progress--antd) {
+  background: white;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+
+.gl-progress--material {
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+.gl-progress--antd {
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.gl-progress__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  opacity: 0.25;
+}
+
+/* Tailwind dots */
+.gl-progress:not(.gl-progress--material):not(.gl-progress--antd) .gl-progress__dot {
+  background: #4b5563;
+}
+.gl-progress:not(.gl-progress--material):not(.gl-progress--antd) .gl-progress__dot--active {
+  background: #2563eb;
+  opacity: 1;
+}
+
+/* Material dots */
+.gl-progress--material .gl-progress__dot {
+  background: rgba(0,0,0,0.6);
+}
+.gl-progress--material .gl-progress__dot--active {
+  background: #1976D2;
+  opacity: 1;
+}
+
+/* Ant Design dots */
+.gl-progress--antd .gl-progress__dot {
+  background: rgba(0,0,0,0.45);
+}
+.gl-progress--antd .gl-progress__dot--active {
+  background: #1890ff;
+  opacity: 1;
+}
+
+/* ============================================================
+   SPOTLIGHT
+   ============================================================ */
+.gl-spotlight-demo {
+  position: relative;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 0;
+}
+
+.gl-spotlight-target {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8125rem;
+  color: var(--color-ink-muted);
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  width: 160px;
+  height: 48px;
+}
+
+.gl-spotlight-target--circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+}
+
+.gl-spotlight-target--pill {
+  width: 140px;
+  height: 40px;
+  border-radius: 20px;
+}
+
+.gl-spotlight-ring {
+  position: absolute;
+  pointer-events: none;
+  border: 2px solid;
+  border-radius: 8px;
+  animation: gl-spotlight-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.gl-spotlight-ring--tailwind {
+  border-color: #2563eb;
+}
+
+.gl-spotlight-ring--material {
+  border-color: #1976D2;
+  border-radius: 4px;
+}
+
+.gl-spotlight-ring--antd {
+  border-color: #1890ff;
+  border-radius: 2px;
+}
+
+.gl-spotlight-ring--rect {
+  width: 176px;
+  height: 64px;
+}
+
+.gl-spotlight-ring--circle {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+}
+
+.gl-spotlight-ring--ellipse {
+  width: 156px;
+  height: 56px;
+  border-radius: 50%;
+}
+
+@keyframes gl-spotlight-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* ============================================================
+   ONBOARDING CHECKLIST
+   ============================================================ */
+.gl-onboarding {
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.gl-onboarding__header {
+  margin-bottom: 0.75rem;
+}
+
+.gl-onboarding__title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+}
+
+.gl-onboarding__subtitle {
+  font-size: 0.8125rem;
+  color: var(--color-ink-muted);
+  margin: 0 0 0.375rem;
+}
+
+.gl-onboarding__progress-text {
+  font-size: 0.75rem;
+  color: var(--color-ink-faint);
+  font-weight: 500;
+}
+
+.gl-onboarding__track {
+  height: 4px;
+  background: var(--color-line);
+  border-radius: 2px;
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+}
+
+.gl-onboarding__fill {
+  height: 100%;
+  background: #2563eb;
+  border-radius: 2px;
+  transition: none;
+}
+
+.gl-onboarding__fill--material {
+  background: #1976D2;
+}
+
+.gl-onboarding__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.gl-onboarding__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.625rem 0;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.gl-onboarding__item:last-child {
+  border-bottom: none;
+}
+
+.gl-onboarding__check {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6875rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.gl-onboarding__item--done .gl-onboarding__check {
+  background: #2563eb;
+  color: white;
+}
+
+.gl-onboarding__item--active .gl-onboarding__check--empty {
+  border: 2px solid #2563eb;
+  background: transparent;
+}
+
+.gl-onboarding__check--empty {
+  border: 2px solid var(--color-line-strong);
+  background: transparent;
+}
+
+.gl-onboarding--material .gl-onboarding__item--done .gl-onboarding__check {
+  background: #1976D2;
+}
+
+.gl-onboarding--material .gl-onboarding__item--active .gl-onboarding__check--empty {
+  border-color: #1976D2;
+}
+
+.gl-onboarding__item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  flex: 1;
+}
+
+.gl-onboarding__item-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.gl-onboarding__item--done .gl-onboarding__item-title {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.gl-onboarding__item-desc {
+  font-size: 0.75rem;
+  color: var(--color-ink-faint);
+}
+
+/* ============================================================
+   COLOR SWATCHES
+   ============================================================ */
+.color-swatch-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.color-swatch {
+  width: 64px;
+  height: 64px;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: flex-end;
+  padding: 0.5rem;
+  font-size: 0.625rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: var(--font-mono);
+}
+
+.color-swatch--light {
+  color: rgba(0, 0, 0, 0.6);
+  border: 1px solid var(--color-line);
+}
+
+/* ============================================================
+   CODE WINDOW
+   ============================================================ */
+.code-window {
+  background: var(--color-graphite);
+  border: 1px solid var(--color-graphite-line);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.code-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-graphite-line);
+}
+
+.code-dots {
+  display: flex;
+  gap: 0.375rem;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.dot--red { background: #f87171; }
+.dot--yellow { background: #fbbf24; }
+.dot--green { background: #34d399; }
+
+.code-filename {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-graphite-muted);
+  margin-left: 0.5rem;
+}
+
+.code-block {
+  margin: 0;
+  padding: 1.25rem;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: #94a3b8;
+  overflow: auto;
+  font-family: var(--font-mono);
+}
+
+/* ============================================================
+   OVERLAY DEMO
+   ============================================================ */
+.gl-overlay-demo {
+  position: relative;
+  height: 180px;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: var(--color-surface-subtle);
+}
+
+.gl-overlay-bg {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.gl-overlay-cutout {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 140px;
+  height: 48px;
+  background: var(--color-surface-subtle);
+  border-radius: 8px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+}
+
+.gl-overlay-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.75rem;
+  color: var(--color-ink-muted);
+  pointer-events: none;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.ui-showcase__footer {
+  margin-top: 4rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-line);
+}
+
+.back-link {
+  color: var(--color-accent);
+  text-decoration: none;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 680px) {
+  .ui-card-grid,
+  .ui-card-grid--wide {
+    grid-template-columns: 1fr;
+  }
+
+  .ui-showcase {
+    padding: 2rem 1rem 3rem;
+  }
+}

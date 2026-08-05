@@ -672,6 +672,15 @@ export default function Home() {
                       </button>
                     );
                   })}
+                  <a
+                    href="/ui"
+                    className="stack-tab stack-tab--ui-link"
+                    title="View UI Kit Components Showcase"
+                    aria-label="UI Kit Showcase"
+                  >
+                    <span className="stack-tab-ui-dot" aria-hidden="true" />
+                    <span className="stack-tab-label">UI Kit</span>
+                  </a>
                 </div>
 
                 <div
