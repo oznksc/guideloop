@@ -682,6 +682,15 @@ export default function Home() {
                     <span className="stack-tab-ui-dot" aria-hidden="true" />
                     <span className="stack-tab-label">UI Kit</span>
                   </Link>
+                  <Link
+                    href="./docs/"
+                    className="stack-tab stack-tab--docs-link"
+                    title="View Core Package Documentation"
+                    aria-label="Core Docs"
+                  >
+                    <span className="stack-tab-docs-dot" aria-hidden="true" />
+                    <span className="stack-tab-label">Docs</span>
+                  </Link>
                 </div>
 
                 <div

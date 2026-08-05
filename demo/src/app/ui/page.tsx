@@ -179,6 +179,15 @@ export default function UIShowcase() {
                 <span className="stack-tab-back-arrow" aria-hidden="true">&larr;</span>
                 <span className="stack-tab-label">Landing</span>
               </Link>
+              <Link
+                href="../docs/"
+                className="stack-tab stack-tab--docs-link"
+                title="View Core Package Documentation"
+                aria-label="Core Docs"
+              >
+                <span className="stack-tab-docs-dot" aria-hidden="true" />
+                <span className="stack-tab-label">Docs</span>
+              </Link>
 
               {UI_CATEGORIES.map((cat) => {
                 const selected = cat.id === activeCategory;
