@@ -35,9 +35,9 @@
     "tslib": "^2.6.3"
   },
   "devDependencies": {
-    "@angular/common": "^22.1.0",
+    "@angular/common": "^17.3.12",
     "@angular/compiler": "^17.3.12",
-    "@angular/compiler-cli": "^22.1.0",
+    "@angular/compiler-cli": "^17.3.12",
     "@angular/core": "^17.3.12",
     "@types/jest": "^30.0.0",
     "jest": "^30.4.2",
