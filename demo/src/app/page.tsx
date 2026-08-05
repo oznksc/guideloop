@@ -28,6 +28,8 @@ import {
   VanillaIcon,
   VueIcon,
   WebComponentIcon,
+  Layers,
+  CodeIcon,
 } from "../components/DemoIcons";
 import { AsciiLogoShader } from "../components/AsciiLogoShader";
 import { HeroSpotlightDemo } from "../components/HeroSpotlightDemo";
@@ -679,7 +681,7 @@ export default function Home() {
                     title="View UI Kit Components Showcase"
                     aria-label="UI Kit Showcase"
                   >
-                    <span className="stack-tab-ui-dot" aria-hidden="true" />
+                    <Layers className="stack-tab-icon" aria-hidden="true" />
                     <span className="stack-tab-label">UI Kit</span>
                   </Link>
                   <Link
@@ -688,7 +690,7 @@ export default function Home() {
                     title="View Core Package Documentation"
                     aria-label="Core Docs"
                   >
-                    <span className="stack-tab-docs-dot" aria-hidden="true" />
+                    <CodeIcon className="stack-tab-icon" aria-hidden="true" />
                     <span className="stack-tab-label">Docs</span>
                   </Link>
                 </div>

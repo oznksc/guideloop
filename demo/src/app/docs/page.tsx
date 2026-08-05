@@ -181,7 +181,7 @@ export default function CoreDocsPage() {
                 title="View UI Kit Components Showcase"
                 aria-label="UI Kit Showcase"
               >
-                <span className="stack-tab-ui-dot" aria-hidden="true" />
+                <Layers className="stack-tab-icon" aria-hidden="true" />
                 <span className="stack-tab-label">UI Kit</span>
               </Link>
 
@@ -529,13 +529,6 @@ const saved = loadTourState("dashboard-tour");`}</code>
                   </div>
                 </div>
               )}
-
-              {/* Footer */}
-              <footer className="ui-showcase__footer">
-                <Link href="../" className="back-link">
-                  &larr; Back to landing
-                </Link>
-              </footer>
             </div>
           </div>
         </div>
