@@ -87,7 +87,7 @@ describe('Spotlight', () => {
     );
     const div = container.firstChild as HTMLElement;
     expect(div.style.border).toContain('2px solid');
-    expect(div.style.borderColor).toBe('#2563eb');
+    expect(div.style.borderColor).toMatch(/#2563eb|rgb\(37, 99, 235\)/);
   });
 
   it('renders a circular ring when shape is circle', () => {
