@@ -951,24 +951,6 @@
 .stack-tab--docs-link,
 .stack-tab--back-link {
   text-decoration: none;
-  margin-top: 0.35rem;
-  border-top: 1px dashed var(--color-line-strong, rgba(148, 190, 230, 0.2));
-  padding-top: 0.45rem;
-}
-
-.stack-tab-ui-dot,
-.stack-tab-docs-dot {
-  width: 0.45rem;
-  height: 0.45rem;
-  border-radius: 50%;
-  background: var(--color-accent, #0377d9);
-  box-shadow: 0 0 6px var(--color-accent, #0377d9);
-  margin-bottom: 0.1rem;
-}
-
-.stack-tab-docs-dot {
-  background: #10b981;
-  box-shadow: 0 0 6px #10b981;
 }
 
 .stack-tab-back-arrow {
