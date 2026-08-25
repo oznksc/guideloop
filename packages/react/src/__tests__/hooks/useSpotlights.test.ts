@@ -81,4 +81,43 @@ describe('useSpotlights', () => {
 
     expect(result.current[0].top).toBe(40);
   });
+
+  it('returns a zero-size hole for a missing extra target without throwing', () => {
+    const a = document.createElement('div');
+    a.id = 'present';
+    mockRect(a, { top: 10, left: 10, width: 20, height: 20 });
+    document.body.appendChild(a);
+
+    const { result } = renderHook(() =>
+      useSpotlights([
+        { selector: '#present', padding: 0 },
+        { selector: '#absent', padding: 0 },
+      ])
+    );
+
+    expect(result.current).toHaveLength(2);
+    expect(result.current[0].width).toBe(20);
+    expect(result.current[1].width).toBe(0);
+    expect(result.current[1].height).toBe(0);
+  });
+
+  it('remeasures when guideloop:refresh is dispatched', () => {
+    const a = document.createElement('div');
+    a.id = 'refresh-a';
+    mockRect(a, { top: 100, left: 10, width: 50, height: 20 });
+    document.body.appendChild(a);
+
+    const { result } = renderHook(() =>
+      useSpotlights([{ selector: '#refresh-a', padding: 0 }])
+    );
+
+    expect(result.current[0].top).toBe(100);
+    mockRect(a, { top: 5, left: 10, width: 50, height: 20 });
+
+    act(() => {
+      window.dispatchEvent(new Event('guideloop:refresh'));
+    });
+
+    expect(result.current[0].top).toBe(5);
+  });
 });

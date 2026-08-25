@@ -3,6 +3,7 @@ import {
   destroyPortalElement,
   getOrCreatePortalRoot,
   removePortalRoot,
+  resolvePortalRoot,
 } from '../core/Portal';
 
 describe('Portal', () => {
@@ -25,5 +26,20 @@ describe('Portal', () => {
 
     destroyPortalElement(el);
     expect(el.isConnected).toBe(false);
+  });
+
+  it('resolves a custom HTMLElement portal root', () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    expect(resolvePortalRoot(host)).toBe(host);
+  });
+
+  it('mounts portal content into a custom parent', () => {
+    const host = document.createElement('div');
+    host.id = 'host';
+    document.body.appendChild(host);
+    const el = createPortalElement(host);
+    expect(el.parentElement).toBe(host);
+    destroyPortalElement(el);
   });
 });

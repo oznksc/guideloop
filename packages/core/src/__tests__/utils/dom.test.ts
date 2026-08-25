@@ -1,4 +1,34 @@
-import { isHTMLElement, querySelectorAsHTMLElement, getElementPosition } from '../../dom/query';
+import {
+  isHTMLElement,
+  querySelectorAsHTMLElement,
+  safeQuerySelector,
+  isGuideLoopChrome,
+  getElementPosition,
+} from '../../dom/query';
+
+describe('isGuideLoopChrome', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('detects the default portal root', () => {
+    const portal = document.createElement('div');
+    portal.id = 'guideloop-portal';
+    const child = document.createElement('span');
+    portal.appendChild(child);
+    document.body.appendChild(portal);
+    expect(isGuideLoopChrome(portal)).toBe(true);
+    expect(isGuideLoopChrome(child)).toBe(true);
+  });
+
+  it('returns false for host application nodes', () => {
+    const host = document.createElement('div');
+    host.id = 'app';
+    document.body.appendChild(host);
+    expect(isGuideLoopChrome(host)).toBe(false);
+    expect(isGuideLoopChrome(document.body)).toBe(false);
+  });
+});
 
 describe('isHTMLElement', () => {
   it('returns true for HTMLElement', () => {
@@ -13,6 +43,34 @@ describe('isHTMLElement', () => {
 
   it('returns false for null', () => {
     expect(isHTMLElement(null)).toBe(false);
+  });
+});
+
+describe('safeQuerySelector', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('returns the element for a valid selector', () => {
+    const div = document.createElement('div');
+    div.id = 'safe';
+    document.body.appendChild(div);
+    expect(safeQuerySelector('#safe')).toBe(div);
+  });
+
+  it('returns null for a missing element', () => {
+    expect(safeQuerySelector('#nope')).toBeNull();
+  });
+
+  it('returns null for an invalid selector without throwing', () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    expect(safeQuerySelector('???invalid')).toBeNull();
+    expect(warnSpy).toHaveBeenCalled();
+    warnSpy.mockRestore();
+  });
+
+  it('returns null for an empty selector', () => {
+    expect(safeQuerySelector('')).toBeNull();
   });
 });
 

@@ -1,6 +1,14 @@
 'use client';
 
-import React, { useCallback, useEffect, useState, useRef, useMemo } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  useRef,
+  useMemo,
+  forwardRef,
+  useImperativeHandle,
+} from 'react';
 import { Tooltip } from '../Tooltip';
 import { Spotlight } from '../Spotlight';
 import { Progress } from '../Progress';
@@ -17,7 +25,11 @@ import { useSpotlights, type SpotlightTargetInput } from '../../hooks/useSpotlig
 import { Portal } from './Portal';
 import { GuideLoopErrorBoundary } from './ErrorBoundary';
 import { MaskedOverlay } from '../MaskedOverlay';
-import type { GuideLoopProps, AdditionalSpotlightTarget } from './types';
+import type {
+  GuideLoopProps,
+  GuideLoopHandle,
+  AdditionalSpotlightTarget,
+} from './types';
 import {
   injectKeyframes,
   saveTourState,
@@ -25,9 +37,11 @@ import {
   clearTourState,
   GUIDE_RESTART_EVENT,
   RESTART_DELAY,
+  dispatchTargetRefresh,
   scrollIntoView,
   querySelectorAsHTMLElement,
   buildTargetDebugInfo,
+  type TourEndReason,
 } from '@guideloop/core';
 
 function normalizeAdditionalTarget(
@@ -54,10 +68,12 @@ const GuideLoopInner: React.FC<GuideLoopProps> = ({
   onStepChange,
   onComplete,
   onSkip,
+  onTargetMissing,
   zIndex = 2000,
   defaultButtonLabels,
   persist,
   debug,
+  portalContainer,
 }) => {
   const [tourVisible, setTourVisible] = useState(isOpen);
   const autoRestoredRef = useRef(false);
@@ -67,6 +83,7 @@ const GuideLoopInner: React.FC<GuideLoopProps> = ({
   const [stepEnteredAt, setStepEnteredAt] = useState(() => Date.now());
   const lastStepRef = useRef<number | null>(null);
   const lastMissingRef = useRef<string>('');
+  const lastMissingNotifyRef = useRef<string>('');
 
   const handleComplete = useCallback(() => {
     if (persist) {
@@ -94,17 +111,31 @@ const GuideLoopInner: React.FC<GuideLoopProps> = ({
     onComplete: handleComplete,
   });
 
-  const handleClosePersistence = useCallback(() => {
-    autoRestoredRef.current = false;
-    if (persist) {
-      saveTourState(
-        persist.key,
-        { currentStepIndex: currentStep, isActive: false },
-        persist.type
-      );
-    }
-    onClose();
-  }, [persist, currentStep, onClose]);
+  const endTour = useCallback(
+    (reason: TourEndReason) => {
+      autoRestoredRef.current = false;
+      if (reason === 'complete') {
+        handleComplete();
+      } else {
+        if (persist) {
+          saveTourState(
+            persist.key,
+            { currentStepIndex: currentStep, isActive: false },
+            persist.type
+          );
+        }
+        if (reason === 'skip') {
+          onSkip?.();
+        }
+      }
+      onClose(reason);
+    },
+    [handleComplete, persist, currentStep, onSkip, onClose]
+  );
+
+  const handleDismiss = useCallback(() => {
+    endTour('close');
+  }, [endTour]);
 
   const targetSelector = currentStepData?.target ?? '';
   const stepSpotlightPadding =
@@ -120,14 +151,16 @@ const GuideLoopInner: React.FC<GuideLoopProps> = ({
       shape: primaryShape,
     };
 
-    const extras = (currentStepData.additionalTargets ?? []).map((entry: any) => {
-      const normalized = normalizeAdditionalTarget(entry);
-      return {
-        selector: normalized.selector,
-        padding: normalized.padding ?? stepSpotlightPadding,
-        shape: normalized.shape ?? primaryShape,
-      };
-    });
+    const extras = (currentStepData.additionalTargets ?? []).map(
+      (entry: string | AdditionalSpotlightTarget) => {
+        const normalized = normalizeAdditionalTarget(entry);
+        return {
+          selector: normalized.selector,
+          padding: normalized.padding ?? stepSpotlightPadding,
+          shape: normalized.shape ?? primaryShape,
+        };
+      }
+    );
 
     return [primary, ...extras];
   }, [currentStepData, targetSelector, stepSpotlightPadding]);
@@ -175,8 +208,7 @@ const GuideLoopInner: React.FC<GuideLoopProps> = ({
 
     if (isLastStep) {
       pushDebug('info', 'Tour complete (last step)', currentStep);
-      handleComplete();
-      onClose();
+      endTour('complete');
       return;
     }
 
@@ -189,8 +221,7 @@ const GuideLoopInner: React.FC<GuideLoopProps> = ({
         const nextStepIndex = currentStep + 1;
         if (nextStepIndex >= totalSteps) {
           pushDebug('info', 'Tour complete (after element action)', currentStep);
-          handleComplete();
-          onClose();
+          endTour('complete');
           return;
         }
         await runElementAction({
@@ -218,8 +249,7 @@ const GuideLoopInner: React.FC<GuideLoopProps> = ({
   }, [
     currentStepData,
     isLastStep,
-    handleComplete,
-    onClose,
+    endTour,
     currentStep,
     totalSteps,
     goToNextStep,
@@ -284,13 +314,7 @@ const GuideLoopInner: React.FC<GuideLoopProps> = ({
           hideTour: () => setTourVisible(false),
         });
       }
-      if (isLastStep) {
-        handleComplete();
-        onClose();
-      } else {
-        onSkip?.();
-        handleClosePersistence();
-      }
+      endTour('skip');
     } catch (error) {
       console.error('Error during skip:', error);
       pushDebug(
@@ -298,22 +322,12 @@ const GuideLoopInner: React.FC<GuideLoopProps> = ({
         error instanceof Error ? error.message : 'Skip failed',
         currentStep
       );
-      if (isLastStep) {
-        handleComplete();
-        onClose();
-      } else {
-        onSkip?.();
-        handleClosePersistence();
-      }
+      endTour('skip');
     }
   }, [
     currentStepData,
-    isLastStep,
-    onSkip,
-    handleComplete,
-    handleClosePersistence,
+    endTour,
     handleElementClick,
-    onClose,
     processingRef,
     pushDebug,
     currentStep,
@@ -447,7 +461,7 @@ const GuideLoopInner: React.FC<GuideLoopProps> = ({
 
   useKeyboard({
     enabled: keyboard && tourVisible,
-    onEscape: handleSkip,
+    onEscape: handleDismiss,
     onArrowRight: handleNext,
     onArrowLeft: handlePrev,
   });
@@ -490,6 +504,51 @@ const GuideLoopInner: React.FC<GuideLoopProps> = ({
     }
     lastMissingRef.current = missingKey;
   }, [debugEnabled, canShow, debugTargets, pushDebug, currentStep]);
+
+  useEffect(() => {
+    if (!canShow || !currentStepData || targetWaiting) return;
+
+    const missing: Array<{
+      selector: string;
+      role: 'primary' | 'additional';
+    }> = [];
+
+    if (
+      currentStepData.target &&
+      !querySelectorAsHTMLElement(currentStepData.target)
+    ) {
+      missing.push({ selector: currentStepData.target, role: 'primary' });
+    }
+
+    for (const entry of currentStepData.additionalTargets ?? []) {
+      const selector =
+        typeof entry === 'string' ? entry : entry.selector;
+      if (selector && !querySelectorAsHTMLElement(selector)) {
+        missing.push({ selector, role: 'additional' });
+      }
+    }
+
+    const key = missing.map((m) => `${m.role}:${m.selector}`).join('|');
+    if (key && key !== lastMissingNotifyRef.current) {
+      for (const item of missing) {
+        console.warn(
+          `GuideLoop: ${item.role} target "${item.selector}" not found (step ${currentStep + 1})`
+        );
+        onTargetMissing?.({
+          selector: item.selector,
+          stepIndex: currentStep,
+          role: item.role,
+        });
+      }
+    }
+    lastMissingNotifyRef.current = key;
+  }, [
+    canShow,
+    currentStepData,
+    currentStep,
+    targetWaiting,
+    onTargetMissing,
+  ]);
 
   const debugSnapshot: DebugSnapshot | null = useMemo(() => {
     if (!debugEnabled || !canShow || !currentStepData) return null;
@@ -535,7 +594,7 @@ const GuideLoopInner: React.FC<GuideLoopProps> = ({
 
   if (targetWaiting) {
     return (
-      <Portal>
+      <Portal container={portalContainer}>
         <div
           ref={dialogRef}
           className="guideloop-container"
@@ -568,12 +627,8 @@ const GuideLoopInner: React.FC<GuideLoopProps> = ({
     );
   }
 
-  if (!targetReady) {
-    return debugHud ? <Portal>{debugHud}</Portal> : null;
-  }
-
   return (
-    <Portal>
+    <Portal container={portalContainer}>
       <div
         ref={dialogRef}
         className="guideloop-container"
@@ -590,10 +645,11 @@ const GuideLoopInner: React.FC<GuideLoopProps> = ({
       >
         {overlay && (
           <MaskedOverlay
+            className="guideloop-overlay"
             targets={spotlightHoles}
             theme={theme}
             customTheme={customTheme}
-            onClick={handleSkip}
+            onClick={handleDismiss}
             animation={animations?.overlay}
             style={{
               position: 'fixed',
@@ -657,11 +713,35 @@ const GuideLoopInner: React.FC<GuideLoopProps> = ({
  *
  * Wrapped in an error boundary so a render failure in a step/tooltip/overlay
  * cannot crash the host application. Use `onError` / `fallback` for custom handling.
+ *
+ * Call `ref.refreshTargets()` (or pass `refreshKey`) after layout, zoom, or
+ * canvas transforms so spotlight holes match the new geometry.
  */
-export const GuideLoop: React.FC<GuideLoopProps> = (props) => (
-  <GuideLoopErrorBoundary onError={props.onError} fallback={props.fallback}>
-    <GuideLoopInner {...props} />
-  </GuideLoopErrorBoundary>
+export const GuideLoop = forwardRef<GuideLoopHandle, GuideLoopProps>(
+  function GuideLoop(props, ref) {
+    useImperativeHandle(
+      ref,
+      () => ({
+        refreshTargets: dispatchTargetRefresh,
+      }),
+      []
+    );
+
+    const { refreshKey } = props;
+    const prevRefreshKey = useRef(refreshKey);
+    useEffect(() => {
+      if (prevRefreshKey.current !== refreshKey) {
+        prevRefreshKey.current = refreshKey;
+        dispatchTargetRefresh();
+      }
+    }, [refreshKey]);
+
+    return (
+      <GuideLoopErrorBoundary onError={props.onError} fallback={props.fallback}>
+        <GuideLoopInner {...props} />
+      </GuideLoopErrorBoundary>
+    );
+  }
 );
 
 export default GuideLoop;

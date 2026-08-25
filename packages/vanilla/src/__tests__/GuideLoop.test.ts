@@ -121,8 +121,91 @@ describe('GuideLoop', () => {
     await tour.start();
     tour.skip();
     expect(onSkip).toHaveBeenCalled();
-    expect(onClose).toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalledWith('skip');
     expect(tour.isOpen).toBe(false);
+    tour.destroy();
+  });
+
+  it('skip() on the last step does not fire onComplete', async () => {
+    const onSkip = jest.fn();
+    const onComplete = jest.fn();
+    const onClose = jest.fn();
+    const tour = new GuideLoop({
+      steps: steps(),
+      debug: false,
+      onSkip,
+      onComplete,
+      onClose,
+    });
+    await tour.start();
+    await tour.goTo(2);
+    tour.skip();
+    expect(onSkip).toHaveBeenCalled();
+    expect(onComplete).not.toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalledWith('skip');
+    tour.destroy();
+  });
+
+  it('missing primary target does not throw and still shows the tooltip', async () => {
+    const onTargetMissing = jest.fn();
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    document.body.innerHTML = `<button id="a">A</button>`;
+    const tour = new GuideLoop({
+      steps: [{ target: '#missing', title: 'Gone', content: 'fallback' }],
+      debug: false,
+      onTargetMissing,
+    });
+    await expect(tour.start()).resolves.toBeUndefined();
+    expect(document.querySelector('.guideloop-tooltip')).toBeTruthy();
+    expect(onTargetMissing).toHaveBeenCalledWith(
+      expect.objectContaining({ selector: '#missing', role: 'primary' })
+    );
+    tour.destroy();
+    warn.mockRestore();
+  });
+
+  it('missing additionalTargets are ignored safely', async () => {
+    const onTargetMissing = jest.fn();
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const tour = new GuideLoop({
+      steps: [
+        {
+          target: '#a',
+          title: 'A',
+          content: 'A',
+          additionalTargets: ['#nope'],
+        },
+      ],
+      debug: false,
+      onTargetMissing,
+    });
+    await tour.start();
+    expect(document.querySelector('.guideloop-tooltip')).toBeTruthy();
+    expect(onTargetMissing).toHaveBeenCalledWith(
+      expect.objectContaining({ selector: '#nope', role: 'additional' })
+    );
+    tour.destroy();
+    warn.mockRestore();
+  });
+
+  it('refreshTargets() does not throw', async () => {
+    const tour = new GuideLoop({ steps: steps(), debug: false });
+    await tour.start();
+    expect(() => tour.refreshTargets()).not.toThrow();
+    tour.destroy();
+  });
+
+  it('mounts into a custom portalContainer', async () => {
+    const host = document.createElement('div');
+    host.id = 'custom-root';
+    document.body.appendChild(host);
+    const tour = new GuideLoop({
+      steps: steps(),
+      debug: false,
+      portalContainer: host,
+    });
+    await tour.start();
+    expect(host.querySelector('.guideloop-tooltip')).toBeTruthy();
     tour.destroy();
   });
 
@@ -245,18 +328,21 @@ describe('GuideLoop', () => {
     tour.destroy();
   });
 
-  it('keyboard Escape skips the tour', async () => {
+  it('keyboard Escape closes the tour without skipping', async () => {
     const onSkip = jest.fn();
+    const onClose = jest.fn();
     const tour = new GuideLoop({
       steps: steps(),
       debug: false,
       keyboard: true,
       onSkip,
+      onClose,
     });
     await tour.start();
 
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
-    expect(onSkip).toHaveBeenCalled();
+    expect(onSkip).not.toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalledWith('close');
     expect(tour.isOpen).toBe(false);
     tour.destroy();
   });

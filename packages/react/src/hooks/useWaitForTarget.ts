@@ -15,6 +15,7 @@ interface UseWaitForTargetReturn {
 }
 
 function elementExists(selector: string): boolean {
+  if (typeof document === 'undefined') return false;
   try {
     return !!document.querySelector(selector);
   } catch {

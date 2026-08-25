@@ -1,4 +1,10 @@
-import { createRestartEvent, GUIDE_RESTART_EVENT, RESTART_DELAY } from '../../dom/events';
+import {
+  createRestartEvent,
+  dispatchTargetRefresh,
+  GUIDE_RESTART_EVENT,
+  GUIDE_REFRESH_EVENT,
+  RESTART_DELAY,
+} from '../../dom/events';
 
 describe('events', () => {
   it('exports GUIDE_RESTART_EVENT constant', () => {
@@ -36,5 +42,13 @@ describe('events', () => {
 
     const eventNeg = createRestartEvent(-1);
     expect(eventNeg.detail.nextStep).toBe(-1);
+  });
+
+  it('dispatches GUIDE_REFRESH_EVENT on window', () => {
+    const handler = jest.fn();
+    window.addEventListener(GUIDE_REFRESH_EVENT, handler);
+    dispatchTargetRefresh();
+    expect(handler).toHaveBeenCalledTimes(1);
+    window.removeEventListener(GUIDE_REFRESH_EVENT, handler);
   });
 });

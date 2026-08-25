@@ -2,7 +2,19 @@
  * Public types for @guideloop/vanilla
  */
 
-import type { Theme, ThemeConfig, AnimationConfig, PersistConfig, StepTrigger, WaitForTargetConfig, AdditionalSpotlightTarget, SpotlightShape } from '@guideloop/core';
+import type {
+  Theme,
+  ThemeConfig,
+  AnimationConfig,
+  PersistConfig,
+  StepTrigger,
+  WaitForTargetConfig,
+  AdditionalSpotlightTarget,
+  SpotlightShape,
+  TourEndReason,
+  TargetMissingInfo,
+} from '@guideloop/core';
+import type { PortalContainer } from './Portal';
 
 export type {
   Theme,
@@ -13,7 +25,11 @@ export type {
   WaitForTargetConfig,
   AdditionalSpotlightTarget,
   SpotlightShape,
+  TourEndReason,
+  TargetMissingInfo,
 };
+
+export type { PortalContainer };
 
 export interface ButtonLabels {
   next?: string;
@@ -96,13 +112,25 @@ export interface GuideLoopOptions {
   spotlightPadding?: number;
   animations?: AnimationConfig;
   onStepChange?: (step: number) => void;
+  /** Finish / Next on the last step. Not fired for Skip. */
   onComplete?: () => void;
+  /** Skip button. Not fired for overlay click, Escape, or Finish. */
   onSkip?: () => void;
-  onClose?: () => void;
+  /**
+   * Tour ended. Always fires for skip, complete, and dismiss.
+   * Use the reason argument (or `onSkip` / `onComplete`) instead of inferring.
+   */
+  onClose?: (reason?: TourEndReason) => void;
+  onTargetMissing?: (info: TargetMissingInfo) => void;
   zIndex?: number;
   defaultButtonLabels?: ButtonLabels;
   persist?: PersistConfig;
   debug?: boolean | 'auto';
+  /**
+   * Portal mount node (element or selector). Defaults to `#guideloop-portal`
+   * on `document.body`.
+   */
+  portalContainer?: PortalContainer | null;
 }
 
 export type DebugEventType =

@@ -1,6 +1,6 @@
 {
   "name": "@guideloop/vanilla",
-  "version": "2.0.3",
+  "version": "2.1.0",
   "description": "Framework-agnostic guided tour library — imperative API + Web Components powered by @guideloop/core",
   "author": "Ozan Kesici",
   "license": "MIT",
@@ -15,13 +15,25 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
     },
     "./web-component": {
       "types": "./dist/web-component.d.ts",
-      "import": "./dist/esm/web-component.js",
-      "require": "./dist/cjs/web-component.js"
+      "import": {
+        "types": "./dist/web-component.d.ts",
+        "default": "./dist/esm/web-component.js"
+      },
+      "require": {
+        "types": "./dist/web-component.d.ts",
+        "default": "./dist/cjs/web-component.js"
+      }
     },
     "./package.json": "./package.json"
   },
@@ -49,7 +61,7 @@
   ],
   "peerDependencies": {},
   "dependencies": {
-    "@guideloop/core": "^2.0.2",
+    "@guideloop/core": "^2.1.0",
     "@popperjs/core": "^2.11.8"
   },
   "devDependencies": {

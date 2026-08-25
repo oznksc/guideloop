@@ -76,6 +76,12 @@ describe('waitForElement', () => {
     await expect(promise).rejects.toThrow('500ms');
   });
 
+  it('rejects immediately for an invalid selector', async () => {
+    await expect(waitForElement('[', { timeout: 500 })).rejects.toThrow(
+      'Invalid selector'
+    );
+  });
+
   it('observer.disconnect prevents duplicate resolution', async () => {
     const promise = waitForElement('#dup-safety', { timeout: 2000 });
 

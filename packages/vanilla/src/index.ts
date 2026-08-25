@@ -37,6 +37,7 @@ export {
   destroyPortalElement,
   getOrCreatePortalRoot,
   removePortalRoot,
+  resolvePortalRoot,
 } from './core/Portal';
 export { getViewportSize, subscribeViewport } from './core/ViewportTracker';
 export { enableKeyboard, disableKeyboard } from './core/KeyboardHandler';
@@ -57,6 +58,8 @@ export {
   loadOnboardingState,
   clearOnboardingState,
   saveOnboardingState,
+  dispatchTargetRefresh,
+  GUIDE_REFRESH_EVENT,
 } from '@guideloop/core';
 
 // All types
@@ -77,6 +80,9 @@ export type {
   WaitForTargetConfig,
   AdditionalSpotlightTarget,
   SpotlightShape,
+  TourEndReason,
+  TargetMissingInfo,
+  PortalContainer,
   OnboardingActionContext,
   OnboardingModalAction,
   OnboardingTourAction,

@@ -52,4 +52,29 @@ describe('createSpotlightTracker', () => {
 
     tracker.destroy();
   });
+
+  it('refresh() remeasures current targets', () => {
+    const box = document.getElementById('box')!;
+    const tracker = createSpotlightTracker([
+      { selector: '#box', padding: 0 },
+    ]);
+    expect(tracker.getHoles()[0].top).toBe(10);
+
+    box.getBoundingClientRect = () =>
+      ({
+        top: 40,
+        left: 20,
+        width: 100,
+        height: 50,
+        bottom: 90,
+        right: 120,
+        x: 20,
+        y: 40,
+        toJSON: () => ({}),
+      }) as DOMRect;
+
+    tracker.refresh();
+    expect(tracker.getHoles()[0].top).toBe(40);
+    tracker.destroy();
+  });
 });

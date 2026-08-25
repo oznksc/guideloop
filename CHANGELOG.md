@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-08-26
+
+### Added
+- **`TourEndReason`** (`'close' | 'skip' | 'complete'`) passed to `onClose(reason)` so skip / finish / dismiss are distinct without inferring from a generic close.
+- **`onTargetMissing`** — fired when a primary or `additionalTargets` selector is absent. The tour stays mounted with a centered tooltip; it does not throw.
+- **`portalContainer`** — optional element or selector override for the overlay/tooltip portal (embedded webviews, transformed ancestors). Default remains `#guideloop-portal` on `document.body`.
+- **`refreshTargets()` / `refreshKey` / `guideloop:refresh`** — remeasure spotlight and tooltip geometry after layout, canvas zoom, or scroll that native observers miss.
+- **`GuideLoopHandle`** (`ref.refreshTargets()`) on `@guideloop/react`.
+- Package `exports` now include nested `types` conditions for ESM and CJS.
+
+### Changed
+- Skip no longer reports as complete on the last step. Skip → `onSkip` + `onClose('skip')`. Finish → `onComplete` + `onClose('complete')`. Overlay click and Escape → `onClose('close')` only.
+- `waitForTarget` timeout falls back to a centered tooltip instead of hiding the tour.
+- `waitForElement` / target queries never throw on invalid selectors, missing `document`, or missing `document.body`.
+- `@guideloop/react` documents the `Step`, theme, callback, portal, and refresh contracts in its README.
+
+### Fixed
+- Missing `additionalTargets` selectors are ignored (zero-size holes filtered from the overlay) instead of breaking the step.
+- Spotlight tracker observes the document and `guideloop:refresh` so late-appearing extras and zoomed canvases can be remeasured.
+
 ## [2.0.4] - 2026-08-02
 
 ### Added

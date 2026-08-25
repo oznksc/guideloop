@@ -2,7 +2,11 @@
 
 import React, { useRef, useEffect, useState } from 'react';
 import { usePopper } from '../../hooks/usePopper';
-import { getAnimationStyle, querySelectorAsHTMLElement } from '@guideloop/core';
+import {
+  getAnimationStyle,
+  querySelectorAsHTMLElement,
+  GUIDE_REFRESH_EVENT,
+} from '@guideloop/core';
 import { ImageContentRenderer } from './ImageContent';
 import { TooltipButton } from './TooltipButton';
 import type { TooltipProps } from './types';
@@ -68,8 +72,10 @@ export const Tooltip: React.FC<TooltipProps> = ({
     };
 
     window.addEventListener('resize', handleResize);
+    window.addEventListener(GUIDE_REFRESH_EVENT, handleResize);
     return () => {
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener(GUIDE_REFRESH_EVENT, handleResize);
       window.clearTimeout(timeoutId);
     };
   }, [update]);
