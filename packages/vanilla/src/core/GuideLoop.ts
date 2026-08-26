@@ -19,6 +19,7 @@ import {
   clearTourState,
   GUIDE_RESTART_EVENT,
   RESTART_DELAY,
+  dispatchTargetRefresh,
   scrollIntoView,
   querySelectorAsHTMLElement,
   buildTargetDebugInfo,
@@ -30,6 +31,7 @@ import type {
   SpotlightHole,
   WaitForTargetConfig,
   Step as CoreStep,
+  TourEndReason,
 } from '@guideloop/core';
 
 import { createPortalElement, destroyPortalElement } from './Portal';
@@ -162,29 +164,18 @@ export class GuideLoop {
     await this._goPrev();
   }
 
-  close(): void {
-    if (!this._isOpen) return;
-    this._debugPush('close', 'Tour closed');
-    void this.stepManager?.leaveStep();
-    this._savePersistState(false);
-    this._cleanup();
-    this.options.onClose?.();
+  close(reason: TourEndReason = 'close'): void {
+    this._endTour(reason);
   }
 
   skip(): void {
-    if (!this._isOpen) return;
-    this._debugPush('skip', `Skip on step ${this._currentStepIndex}`);
-    const isLast = this.stepManager?.isLastStep ?? true;
-    if (isLast) {
-      this._handleComplete();
-      this.close();
-    } else {
-      this.options.onSkip?.();
-      void this.stepManager?.leaveStep();
-      this._savePersistState(false);
-      this._cleanup();
-      this.options.onClose?.();
-    }
+    this._endTour('skip');
+  }
+
+  /** Remeasure target geometry after layout, zoom, scroll, or canvas transform. */
+  refreshTargets(): void {
+    this.spotlightTracker?.refresh();
+    dispatchTargetRefresh();
   }
 
   async goTo(stepIndex: number): Promise<void> {
@@ -333,7 +324,7 @@ export class GuideLoop {
     this._containerEl.setAttribute('aria-label', 'Guided tour');
     this._containerEl.tabIndex = -1;
 
-    this.portalContainer = createPortalElement();
+    this.portalContainer = createPortalElement(this.options.portalContainer);
     this.portalContainer.style.display = '';
     this.portalContainer.appendChild(this._containerEl);
   }
@@ -360,7 +351,7 @@ export class GuideLoop {
 
     if (this.options.keyboard !== false) {
       this.keyboardCleanup = enableKeyboard({
-        onEscape: () => this.skip(),
+        onEscape: () => this.close('close'),
       });
     }
 
@@ -385,6 +376,8 @@ export class GuideLoop {
         this._targetReady = false;
         this._debugPush('error', err.message || 'waitForTarget timed out');
         console.warn(err.message);
+        this._targetReady = true;
+        this._mountStepUI(stepData);
       });
   }
 
@@ -398,6 +391,7 @@ export class GuideLoop {
     const targets = this._computeSpotlightTargets(stepData);
     this.spotlightTracker?.setTargets(targets);
     const holes = this.spotlightTracker?.getHoles() ?? [];
+    this._notifyMissingTargets(stepData);
 
     this._createOverlayAndSpotlight(holes);
 
@@ -459,7 +453,7 @@ export class GuideLoop {
 
     if (this.options.keyboard !== false) {
       this.keyboardCleanup = enableKeyboard({
-        onEscape: () => this.skip(),
+        onEscape: () => this.close('close'),
         onArrowRight: () => {
           void this._goNext();
         },
@@ -507,7 +501,7 @@ export class GuideLoop {
         targets: holes,
         theme: this.options.theme ?? 'tailwind',
         customTheme: this.options.customTheme,
-        onClick: () => this.skip(),
+        onClick: () => this.close('close'),
         animation: this.options.animations?.overlay,
       });
       Object.assign(this.overlay.getElement().style, {
@@ -542,8 +536,7 @@ export class GuideLoop {
       const isLast = this.stepManager.isLastStep;
 
       if (isLast) {
-        this._handleComplete();
-        this.close();
+        this._endTour('complete');
         return;
       }
 
@@ -553,8 +546,7 @@ export class GuideLoop {
       if (hasElementAction) {
         const nextStepIndex = this._currentStepIndex + 1;
         if (nextStepIndex >= this.stepManager.totalSteps) {
-          this._handleComplete();
-          this.close();
+          this._endTour('complete');
           return;
         }
         await this._runElementAction({
@@ -677,6 +669,31 @@ export class GuideLoop {
     this.options.onComplete?.();
   }
 
+  private _endTour(reason: TourEndReason): void {
+    if (!this._isOpen) return;
+
+    if (reason === 'skip') {
+      this._debugPush('skip', `Skip on step ${this._currentStepIndex}`);
+    } else if (reason === 'complete') {
+      this._debugPush('info', 'Tour complete');
+    } else {
+      this._debugPush('close', 'Tour closed');
+    }
+
+    if (reason === 'complete') {
+      this._handleComplete();
+    } else {
+      if (reason === 'skip') {
+        this.options.onSkip?.();
+      }
+      this._savePersistState(false);
+    }
+
+    void this.stepManager?.leaveStep();
+    this._cleanup();
+    this.options.onClose?.(reason);
+  }
+
   private _savePersistState(isActive: boolean): void {
     if (!this.options.persist) return;
     saveTourState(
@@ -712,6 +729,33 @@ export class GuideLoop {
     );
 
     return [primary, ...extras];
+  }
+
+  private _notifyMissingTargets(stepData: Step): void {
+    if (stepData.target && !elementExists(stepData.target)) {
+      console.warn(
+        `GuideLoop: primary target "${stepData.target}" not found (step ${this._currentStepIndex + 1})`
+      );
+      this.options.onTargetMissing?.({
+        selector: stepData.target,
+        stepIndex: this._currentStepIndex,
+        role: 'primary',
+      });
+    }
+
+    for (const entry of stepData.additionalTargets ?? []) {
+      const selector = typeof entry === 'string' ? entry : entry.selector;
+      if (selector && !elementExists(selector)) {
+        console.warn(
+          `GuideLoop: additional target "${selector}" not found (step ${this._currentStepIndex + 1})`
+        );
+        this.options.onTargetMissing?.({
+          selector,
+          stepIndex: this._currentStepIndex,
+          role: 'additional',
+        });
+      }
+    }
   }
 
   // ─── Private: Debug ───

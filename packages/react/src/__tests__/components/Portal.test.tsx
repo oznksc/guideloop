@@ -40,4 +40,38 @@ describe('Portal', () => {
 
     expect(document.querySelectorAll('#guideloop-portal')).toHaveLength(1);
   });
+
+  it('renders into a custom HTMLElement container', async () => {
+    const host = document.createElement('div');
+    host.id = 'custom-portal';
+    document.body.appendChild(host);
+
+    render(
+      <Portal container={host}>
+        <span data-testid="custom-child">inside</span>
+      </Portal>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('custom-child')).toBeInTheDocument();
+    });
+    expect(host.contains(screen.getByTestId('custom-child'))).toBe(true);
+    expect(document.getElementById('guideloop-portal')).toBeNull();
+  });
+
+  it('renders into a selector-based container', async () => {
+    const host = document.createElement('div');
+    host.id = 'selector-portal';
+    document.body.appendChild(host);
+
+    render(
+      <Portal container="#selector-portal">
+        <span data-testid="sel-child">sel</span>
+      </Portal>
+    );
+
+    await waitFor(() => {
+      expect(host.contains(screen.getByTestId('sel-child'))).toBe(true);
+    });
+  });
 });

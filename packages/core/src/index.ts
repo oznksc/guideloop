@@ -13,6 +13,8 @@ export { getTheme, mergeTheme, themes } from './themes';
 // DOM Utilities
 export {
   querySelectorAsHTMLElement,
+  safeQuerySelector,
+  isGuideLoopChrome,
   getElementRect,
   isHTMLElement,
 } from './dom/query';
@@ -23,7 +25,13 @@ export { scrollIntoView } from './dom/scroll';
 export { waitForElement } from './dom/wait';
 export type { WaitForElementOptions } from './dom/wait';
 export { injectKeyframes, getAnimationStyle } from './dom/animation';
-export { createRestartEvent, GUIDE_RESTART_EVENT, RESTART_DELAY } from './dom/events';
+export {
+  createRestartEvent,
+  dispatchTargetRefresh,
+  GUIDE_RESTART_EVENT,
+  GUIDE_REFRESH_EVENT,
+  RESTART_DELAY,
+} from './dom/events';
 
 // Persistence
 export { saveTourState, loadTourState, clearTourState } from './state/tour-persist';

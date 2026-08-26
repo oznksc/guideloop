@@ -18,6 +18,7 @@
 export type {
   Step,
   GuideLoopProps,
+  GuideLoopHandle,
   ButtonLabels,
   StepStatus,
   StepTrigger,
@@ -29,6 +30,9 @@ export type {
   SpotlightPolygonShape,
   AdditionalSpotlightTarget,
   SpotlightHole,
+  TourEndReason,
+  TargetMissingInfo,
+  PortalContainer,
 } from './components/GuideLoop/types';
 
 export type {

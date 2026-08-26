@@ -3,6 +3,7 @@ export type { GuideLoopErrorBoundaryProps } from './components/GuideLoop';
 export type {
   Step,
   GuideLoopProps,
+  GuideLoopHandle,
   ButtonLabels,
   StepStatus,
   StepTrigger,
@@ -14,7 +15,15 @@ export type {
   SpotlightPolygonShape,
   AdditionalSpotlightTarget,
   SpotlightHole,
+  TourEndReason,
+  TargetMissingInfo,
+  PortalContainer,
 } from './components/GuideLoop/types';
+
+export {
+  dispatchTargetRefresh as refreshTargets,
+  GUIDE_REFRESH_EVENT,
+} from '@guideloop/core';
 
 export { OnboardingChecklist } from './components/OnboardingChecklist';
 export type {

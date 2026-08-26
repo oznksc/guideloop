@@ -3,7 +3,12 @@
  * padded viewport rects in sync with scroll/resize/mutation.
  */
 
-import type { SpotlightShape, SpotlightHole } from '@guideloop/core';
+import {
+  GUIDE_REFRESH_EVENT,
+  isGuideLoopChrome,
+  type SpotlightShape,
+  type SpotlightHole,
+} from '@guideloop/core';
 
 export interface SpotlightTargetInput {
   selector: string;
@@ -51,6 +56,7 @@ function measureElement(
 export interface SpotlightTrackerInstance {
   getHoles: () => SpotlightHole[];
   setTargets: (targets: SpotlightTargetInput[]) => void;
+  refresh: () => void;
   subscribe: (listener: SpotlightTrackerListener) => () => void;
   destroy: () => void;
 }
@@ -79,6 +85,15 @@ export function createSpotlightTracker(
     disconnectObservers();
     observedElements = new Set<Element>();
     if (!observer) return;
+
+    try {
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+    } catch {
+      // no document
+    }
 
     for (const t of targets) {
       try {
@@ -109,18 +124,26 @@ export function createSpotlightTracker(
   }
 
   function startListening(): void {
+    if (typeof window === 'undefined') return;
     window.addEventListener('resize', handleScrollOrResize, { passive: true });
     window.addEventListener('scroll', handleScrollOrResize, {
       capture: true,
       passive: true,
     });
-    observer = new MutationObserver(updateHoles);
+    window.addEventListener(GUIDE_REFRESH_EVENT, handleScrollOrResize);
+    observer = new MutationObserver((mutations) => {
+      if (mutations.every((m) => isGuideLoopChrome(m.target))) return;
+      updateHoles();
+    });
     setupObservers();
   }
 
   function stopListening(): void {
-    window.removeEventListener('resize', handleScrollOrResize);
-    window.removeEventListener('scroll', handleScrollOrResize, { capture: true });
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('resize', handleScrollOrResize);
+      window.removeEventListener('scroll', handleScrollOrResize, { capture: true });
+      window.removeEventListener(GUIDE_REFRESH_EVENT, handleScrollOrResize);
+    }
     disconnectObservers();
     observer = null;
   }
@@ -133,6 +156,11 @@ export function createSpotlightTracker(
 
     setTargets(newTargets: SpotlightTargetInput[]) {
       targets = newTargets;
+      updateHoles();
+      setupObservers();
+    },
+
+    refresh() {
       updateHoles();
       setupObservers();
     },

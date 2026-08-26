@@ -1,5 +1,15 @@
 import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
-import type { SpotlightShape, SpotlightHole } from '@guideloop/core';
+import {
+  GUIDE_REFRESH_EVENT,
+  isBrowser,
+  isGuideLoopChrome,
+  type SpotlightShape,
+  type SpotlightHole,
+} from '@guideloop/core';
+
+function mutationsAreAppDom(mutations: MutationRecord[]): boolean {
+  return mutations.some((m) => !isGuideLoopChrome(m.target));
+}
 
 export interface SpotlightPosition {
   top: number;
@@ -26,6 +36,9 @@ function measureElement(
   padding: number,
   shape: SpotlightShape = 'rect'
 ): SpotlightHole {
+  if (!isBrowser()) {
+    return { ...defaultPosition, shape, padding };
+  }
   try {
     const element = document.querySelector(selector);
     if (!element) {
@@ -69,7 +82,7 @@ export const useSpotlight = (selector?: string | null, padding = 8): SpotlightPo
   }, [selector, padding]);
 
   useEffect(() => {
-    if (!selector) {
+    if (!selector || !isBrowser()) {
       setPosition(defaultPosition);
       return;
     }
@@ -82,26 +95,38 @@ export const useSpotlight = (selector?: string | null, padding = 8): SpotlightPo
 
     window.addEventListener('resize', handleScrollOrResize, { passive: true });
     window.addEventListener('scroll', handleScrollOrResize, { capture: true, passive: true });
+    window.addEventListener(GUIDE_REFRESH_EVENT, handleScrollOrResize);
 
-    const observer = new MutationObserver(updatePosition);
-
+    const observer = new MutationObserver((mutations) => {
+      if (!mutationsAreAppDom(mutations)) return;
+      updatePosition();
+    });
     try {
-      const element = document.querySelector(selector);
-      if (element) {
-        observer.observe(element, {
-          attributes: true,
-          childList: true,
-          subtree: true,
-        });
-      }
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
     } catch (error) {
       console.warn('[useSpotlight] Error setting up observer:', error);
+    }
+
+    let resizeObserver: ResizeObserver | null = null;
+    try {
+      const element = document.querySelector(selector);
+      if (element && typeof ResizeObserver !== 'undefined') {
+        resizeObserver = new ResizeObserver(updatePosition);
+        resizeObserver.observe(element);
+      }
+    } catch {
+      // invalid selector — skip ResizeObserver
     }
 
     return () => {
       window.removeEventListener('resize', handleScrollOrResize);
       window.removeEventListener('scroll', handleScrollOrResize, { capture: true });
+      window.removeEventListener(GUIDE_REFRESH_EVENT, handleScrollOrResize);
       observer.disconnect();
+      resizeObserver?.disconnect();
     };
   }, [selector, updatePosition]);
 
@@ -124,9 +149,7 @@ export const useSpotlights = (targets: SpotlightTargetInput[]): SpotlightHole[] 
   const targetsRef = useRef(targets);
   targetsRef.current = targets;
 
-  const [holes, setHoles] = useState<SpotlightHole[]>(() =>
-    targets.map((t) => measureElement(t.selector, t.padding ?? 8, t.shape ?? 'rect'))
-  );
+  const [holes, setHoles] = useState<SpotlightHole[]>([]);
 
   const updateHoles = useCallback(() => {
     const list = targetsRef.current;
@@ -140,6 +163,11 @@ export const useSpotlights = (targets: SpotlightTargetInput[]): SpotlightHole[] 
   }, []);
 
   useEffect(() => {
+    if (!isBrowser()) {
+      setHoles([]);
+      return;
+    }
+
     updateHoles();
 
     const handleScrollOrResize = () => {
@@ -148,30 +176,38 @@ export const useSpotlights = (targets: SpotlightTargetInput[]): SpotlightHole[] 
 
     window.addEventListener('resize', handleScrollOrResize, { passive: true });
     window.addEventListener('scroll', handleScrollOrResize, { capture: true, passive: true });
+    window.addEventListener(GUIDE_REFRESH_EVENT, handleScrollOrResize);
 
-    const observer = new MutationObserver(updateHoles);
-    const observed = new Set<Element>();
+    const observer = new MutationObserver((mutations) => {
+      if (!mutationsAreAppDom(mutations)) return;
+      updateHoles();
+    });
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
 
-    for (const t of targetsRef.current) {
-      try {
-        const element = document.querySelector(t.selector);
-        if (element && !observed.has(element)) {
-          observer.observe(element, {
-            attributes: true,
-            childList: true,
-            subtree: true,
-          });
-          observed.add(element);
+    let resizeObserver: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(updateHoles);
+      for (const t of targetsRef.current) {
+        try {
+          const element = document.querySelector(t.selector);
+          if (element) {
+            resizeObserver.observe(element);
+          }
+        } catch {
+          // invalid selector — skip
         }
-      } catch {
-        // invalid selector — skip observer
       }
     }
 
     return () => {
       window.removeEventListener('resize', handleScrollOrResize);
       window.removeEventListener('scroll', handleScrollOrResize, { capture: true });
+      window.removeEventListener(GUIDE_REFRESH_EVENT, handleScrollOrResize);
       observer.disconnect();
+      resizeObserver?.disconnect();
     };
   }, [targetsKey, updateHoles]);
 
