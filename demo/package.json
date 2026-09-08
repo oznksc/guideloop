@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@ant-design/icons": "^6.3.2",
+    "@ant-design/icons": "^6.3.4",
     "@guideloop/core": "file:../packages/core",
     "@guideloop/react": "file:../packages/react",
     "@tailwindcss/postcss": "^4.3.3",
